@@ -1,30 +1,128 @@
-<!doctype html />
-<html>
-
+<!DOCTYPE html>
+<html lang="pl">
 <head>
-    <title>dupadupadupa</title>
-    </head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moje Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
 
+    body {
+      background-color: #f9f9f9;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: #222;
+      color: #fff;
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    section {
+      margin-bottom: 4rem;
+    }
+
+    h2 {
+      color: #222;
+      margin-bottom: 1rem;
+      border-left: 4px solid #009688;
+      padding-left: 0.5rem;
+    }
+
+    .project {
+      background: #fff;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .project h3 {
+      margin-bottom: 0.5rem;
+    }
+
+    .project p {
+      margin-bottom: 0.5rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background-color: #222;
+      color: #fff;
+    }
+
+    a {
+      color: #009688;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
 <body>
-    <p>
-        <img src="cow.jpg" width="20%"/>
-    <h1>hello world</h1>
-    <h2>hello world</h2>
-    <h3>hello world</h3>
-    <h4>hello world</h4>
-    <h5>hello world</h5>
-    <h6>hello world</h6>
-    <ul>
-        <li>tomato</li>
-        <li>potato</li>
-        <li>onion</li>
-    </ul>
-    <ol>
-        <li>tomato</li>
-        <li>potato</li>
-        <li>onion</li>
-    </ol>
-    </p>
-</body>
+  <header>
+    <h1>Twoje Imię i Nazwisko</h1>
+    <p>Junior Developer | Data Analyst | Kreator treści</p>
+  </header>
 
+  <main>
+    <section id="about">
+      <h2>O mnie</h2>
+      <p>Jestem początkującym specjalistą z pasją do tworzenia rozwiązań cyfrowych, analizy danych oraz rozwijania kreatywnych projektów. Szukam możliwości do nauki i rozwijania swoich umiejętności poprzez ciekawe współprace.</p>
+    </section>
+
+    <section id="projects">
+      <h2>Projekty</h2>
+
+      <div class="project">
+        <h3>Projekt 1: Analiza danych w Pythonie</h3>
+        <p>Analiza zbioru danych dotyczącego sprzedaży z wykorzystaniem Pandas i Matplotlib.</p>
+        <a href="#">Zobacz na GitHubie</a>
+      </div>
+
+      <div class="project">
+        <h3>Projekt 2: Dashboard Power BI</h3>
+        <p>Stworzenie interaktywnego dashboardu wizualizującego dane finansowe.</p>
+        <a href="#">Zobacz projekt</a>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2>Kontakt</h2>
+      <p>Email: <a href="mailto:twojemail@example.com">twojemail@example.com</a></p>
+      <p>LinkedIn: <a href="#">linkedin.com/in/twoje-imie</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Twoje Imię. Wszystkie prawa zastrzeżone.</p>
+  </footer>
+</body>
 </html>
