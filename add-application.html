@@ -4,79 +4,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RekruTracker - Dodaj nową aplikację</title>
+    <title>Dodaj aplikację – RekruTracker</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: var(--background-body, #f7f8fa);
+            font-family: 'Poppins', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero-header {
+            text-align: center;
+            padding: 1.5rem 0 0.5rem 0;
+            background: var(--background-card, #fff);
+            font-weight: 700;
+            font-size: 2rem;
+            color: var(--primary-dark, #2d3748);
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            margin-bottom: 0.5rem;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 1.2rem;
+            color: #3182ce;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1em;
+            transition: color 0.2s;
+        }
+
+        .back-btn:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        .form-container {
+            background: var(--background-card, #fff);
+            max-width: 420px;
+            margin: 40px auto;
+            padding: 2.5rem 2rem;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-dark, #2d3748);
+        }
+
+        .form-group {
+            margin-bottom: 1.4rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-dark, #2d3748);
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 12px;
+            top: 38px;
+            color: #a0aec0;
+            font-size: 1.1em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.7rem 0.7rem 0.7rem 2.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f9fafb;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #3182ce;
+            outline: none;
+            background: #fff;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: #3182ce;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: #2563eb;
+        }
+
+        @media (max-width: 500px) {
+            .form-container {
+                padding: 1.2rem 0.5rem;
+            }
+
+            .hero-header {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
-
     <header class="hero-header">
-        <h1>Dodaj nową aplikację</h1>
-        <p>Uzupełnij szczegóły nowej aplikacji o pracę.</p>
+        RekruTracker
     </header>
-
-    <nav class="top-nav">
-        <ul>
-            <li><a href="index.html" title="Menu główne"><i class="fas fa-home"></i> Menu główne</a></li>
-            <li><a href="add-application.html" title="Dodaj nową aplikację"><i class="fas fa-plus-circle"></i> Dodaj
-                    aplikację</a></li>
-            <li><a href="#" title="Ulubione aplikacje"><i class="fas fa-star"></i> Ulubione</a></li>
-            <li><a href="#" title="Powiadomienia"><i class="fas fa-bell"></i> Powiadomienia</a></li>
-            <li><a href="login.html" title="Zaloguj / Zarejestruj"><i class="fas fa-user-plus"></i> Zaloguj /
-                    Rejestruj</a></li>
-        </ul>
-    </nav>
-
-    <main class="main-content">
-        <form class="application-form" action="index.html">
-            <div class="input-group">
-                <label for="position">Stanowisko:</label>
-                <input type="text" id="position" name="position" required>
+    <div class="form-container">
+        <a href="indextest.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Powrót do menu głównego
+        </a>
+        <h2><i class="fas fa-plus-circle"></i> Dodaj aplikację</h2>
+        <form id="addApplicationForm">
+            <div class="form-group">
+                <label for="stanowisko"><i class="fas fa-briefcase"></i> Stanowisko</label>
+                <input type="text" id="stanowisko" name="stanowisko" required placeholder="Np. Frontend Developer">
             </div>
-            <div class="input-group">
-                <label for="company">Firma:</label>
-                <input type="text" id="company" name="company" required>
+            <div class="form-group">
+                <label for="firma"><i class="fas fa-building"></i> Firma</label>
+                <input type="text" id="firma" name="firma" required placeholder="Np. Tech Innovations">
             </div>
-            <div class="input-group">
-                <label for="date-applied">Data aplikowania:</label>
-                <input type="date" id="date-applied" name="date_applied" required>
+            <div class="form-group">
+                <label for="data"><i class="fas fa-calendar-alt"></i> Data aplikowania</label>
+                <input type="date" id="data" name="data" required>
             </div>
-            <div class="input-group">
-                <label for="status">Status:</label>
+            <div class="form-group">
+                <label for="status"><i class="fas fa-tasks"></i> Status</label>
                 <select id="status" name="status" required>
-                    <option value="">Wybierz status</option>
+                    <option value="">Wybierz status...</option>
                     <option value="Wysłano CV">Wysłano CV</option>
-                    <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
-                    <option value="Rozmowa kwalifikacyjna">Rozmowa kwalifikacyjna</option>
+                    <option value="Rozmowa">Rozmowa</option>
                     <option value="Oferta">Oferta</option>
-                    <option value="Oczekuje na odpowiedź">Oczekuje na odpowiedź</option>
                     <option value="Odrzucono">Odrzucono</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label for="notes">Notatki:</label>
-                <textarea id="notes" name="notes" rows="4"></textarea>
-            </div>
-            <button type="submit" class="btn-submit">Dodaj aplikację</button>
-            <a href="index.html" class="btn-cancel">Anuluj</a>
+            <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Dodaj aplikację</button>
         </form>
-    </main>
+        <p id="form-message" style="text-align:center; margin-top:1em; color:green;"></p>
+    </div>
 
-    <footer class="main-footer">
-        <p>&copy; 2024 RekruTracker. Wszelkie prawa zastrzeżone.</p>
-    </footer>
-
-    <script type="module">
-        // Importuj niezbędne moduły Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js"; // Opcjonalnie
-
-        // Twoja konfiguracja Firebase (już ją masz, więc tylko wklejamy)
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+        // Konfiguracja Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
             authDomain: "rekrutracker-app.firebaseapp.com",
@@ -86,20 +175,31 @@
             appId: "1:758407291898:web:a573e2cd3b416596d37a43",
             measurementId: "G-HQW1YLG9Q1"
         };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // Zainicjuj Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // Obsługa formularza
+        document.getElementById('addApplicationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const stanowisko = document.getElementById('stanowisko').value;
+            const firma = document.getElementById('firma').value;
+            const data = document.getElementById('data').value;
+            const status = document.getElementById('status').value;
 
-        // const analytics = getAnalytics(app); // Jeśli używasz Analytics
-
-        console.log("Firebase zainicjowany z Auth i Firestore!");
-
-        // Tutaj będziemy dodawać kod JavaScript specyficzny dla tej strony (np. logika dodawania aplikacji)
-
+            db.collection("applications").add({
+                stanowisko,
+                firma,
+                data,
+                status
+            }).then(() => {
+                document.getElementById('form-message').textContent = "Aplikacja została dodana!";
+                this.reset();
+            }).catch(() => {
+                document.getElementById('form-message').textContent = "Błąd podczas dodawania aplikacji.";
+                document.getElementById('form-message').style.color = "red";
+            });
+        });
     </script>
-    <script src="script.js"></script>
 </body>
 
 </html>

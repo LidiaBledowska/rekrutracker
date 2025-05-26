@@ -519,3 +519,133 @@ body {
     @return mix(black, $color, $percentage);
 }
 */
+/* Nowoczesny modal edycji */
+#editModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.25);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+#editModal.active {
+    display: flex;
+}
+
+#editModal .edit-tile {
+    background: #fff;
+    padding: 2.2em 1.5em 1.5em 1.5em;
+    border-radius: 18px;
+    max-width: 420px;
+    width: 95%;
+    box-shadow: 0 8px 32px rgba(49, 130, 206, 0.13);
+    position: relative;
+    animation: fadeInScale 0.25s;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+#editModal h3 {
+    text-align: center;
+    margin-bottom: 1.2em;
+    color: #3182ce;
+    font-size: 1.3em;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+#closeEditModal {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    color: #a0aec0;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#closeEditModal:hover {
+    color: #3182ce;
+}
+
+#editModal .form-group label {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+#editModal .form-group input,
+#editModal .form-group select {
+    width: 100%;
+    padding: 0.7rem 0.7rem 0.7rem 0.7rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f9fafb;
+    font-size: 1em;
+    margin-bottom: 1em;
+    transition: border-color 0.2s;
+}
+
+#editModal .form-group input:focus,
+#editModal .form-group select:focus {
+    border-color: #3182ce;
+    outline: none;
+    background: #fff;
+}
+
+#editModal .submit-btn {
+    width: 100%;
+    padding: 0.9rem;
+    background: #3182ce;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#editModal .submit-btn:hover {
+    background: #2563eb;
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    color: #3182ce;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    transition: color 0.2s;
+    box-shadow: none;
+}
+
+.edit-btn:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.edit-btn i {
+    font-size: 1.1em;
+}

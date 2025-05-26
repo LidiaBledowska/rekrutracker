@@ -23,20 +23,28 @@
 
     <nav class="top-nav">
         <ul>
-            <li><a href="index.html" title="Menu główne"><i class="fas fa-home"></i> Menu główne</a></li>
+            <li><a href="indextest.html" title="Menu główne"><i class="fas fa-home"></i> Menu główne</a></li>
             <li><a href="add-application.html" title="Dodaj nową aplikację"><i class="fas fa-plus-circle"></i> Dodaj
                     aplikację</a></li>
             <li><a href="#" title="Ulubione aplikacje"><i class="fas fa-star"></i> Ulubione</a></li>
-            <li><a href="#" title="Powiadomienia"><i class="fas fa-bell"></i> Powiadomienia</a></li>
-            <li><a href="login.html" title="Zaloguj / Zarejestruj"><i class="fas fa-user-plus"></i> Zaloguj /
-                    Rejestruj</a></li>
+            <li><a href="login.html" title="Zaloguj / Wyloguj"><i class="fas fa-user-plus"></i> Zaloguj /
+                    Wyloguj</a></li>
         </ul>
     </nav>
 
     <main class="main-content">
+        <div style="margin-bottom: 1.5em; text-align:right;">
+            <label for="statusFilter" style="font-weight:600; margin-right:0.5em;">Filtruj po statusie:</label>
+            <select id="statusFilter" style="padding:0.4em 1em; border-radius:6px; border:1px solid #e2e8f0;">
+                <option value="">Wszystkie</option>
+                <option value="Wysłano CV">Wysłano CV</option>
+                <option value="Rozmowa">Rozmowa</option>
+                <option value="Oferta">Oferta</option>
+                <option value="Odrzucono">Odrzucono</option>
+            </select>
+        </div>
+
         <h2>Twoje aktualne aplikacje</h2>
-
-
         <table class="applications-table">
             <thead>
                 <tr>
@@ -44,6 +52,7 @@
                     <th>Firma</th>
                     <th>Data aplikowania</th>
                     <th>Status</th>
+                    <th>Akcje</th>
                 </tr>
             </thead>
             <tbody>
@@ -55,47 +64,52 @@
     <footer class="main-footer">
         <p>&copy; 2023 RekruTracker. Wszelkie prawa zastrzeżone.</p>
     </footer>
-    <!-- Firebase SDK -->
+
+    <!-- Modal edycji aplikacji -->
+    <div id="editModal">
+        <div class="edit-tile">
+            <button id="closeEditModal">&times;</button>
+            <h3><i class="fas fa-edit"></i> Edytuj aplikację</h3>
+            <form id="editApplicationForm">
+                <input type="hidden" id="editAppId">
+                <div class="form-group">
+                    <label for="editStanowisko">Stanowisko</label>
+                    <input type="text" id="editStanowisko" required>
+                </div>
+                <div class="form-group">
+                    <label for="editFirma">Firma</label>
+                    <input type="text" id="editFirma" required>
+                </div>
+                <div class="form-group">
+                    <label for="editData">Data aplikowania</label>
+                    <input type="date" id="editData" required>
+                </div>
+                <div class="form-group">
+                    <label for="editStatus">Status</label>
+                    <select id="editStatus" required>
+                        <option value="Wysłano CV">Wysłano CV</option>
+                        <option value="Rozmowa">Rozmowa</option>
+                        <option value="Oferta">Oferta</option>
+                        <option value="Odrzucono">Odrzucono</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Zapisz zmiany</button>
+                <button type="button" id="deleteAppBtn"
+                    style="width:100%;margin-top:1em;background:none;border:none;color:#e74c3c;font-weight:600;cursor:pointer;">
+                    <i class="fas fa-trash"></i> Usuń aplikację
+                </button>
+            </form>
+            <p id="editFormMessage" style="text-align:center; margin-top:1em; color:green;"></p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK i Twoje skrypty -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script>
-        // Wklej tutaj swoją konfigurację Firebase!
-        const firebaseConfig = {
-            apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
-            authDomain: "rekrutracker-app.firebaseapp.com",
-            projectId: "rekrutracker-app",
-            storageBucket: "rekrutracker-app.firebasestorage.app",
-            messagingSenderId: "758407291898",
-            appId: "1:758407291898:web:a573e2cd3b416596d37a43",
-            measurementId: "G-HQW1YLG9Q1"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-
-        // Wyświetlanie aplikacji
-        function loadApplications() {
-            db.collection("applications").orderBy("data", "desc").get().then((querySnapshot) => {
-                const tbody = document.querySelector('.applications-table tbody');
-                tbody.innerHTML = '';
-                querySnapshot.forEach((doc) => {
-                    const app = doc.data();
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-              <td>${app.stanowisko}</td>
-              <td>${app.firma}</td>
-              <td>${app.data}</td>
-              <td>${app.status}</td>
-            `;
-                    tbody.appendChild(tr);
-                });
-            });
-        }
-
-        // Załaduj aplikacje przy starcie
-        loadApplications();
-    </script>
-
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="firebase-init.js"></script>
+    <script src="main.js"></script>
 </body>
 
 </html>

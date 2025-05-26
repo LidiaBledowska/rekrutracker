@@ -4,39 +4,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RekruTracker - Logowanie</title>
+    <title>Logowanie do RekruTracker</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--background-body);
+        }
+
+        .login-container {
+            background-color: var(--background-card);
+            border-radius: var(--border-radius-medium);
+            box-shadow: var(--box-shadow-medium);
+            padding: calc(var(--spacing-unit) * 3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-container h2 {
+            margin-bottom: calc(var(--spacing-unit) * 1.5);
+            color: var(--primary-dark);
+            font-size: 2em;
+        }
+
+        #google-signin-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius-medium);
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #757575;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #google-signin-button:hover {
+            background-color: #f5f5f5;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #google-signin-button img {
+            margin-right: 10px;
+            width: 24px;
+            height: 24px;
+        }
+
+        #signout-button {
+            margin-top: 20px;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
+    <header class="hero-header" style="padding: 1rem; box-shadow: none;">
+        <h1>RekruTracker</h1>
+    </header>
 
-    <div class="login-container">
-        <form class="login-form">
+    <main class="main-content" style="flex-grow: 0; margin: 0;">
+        <div class="login-container">
             <h2>Zaloguj się do RekruTracker</h2>
-            <div class="input-group">
-                <label for="email">E-mail:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Hasło:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn-login">Zaloguj się</button>
-            <p class="switch-form">Nie masz konta? <a href="register.html">Zarejestruj się</a></p>
-        </form>
-    </div>
+            <button id="google-signin-button">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
+                Zaloguj się przez Google
+            </button>
+            <button id="signout-button" style="display: none;">Wyloguj się</button>
+            <p id="user-status" style="margin-top: 15px; font-weight: 600;"></p>
+        </div>
+    </main>
+
+    <footer class="main-footer" style="margin-top: auto; padding: 1rem;">
+        <p>&copy; 2024 RekruTracker. Wszelkie prawa zastrzeżone.</p>
+    </footer>
 
     <script type="module">
-        // Importuj niezbędne moduły Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js"; // Opcjonalnie
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        // Twoja konfiguracja Firebase (już ją masz, więc tylko wklejamy)
+        // Twoja konfiguracja Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
             authDomain: "rekrutracker-app.firebaseapp.com",
@@ -47,19 +110,34 @@
             measurementId: "G-HQW1YLG9Q1"
         };
 
-        // Zainicjuj Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
 
-        // const analytics = getAnalytics(app); // Jeśli używasz Analytics
+        const signInButton = document.getElementById('google-signin-button');
+        const signOutButton = document.getElementById('signout-button');
+        const userStatusElement = document.getElementById('user-status');
 
-        console.log("Firebase zainicjowany z Auth i Firestore!");
+        // Przekierowanie po zalogowaniu
+        signInButton.onclick = () =>
+            signInWithPopup(auth, provider).then(() => {
+                window.location.href = "indextest.html";
+            });
 
-        // Tutaj będziemy dodawać kod JavaScript specyficzny dla tej strony (np. logika logowania)
+        signOutButton.onclick = () => signOut(auth);
 
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userStatusElement.textContent = `Witaj, ${user.displayName} (${user.email})`;
+                signInButton.style.display = 'none';
+                signOutButton.style.display = 'inline-block';
+            } else {
+                userStatusElement.textContent = 'Nie jesteś zalogowany.';
+                signInButton.style.display = 'inline-flex';
+                signOutButton.style.display = 'none';
+            }
+        });
     </script>
-    <script src="script.js"></script>
 </body>
 
 </html>
