@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RekruTracker - Dodaj nową aplikację</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+
+    <header class="hero-header">
+        <h1>Dodaj nową aplikację</h1>
+        <p>Uzupełnij szczegóły nowej aplikacji o pracę.</p>
+    </header>
+
+    <nav class="top-nav">
+        <ul>
+            <li><a href="index.html" title="Menu główne"><i class="fas fa-home"></i> Menu główne</a></li>
+            <li><a href="add-application.html" title="Dodaj nową aplikację"><i class="fas fa-plus-circle"></i> Dodaj
+                    aplikację</a></li>
+            <li><a href="#" title="Ulubione aplikacje"><i class="fas fa-star"></i> Ulubione</a></li>
+            <li><a href="#" title="Powiadomienia"><i class="fas fa-bell"></i> Powiadomienia</a></li>
+            <li><a href="login.html" title="Zaloguj / Zarejestruj"><i class="fas fa-user-plus"></i> Zaloguj /
+                    Rejestruj</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <form class="application-form" action="index.html">
+            <div class="input-group">
+                <label for="position">Stanowisko:</label>
+                <input type="text" id="position" name="position" required>
+            </div>
+            <div class="input-group">
+                <label for="company">Firma:</label>
+                <input type="text" id="company" name="company" required>
+            </div>
+            <div class="input-group">
+                <label for="date-applied">Data aplikowania:</label>
+                <input type="date" id="date-applied" name="date_applied" required>
+            </div>
+            <div class="input-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="">Wybierz status</option>
+                    <option value="Wysłano CV">Wysłano CV</option>
+                    <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
+                    <option value="Rozmowa kwalifikacyjna">Rozmowa kwalifikacyjna</option>
+                    <option value="Oferta">Oferta</option>
+                    <option value="Oczekuje na odpowiedź">Oczekuje na odpowiedź</option>
+                    <option value="Odrzucono">Odrzucono</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="notes">Notatki:</label>
+                <textarea id="notes" name="notes" rows="4"></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Dodaj aplikację</button>
+            <a href="index.html" class="btn-cancel">Anuluj</a>
+        </form>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2024 RekruTracker. Wszelkie prawa zastrzeżone.</p>
+    </footer>
+
+    <script type="module">
+        // Importuj niezbędne moduły Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+        // import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js"; // Opcjonalnie
+
+        // Twoja konfiguracja Firebase (już ją masz, więc tylko wklejamy)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
+            authDomain: "rekrutracker-app.firebaseapp.com",
+            projectId: "rekrutracker-app",
+            storageBucket: "rekrutracker-app.firebasestorage.app",
+            messagingSenderId: "758407291898",
+            appId: "1:758407291898:web:a573e2cd3b416596d37a43",
+            measurementId: "G-HQW1YLG9Q1"
+        };
+
+        // Zainicjuj Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // const analytics = getAnalytics(app); // Jeśli używasz Analytics
+
+        console.log("Firebase zainicjowany z Auth i Firestore!");
+
+        // Tutaj będziemy dodawać kod JavaScript specyficzny dla tej strony (np. logika dodawania aplikacji)
+
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>

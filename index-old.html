@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Application Notebook</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const jobForm = document.getElementById('jobForm');
+    const jobList = document.getElementById('jobList');
+    const filterSelect = document.getElementById('filterStage');
+
+    // Make loadJobs function available globally
+    window.loadJobs = async (filter = 'All') => {
+      jobList.innerHTML = '';
+      const querySnapshot = await getDocs(collection(db, "jobs"));
+      
+      querySnapshot.forEach((docSnap) => {
+        const job = docSnap.data();
+        
+        // Skip if filtering and not matching the selected filter
+        if (filter !== 'All' && job.stage !== filter) {
+          return;
+        }
+        
+        const jobItem = document.createElement('div');
+        jobItem.className = 'job-item';
+        
+        // Add special class for saved applications
+        if (job.stage === 'Save for Later') {
+          jobItem.classList.add('saved-job');
+        }
+        
+        jobItem.innerHTML = `
+          <div class="actions">
+            <button onclick="editJob('${docSnap.id}')">Edit</button>
+            <button onclick="deleteJob('${docSnap.id}')">Delete</button>
+          </div>
+          <h3>${job.company} - ${job.position}</h3>
+          <p><strong>Salary:</strong> ${job.salary}</p>
+          <p><strong>Location:</strong> ${job.location}</p>
+          <p><strong>Stage:</strong> ${job.stage}</p>
+          <div class="notes-section">
+            <strong>Notes:</strong>
+            <div class="notes-content">${job.notes}</div>
+          </div>
+        `;
+        jobList.appendChild(jobItem);
+      });
+      
+      // Update the counter
+      updateJobCounter();
+    };
+    
+    function updateJobCounter() {
+      const savedCounter = document.getElementById('savedCounter');
+      const totalCounter = document.getElementById('totalCounter');
+      
+      getDocs(collection(db, "jobs")).then((querySnapshot) => {
+        let savedCount = 0;
+        let totalCount = 0;
+        
+        querySnapshot.forEach((doc) => {
+          totalCount++;
+          if (doc.data().stage === 'Save for Later') {
+            savedCount++;
+          }
+        });
+        
+        savedCounter.textContent = savedCount;
+        totalCounter.textContent = totalCount;
+      });
+    }
+
+    window.editJob = async (id) => {
+      const docSnap = await getDocs(collection(db, "jobs"));
+      docSnap.forEach(async (docItem) => {
+        if (docItem.id === id) {
+          const job = docItem.data();
+          document.getElementById('company').value = job.company;
+          document.getElementById('position').value = job.position;
+          document.getElementById('salary').value = job.salary;
+          document.getElementById('location').value = job.location;
+          document.getElementById('stage').value = job.stage;
+          document.getElementById('notes').value = job.notes;
+
+          await deleteDoc(doc(db, "jobs", id));
+          loadJobs();
+        }
+      });
+    };
+
+    window.deleteJob = async (id) => {
+      await deleteDoc(doc(db, "jobs", id));
+      loadJobs();
+    };
+
+    jobForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const newJob = {
+        company: document.getElementById('company').value,
+        position: document.getElementById('position').value,
+        salary: document.getElementById('salary').value,
+        location: document.getElementById('location').value,
+        stage: document.getElementById('stage').value,
+        notes: document.getElementById('notes').value
+      };
+
+      await addDoc(collection(db, "jobs"), newJob);
+      loadJobs();
+      jobForm.reset();
+    });
+
+    window.onload = loadJobs;
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f2f4f8;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background-color: #2d3748;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    form {
+      display: grid;
+      gap: 1rem;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #3182ce;
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2b6cb0;
+    }
+
+    .job-list {
+      margin-top: 2rem;
+    }
+
+    .job-item {
+      background: #edf2f7;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .saved-job {
+      background: #e6fffa;
+      border-left: 4px solid #38b2ac;
+    }
+
+    .job-item h3 {
+      margin: 0 0 0.5rem 0;
+    }
+
+    .job-item .actions {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+
+    .job-item button {
+      margin-left: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .notes-section {
+      margin-top: 0.5rem;
+    }
+
+    .notes-content {
+      background: white;
+      padding: 0.75rem;
+      border-radius: 4px;
+      margin-top: 0.25rem;
+      white-space: pre-wrap;
+    }
+
+    .filter-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: #edf2f7;
+      border-radius: 5px;
+    }
+
+    .filter-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .filter-controls select {
+      width: auto;
+      min-width: 150px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .stat-item {
+      background: white;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .saved-count {
+      color: #38b2ac;
+    }
+
+    .section-title {
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #edf2f7;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        margin: 1rem;
+        padding: 1rem;
+      }
+      
+      .filter-section {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Job Application Notebook</h1>
+    <p>Keep track of all your job applications in one place</p>
+  </header>
+
+  <main>
+    <form id="jobForm">
+      <div>
+        <label for="company">Company Name</label>
+        <input type="text" id="company" required />
+      </div>
+
+      <div>
+        <label for="position">Job Title</label>
+        <input type="text" id="position" required />
+      </div>
+
+      <div>
+        <label for="salary">Salary Range</label>
+        <input type="text" id="salary" />
+      </div>
+
+      <div>
+        <label for="location">Location</label>
+        <input type="text" id="location" />
+      </div>
+
+      <div>
+        <label for="stage">Application Stage</label>
+        <select id="stage">
+          <option value="Save for Later">Save for Later</option>
+          <option value="Applied">Applied</option>
+          <option value="Phone Interview">Phone Interview</option>
+          <option value="Technical Test">Technical Test</option>
+          <option value="Assessment Center">Assessment Center</option>
+          <option value="On-site Interview">On-site Interview</option>
+          <option value="Offer">Offer</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="notes">Notes</label>
+        <textarea id="notes" rows="4"></textarea>
+      </div>
+
+      <button type="submit">Add Job</button>
+    </form>
+
+    <h2 class="section-title">Your Job Applications</h2>
+    
+    <div class="filter-section">
+      <div class="filter-controls">
+        <label for="filterStage">Filter by stage:</label>
+        <select id="filterStage" onchange="loadJobs(this.value)">
+          <option value="All">All Applications</option>
+          <option value="Save for Later">Saved for Later</option>
+          <option value="Applied">Applied</option>
+          <option value="Phone Interview">Phone Interview</option>
+          <option value="Technical Test">Technical Test</option>
+          <option value="Assessment Center">Assessment Center</option>
+          <option value="On-site Interview">On-site Interview</option>
+          <option value="Offer">Offer</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      
+      <div class="stats">
+        <div class="stat-item saved-count">
+          Saved: <span id="savedCounter">0</span>
+        </div>
+        <div class="stat-item">
+          Total: <span id="totalCounter">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="job-list" id="jobList"></div>
+  </main>
+</body>
+</html>
