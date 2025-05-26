@@ -1,15 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>RekruTracker - Twój osobisty asystent kariery</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
+
 <body>
-    <div class="frame">
-        <button class=""btn-plus">+</button>
-    </div>
+
+    <header class="hero-header">
+        <h1>Witaj w RekruTracker!</h1>
+        <p>Twoim osobistym asystencie w poszukiwaniu pracy.</p>
+        <p>Śledź swoje aplikacje, zapisuj ważne informacje i kontroluj każdy etap rekrutacji — wszystko w jednym
+            miejscu.</p>
+        <p>Zacznij już dziś i zyskaj pełną kontrolę nad swoją karierą!</p>
+    </header>
+
+    <nav class="top-nav">
+        <ul>
+            <li><a href="index.html" title="Menu główne"><i class="fas fa-home"></i> Menu główne</a></li>
+            <li><a href="add-application.html" title="Dodaj nową aplikację"><i class="fas fa-plus-circle"></i> Dodaj
+                    aplikację</a></li>
+            <li><a href="#" title="Ulubione aplikacje"><i class="fas fa-star"></i> Ulubione</a></li>
+            <li><a href="#" title="Powiadomienia"><i class="fas fa-bell"></i> Powiadomienia</a></li>
+            <li><a href="login.html" title="Zaloguj / Zarejestruj"><i class="fas fa-user-plus"></i> Zaloguj /
+                    Rejestruj</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <h2>Twoje aktualne aplikacje</h2>
+
+
+        <table class="applications-table">
+            <thead>
+                <tr>
+                    <th>Stanowisko</th>
+                    <th>Firma</th>
+                    <th>Data aplikowania</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Wiersze będą generowane dynamicznie przez JS -->
+            </tbody>
+        </table>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2023 RekruTracker. Wszelkie prawa zastrzeżone.</p>
+    </footer>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+        // Wklej tutaj swoją konfigurację Firebase!
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
+            authDomain: "rekrutracker-app.firebaseapp.com",
+            projectId: "rekrutracker-app",
+            storageBucket: "rekrutracker-app.firebasestorage.app",
+            messagingSenderId: "758407291898",
+            appId: "1:758407291898:web:a573e2cd3b416596d37a43",
+            measurementId: "G-HQW1YLG9Q1"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+
+        // Wyświetlanie aplikacji
+        function loadApplications() {
+            db.collection("applications").orderBy("data", "desc").get().then((querySnapshot) => {
+                const tbody = document.querySelector('.applications-table tbody');
+                tbody.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const app = doc.data();
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+              <td>${app.stanowisko}</td>
+              <td>${app.firma}</td>
+              <td>${app.data}</td>
+              <td>${app.status}</td>
+            `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        // Załaduj aplikacje przy starcie
+        loadApplications();
+    </script>
+
 </body>
+
 </html>
- 
