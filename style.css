@@ -9,36 +9,24 @@
 
 /* Zmienne CSS - klucz do spójności i łatwej modyfikacji */
 :root {
-    /* Kolory */
     --primary-color: #5b6edb;
-    /* Głęboki, nowoczesny fiolet/niebieski */
     --primary-light: #8e9ee2;
     --primary-dark: #4354b3;
     --secondary-color: #2ecc71;
-    /* Akcent zielony dla sukcesu */
     --accent-color: #f39c12;
-    /* Akcent pomarańczowy */
     --danger-color: #e74c3c;
-    /* Czerwony dla akcji usuwania */
     --text-color: #333;
     --light-text-color: #f0f0f0;
     --background-body: #f0f2f5;
-    /* Miękki, jasny szary dla tła */
     --background-card: #ffffff;
     --border-color: #e0e0e0;
-
-    /* Typografia */
     --font-family-base: 'Poppins', sans-serif;
     --font-size-base: 1rem;
     --line-height-base: 1.6;
-
-    /* Odstępy i rozmiary */
     --spacing-unit: 1rem;
-    /* 16px */
     --border-radius-small: 6px;
     --border-radius-medium: 10px;
     --box-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
-    /* Miękki cień */
     --box-shadow-medium: 0 8px 20px rgba(0, 0, 0, 0.12);
     --transition-speed: 0.3s;
 }
@@ -52,12 +40,11 @@ body {
     -webkit-font-smoothing: antialiased;
     scroll-behavior: smooth;
     min-height: 100vh;
-    /* Zapewnia, że body zawsze zajmuje pełną wysokość */
     display: flex;
     flex-direction: column;
 }
 
-/* Nagłówek główny - Hero Section */
+/* Hero Section */
 .hero-header {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
     color: var(--light-text-color);
@@ -65,9 +52,7 @@ body {
     text-align: center;
     box-shadow: var(--box-shadow-medium);
     position: relative;
-    /* Dla gradientu na dole */
     overflow: hidden;
-    /* Aby gradienty nie wychodziły poza obszar */
 }
 
 .hero-header::before {
@@ -79,14 +64,12 @@ body {
     bottom: 0;
     background: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><filter id="f1" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="4" stitchTiles="stitch" /><feMorphology operator="dilate" radius="1" /><feComposite operator="in" in2="SourceGraphic" /></filter></defs><rect width="100%" height="100%" fill="%23fff" filter="url(%23f1)" opacity="0.1"/></svg>') center/cover;
     opacity: 0.2;
-    /* Subtelny wzór */
     z-index: 0;
 }
 
 .hero-content {
     position: relative;
     z-index: 1;
-    /* Upewnij się, że tekst jest nad tłem */
     max-width: 900px;
     margin: 0 auto;
 }
@@ -96,7 +79,6 @@ body {
     margin-bottom: calc(var(--spacing-unit) / 2);
     font-weight: 700;
     letter-spacing: -0.03em;
-    /* Delikatne zmniejszenie odstępów między literami */
 }
 
 .hero-header p {
@@ -112,18 +94,15 @@ body {
     opacity: 0.8;
 }
 
-/* Nawigacja główna - Top Nav */
+/* Nawigacja */
 .top-nav {
     background-color: var(--background-card);
-    /* Jasne tło dla nawigacji */
     padding: calc(var(--spacing-unit) / 2) 0;
     box-shadow: var(--box-shadow-light);
-    /* Miękki cień */
     position: sticky;
     top: 0;
     z-index: 1000;
     border-bottom: 1px solid var(--border-color);
-    /* Delikatna linia na dole */
 }
 
 .top-nav ul {
@@ -132,7 +111,6 @@ body {
     justify-content: center;
     flex-wrap: wrap;
     gap: calc(var(--spacing-unit) / 2);
-    /* Odstępy między elementami */
 }
 
 .top-nav li a {
@@ -140,7 +118,6 @@ body {
     align-items: center;
     padding: calc(var(--spacing-unit) * 0.75) var(--spacing-unit);
     color: var(--text-color);
-    /* Ciemniejszy tekst */
     text-decoration: none;
     font-weight: 600;
     transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, transform 0.1s ease;
@@ -152,14 +129,12 @@ body {
     background-color: var(--primary-light);
     color: var(--light-text-color);
     transform: translateY(-2px);
-    /* Lekki efekt uniesienia */
 }
 
 .top-nav li a.nav-item-active {
     background-color: var(--primary-color);
     color: var(--light-text-color);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    /* Cień dla aktywnego elementu */
 }
 
 .top-nav li a .fas {
@@ -170,17 +145,13 @@ body {
 /* Główna zawartość */
 .main-content {
     flex-grow: 1;
-    /* Pozwala zawartości rozciągnąć się na dostępną przestrzeń */
     padding: var(--spacing-unit);
     max-width: 1200px;
     margin: calc(var(--spacing-unit) * 2) auto;
-    /* Większy margines góra/dół */
     display: grid;
     gap: calc(var(--spacing-unit) * 2);
-    /* Odstępy między sekcjami */
 }
 
-/* Karty */
 .card {
     background-color: var(--background-card);
     border-radius: var(--border-radius-medium);
@@ -205,19 +176,15 @@ body {
 /* Tabela aplikacji */
 .table-responsive {
     overflow-x: auto;
-    /* Pozwala na przewijanie tabeli na małych ekranach */
     -webkit-overflow-scrolling: touch;
-    /* Lepsze przewijanie na iOS */
     border-radius: var(--border-radius-small);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    /* Delikatny cień wokół przewijanej tabeli */
 }
 
 .applications-table {
     width: 100%;
     border-collapse: collapse;
     min-width: 600px;
-    /* Minimalna szerokość tabeli przed przewinięciem */
 }
 
 .applications-table th,
@@ -235,20 +202,16 @@ body {
     text-transform: uppercase;
     font-size: 0.9em;
     border-color: var(--primary-dark);
-    /* Ciemniejsza ramka dla nagłówka */
 }
 
 .applications-table tbody tr:nth-child(even) {
     background-color: #f8f8f8;
-    /* Delikatne paski */
 }
 
 .applications-table tbody tr:hover {
     background-color: #eff2fb;
-    /* Podświetlenie wiersza po najechaniu */
 }
 
-/* Komórka akcji w tabeli */
 .applications-table .actions-cell {
     text-align: center;
     white-space: nowrap;
@@ -256,7 +219,6 @@ body {
 
 .action-icon {
     display: inline-block;
-    /* Aby marginesy działały poprawnie */
     color: var(--primary-color);
     margin: 0 0.6rem;
     font-size: 1.2em;
@@ -267,7 +229,6 @@ body {
 .action-icon:hover {
     color: var(--primary-dark);
     transform: scale(1.1);
-    /* Lekkie powiększenie ikony */
 }
 
 .action-icon.delete {
@@ -275,7 +236,7 @@ body {
 }
 
 .action-icon.delete:hover {
-    color: darken(var(--danger-color), 10%);
+    color: #c0392b;
 }
 
 /* Status Badges */
@@ -283,7 +244,6 @@ body {
     display: inline-block;
     padding: 0.4em 0.8em;
     border-radius: 20px;
-    /* Bardzo zaokrąglone rogi */
     font-size: 0.85em;
     font-weight: 600;
     text-transform: uppercase;
@@ -293,24 +253,19 @@ body {
 
 .status-badge.status-sent {
     background-color: #2ecc71;
-    /* Zielony */
 }
 
 .status-badge.status-interview {
     background-color: #3498db;
-    /* Niebieski */
 }
 
 .status-badge.status-pending {
     background-color: #f39c12;
-    /* Pomarańczowy */
 }
 
 .status-badge.status-rejected {
     background-color: #e74c3c;
-    /* Czerwony */
 }
-
 
 /* Przyciski */
 .button {
@@ -327,7 +282,6 @@ body {
     border: none;
     outline: none;
     box-shadow: var(--box-shadow-light);
-    /* Cień dla przycisków */
 }
 
 .button:hover {
@@ -358,7 +312,7 @@ body {
 }
 
 .button-hero:hover {
-    background-color: darken(var(--secondary-color), 10%);
+    background-color: #27ae60;
     box-shadow: 0 8px 20px rgba(46, 204, 113, 0.4);
 }
 
@@ -369,7 +323,6 @@ body {
     text-align: center;
     padding: var(--spacing-unit);
     margin-top: auto;
-    /* Pchnie stopkę na dół */
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     font-size: 0.9em;
 }
@@ -441,7 +394,6 @@ body {
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         background-color: var(--background-card);
         overflow: hidden;
-        /* Upewnij się, że zaokrąglone rogi są widoczne */
     }
 
     .applications-table td {
@@ -504,22 +456,7 @@ body {
     }
 }
 
-/* Dodatkowe media queries dla większych ekranów lub specyficznych breakpointów */
-@media screen and (min-width: 769px) and (max-width: 1024px) {
-    .main-content {
-        padding: calc(var(--spacing-unit) * 1.5);
-    }
-}
-
-/* Pomocnicze funkcje CSS (do zastąpienia preprocesorem w prawdziwym projekcie) */
-/* Funkcja darken - dla demonstracji */
-/* W prawdziwym projekcie użyj SASS/LESS lub ręcznie ustaw kolor */
-/*
-@function darken($color, $percentage) {
-    @return mix(black, $color, $percentage);
-}
-*/
-/* Nowoczesny modal edycji */
+/* Modal edycji aplikacji */
 #editModal {
     display: none;
     position: fixed;
@@ -542,7 +479,9 @@ body {
     padding: 2.2em 1.5em 1.5em 1.5em;
     border-radius: 18px;
     max-width: 420px;
-    width: 95%;
+    width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 8px 32px rgba(49, 130, 206, 0.13);
     position: relative;
     animation: fadeInScale 0.25s;
@@ -558,15 +497,6 @@ body {
         opacity: 1;
         transform: scale(1);
     }
-}
-
-#editModal h3 {
-    text-align: center;
-    margin-bottom: 1.2em;
-    color: #3182ce;
-    font-size: 1.3em;
-    font-weight: 700;
-    letter-spacing: 1px;
 }
 
 #closeEditModal {
@@ -648,4 +578,21 @@ body {
 
 .edit-btn i {
     font-size: 1.1em;
+}
+
+/* ...istniejący kod... */
+
+/* Bardzo delikatne tło dla statusów, ale standardowe szare obramowanie */
+.applications-table tr.status-rejected td {
+    border: 1px solid var(--border-color) !important;
+    /* szare obramowanie jak wcześniej */
+    background-color: #fff6f6;
+    /* bardzo delikatne czerwone tło */
+}
+
+.applications-table tr.status-oferta td {
+    border: 1px solid var(--border-color) !important;
+    /* szare obramowanie jak wcześniej */
+    background-color: #f6fff6;
+    /* bardzo delikatne zielone tło */
 }
