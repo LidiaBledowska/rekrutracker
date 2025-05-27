@@ -151,10 +151,34 @@
                 <select id="status" name="status" required>
                     <option value="">Wybierz status...</option>
                     <option value="Wysłano CV">Wysłano CV</option>
-                    <option value="Rozmowa">Rozmowa</option>
+                    <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
+                    <option value="Rozmowa online">Rozmowa online</option>
+                    <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
+                    <option value="Assessment Center">Assessment Center</option>
                     <option value="Oferta">Oferta</option>
                     <option value="Odrzucono">Odrzucono</option>
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="wynagrodzenie"><i class="fas fa-money-bill-wave"></i> Wynagrodzenie</label>
+                <input type="number" id="wynagrodzenie" name="wynagrodzenie" min="0" step="any" placeholder="np. 8000">
+            </div>
+            <div class="form-group">
+                <label for="tryb"><i class="fas fa-laptop-house"></i> Tryb pracy</label>
+                <select id="tryb" name="tryb" required>
+                    <option value="">Wybierz tryb...</option>
+                    <option value="STACJONARNY">Stacjonarny</option>
+                    <option value="HYBRYDOWY">Hybrydowy</option>
+                    <option value="ZDALNY">Zdalny</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="kontakt"><i class="fas fa-address-book"></i> Kontakt</label>
+                <input type="text" id="kontakt" name="kontakt" placeholder="np. imię, email, telefon">
+            </div>
+            <div class="form-group">
+                <label for="link"><i class="fas fa-link"></i> Link do oferty</label>
+                <input type="url" id="link" name="link" placeholder="https://...">
             </div>
             <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Dodaj aplikację</button>
         </form>
@@ -185,16 +209,43 @@
             const firma = document.getElementById('firma').value;
             const data = document.getElementById('data').value;
             const status = document.getElementById('status').value;
+            const wynagrodzenie = document.getElementById('wynagrodzenie').value;
+            const tryb = document.getElementById('tryb').value;
+            const kontakt = document.getElementById('kontakt').value;
+            const link = document.getElementById('link').value;
 
-            db.collection("applications").add({
+            // Przygotuj dane do zapisania
+            const applicationData = {
                 stanowisko,
                 firma,
                 data,
-                status
-            }).then(() => {
-                document.getElementById('form-message').textContent = "Aplikacja została dodana!";
+                status,
+                tryb,
+                waluta: "PLN",
+                wynRodzaj: "BRUTTO",
+                statusHistory: [{
+                    status: status,
+                    date: data
+                }],
+                archiwalna: false
+            };
+
+            // Dodaj opcjonalne pola tylko jeśli są wypełnione
+            if (wynagrodzenie) applicationData.wynagrodzenie = parseFloat(wynagrodzenie);
+            if (kontakt) applicationData.kontakt = kontakt;
+            if (link) applicationData.link = link;
+
+            db.collection("applications").add(applicationData).then(() => {
+                document.getElementById('form-message').textContent = "Aplikacja została dodana pomyślnie!";
+                document.getElementById('form-message').style.color = "green";
                 this.reset();
-            }).catch(() => {
+
+                // Przekieruj po 2 sekundach
+                setTimeout(() => {
+                    window.location.href = "indextest.html";
+                }, 2000);
+            }).catch((error) => {
+                console.error("Błąd:", error);
                 document.getElementById('form-message').textContent = "Błąd podczas dodawania aplikacji.";
                 document.getElementById('form-message').style.color = "red";
             });

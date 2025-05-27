@@ -152,6 +152,73 @@ body {
     gap: calc(var(--spacing-unit) * 2);
 }
 
+/* Filtry */
+.filters-container {
+    background-color: var(--background-card);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--box-shadow-light);
+    padding: calc(var(--spacing-unit) * 1.5);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    display: none;
+    /* Domyślnie ukrywamy filtry */
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-unit);
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    background-color: var(--background-card);
+    font-size: 0.95rem;
+    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(91, 110, 219, 0.1);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 1.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    accent-color: var(--primary-color);
+}
+
+.checkbox-group label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+    cursor: pointer;
+}
+
 .card {
     background-color: var(--background-card);
     border-radius: var(--border-radius-medium);
@@ -171,6 +238,37 @@ body {
     color: var(--primary-dark);
     font-size: 2.2em;
     font-weight: 600;
+}
+
+/* Sekcja z przyciskiem dodawania */
+.add-application-section {
+    text-align: center;
+    margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.add-application-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: calc(var(--spacing-unit) * 0.8) calc(var(--spacing-unit) * 1.5);
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #27ae60 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--border-radius-medium);
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+    transition: all var(--transition-speed) ease;
+}
+
+.add-application-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+    background: linear-gradient(135deg, #27ae60 0%, var(--secondary-color) 100%);
+}
+
+.add-application-btn i {
+    font-size: 1.2rem;
 }
 
 /* Tabela aplikacji */
@@ -373,6 +471,21 @@ body {
     .main-content h2 {
         font-size: 1.8em;
         margin-bottom: var(--spacing-unit);
+    }
+
+    /* Filtry na mobile */
+    .filters-container {
+        padding: var(--spacing-unit);
+    }
+
+    .filters-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+
+    .checkbox-group {
+        padding-top: 0.5rem;
+        justify-content: center;
     }
 
     .applications-table thead {
@@ -595,4 +708,24 @@ body {
     /* szare obramowanie jak wcześniej */
     background-color: #f6fff6;
     /* bardzo delikatne zielone tło */
+}
+
+.applications-table tr.status-wyslano-cv td {
+    background-color: #f6faff;
+}
+
+.applications-table tr.status-rozmowa-telefoniczna td {
+    background-color: #fffbe6;
+}
+
+.applications-table tr.status-rozmowa-online td {
+    background-color: #f8f6ff;
+}
+
+.applications-table tr.status-rozmowa-stacjonarna td {
+    background-color: #fff8f2;
+}
+
+.applications-table tr.status-assessment-center td {
+    background-color: #f7f7fa;
 }

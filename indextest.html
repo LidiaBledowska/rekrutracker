@@ -7,7 +7,6 @@
     <title>RekruTracker - Twój osobisty asystent kariery</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
@@ -15,10 +14,11 @@
 
     <header class="hero-header">
         <h1>Witaj w RekruTracker!</h1>
-        <p>Twoim osobistym asystencie w poszukiwaniu pracy.</p>
-        <p>Śledź swoje aplikacje, zapisuj ważne informacje i kontroluj każdy etap rekrutacji — wszystko w jednym
-            miejscu.</p>
-        <p>Zacznij już dziś i zyskaj pełną kontrolę nad swoją karierą!</p>
+        <p>Masz wrażenie, że gubisz się w poszukiwaniach pracy i trudno Ci wszystko zapamiętać?<br>
+            Odzyskaj pełną kontrolę! RekruTracker to Twój osobisty asystent do śledzenia aplikacji, zarządzania
+            notatkami i monitorowania każdego etapu rekrutacji.</p>
+        <p>Wszystko w jednym, intuicyjnym miejscu, byś mógł łatwo i skutecznie dążyć do wymarzonej pracy.</p>
+        <p>Zacznij już dziś i przekonaj się, jak proste może być zapanowanie nad swoją karierą!</p>
     </header>
 
     <nav class="top-nav">
@@ -33,33 +33,85 @@
     </nav>
 
     <main class="main-content">
-        <div style="margin-bottom: 1.5em; text-align:right;">
-            <label for="statusFilter" style="font-weight:600; margin-right:0.5em;">Filtruj po statusie:</label>
-            <select id="statusFilter" style="padding:0.4em 1em; border-radius:6px; border:1px solid #e2e8f0;">
-                <option value="">Wszystkie</option>
-                <option value="Wysłano CV">Wysłano CV</option>
-                <option value="Rozmowa">Rozmowa</option>
-                <option value="Oferta">Oferta</option>
-                <option value="Odrzucono">Odrzucono</option>
-            </select>
+        <div class="filters-container">
+            <h3 style="margin-bottom: 1rem; color: var(--primary-dark); font-size: 1.2rem;">
+                <i class="fas fa-filter" style="margin-right: 0.5rem;"></i>Filtry wyszukiwania
+            </h3>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="filterStanowisko">Stanowisko</label>
+                    <input id="filterStanowisko" type="text" placeholder="np. Frontend Developer">
+                </div>
+                <div class="filter-group">
+                    <label for="filterFirma">Firma</label>
+                    <input id="filterFirma" type="text" placeholder="np. Google">
+                </div>
+                <div class="filter-group">
+                    <label for="filterData">Data aplikowania</label>
+                    <input id="filterData" type="date">
+                </div>
+                <div class="filter-group">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter">
+                        <option value="">Wszystkie statusy</option>
+                        <option value="Wysłano CV">Wysłano CV</option>
+                        <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
+                        <option value="Rozmowa online">Rozmowa online</option>
+                        <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
+                        <option value="Assessment Center">Assessment Center</option>
+                        <option value="Oferta">Oferta</option>
+                        <option value="Odrzucono">Odrzucono</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterTryb">Tryb pracy</label>
+                    <select id="filterTryb">
+                        <option value="">Wszystkie tryby</option>
+                        <option value="STACJONARNY">Stacjonarny</option>
+                        <option value="HYBRYDOWY">Hybrydowy</option>
+                        <option value="ZDALNY">Zdalny</option>
+                    </select>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showArchived">
+                    <label for="showArchived">Pokaż archiwalne</label>
+                </div>
+            </div>
         </div>
 
-        <h2>Twoje aktualne aplikacje</h2>
-        <table class="applications-table">
-            <thead>
-                <tr>
-                    <th>Stanowisko</th>
-                    <th>Firma</th>
-                    <th>Data aplikowania</th>
-                    <th>Status</th>
-                    <th>Wynagrodzenie</th>
-                    <th>Akcje</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Wiersze będą generowane dynamicznie przez JS -->
-            </tbody>
-        </table>
+        <div class="card">
+            <h2>Twoje aktualne aplikacje</h2>
+            <!-- Licznik aplikacji pojawia się tutaj przez JS -->
+
+            <div class="add-application-section">
+                <a href="add-application.html" class="add-application-btn">
+                    <i class="fas fa-plus-circle"></i>
+                    Dodaj nową aplikację
+                </a>
+            </div>
+            <button id="toggleFilters" class="button button-primary" style="margin-bottom: 1rem;">
+                <i class="fas fa-filter"></i> Pokaż filtry
+            </button>
+
+            <div class="table-responsive">
+                <table class="applications-table">
+                    <thead>
+                        <tr>
+                            <th>Stanowisko</th>
+                            <th>Firma</th>
+                            <th>Data aplikowania</th>
+                            <th>Status</th>
+                            <th>Wynagrodzenie</th>
+                            <th>Tryb</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Wiersze będą generowane dynamicznie przez JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 
     <footer class="main-footer">
@@ -67,7 +119,6 @@
     </footer>
 
     <!-- Modal edycji aplikacji -->
-    <!-- ...pozostały kod HTML... -->
     <div id="editModal">
         <div class="edit-tile">
             <button id="closeEditModal" type="button">&times;</button>
@@ -90,9 +141,12 @@
                     <label for="editStatus">Status</label>
                     <select id="editStatus" required>
                         <option value="Wysłano CV">Wysłano CV</option>
-                        <option value="Rozmowa">Rozmowa</option>
-                        <option value="Oferta">Oferta</option>
+                        <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
+                        <option value="Rozmowa online">Rozmowa online</option>
+                        <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
+                        <option value="Assessment Center">Assessment Center</option>
                         <option value="Odrzucono">Odrzucono</option>
+                        <option value="Oferta">Oferta</option>
                     </select>
                 </div>
                 <div class="form-group" style="display: flex; gap: 0.5em; align-items: flex-end;">
@@ -119,6 +173,14 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="editTryb">Tryb</label>
+                    <select id="editTryb" required>
+                        <option value="STACJONARNY">STACJONARNY</option>
+                        <option value="HYBRYDOWY">HYBRYDOWY</option>
+                        <option value="ZDALNY">ZDALNY</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="editKontakt">Kontakt</label>
                     <input type="text" id="editKontakt" placeholder="np. imię, email, telefon">
                 </div>
@@ -133,11 +195,23 @@
                     <textarea id="editNotatki" rows="3" placeholder="Dodaj własne notatki do tej aplikacji..."
                         style="resize:vertical;min-height:60px;width:100%;border-radius:8px;border:1px solid #d1d5db;padding:0.7em;font-size:1em;"></textarea>
                 </div>
+                <!-- Dodawanie zdjęć/screenów -->
+                <div class="form-group">
+                    <label for="editImages" style="font-weight:600;display:block;margin-bottom:0.3em;">
+                        <i class="fas fa-image" style="color:#4f8cff;margin-right:0.3em;"></i>Załącz zdjęcia/screeny
+                    </label>
+                    <input type="file" id="editImages" accept="image/*" multiple>
+                    <div id="editImagesPreview" style="margin-top:0.5em;display:flex;gap:0.5em;flex-wrap:wrap;"></div>
+                </div>
                 <div id="statusHistoryBox" style="margin:1em 0 0 0; font-size:0.95em; color:#555;">
                     <strong>Historia statusu:</strong>
                     <ul id="statusHistoryList" style="margin:0.5em 0 0 1em; padding:0;"></ul>
                 </div>
                 <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Zapisz zmiany</button>
+                <button type="button" id="archiveAppBtn"
+                    style="width:100%;margin-top:1em;background:#bbb;color:#fff;font-weight:600;border-radius:8px;padding:0.7em;">
+                    Archiwizuj aplikację
+                </button>
                 <button type="button" id="deleteAppBtn"
                     style="width:100%;margin-top:1em;background:none;border:none;color:#e74c3c;font-weight:600;cursor:pointer;">
                     <i class="fas fa-trash"></i> Usuń aplikację
@@ -146,13 +220,12 @@
             <p id="editFormMessage" style="text-align:center; margin-top:1em; color:green;"></p>
         </div>
     </div>
-    <!-- ...pozostały kod HTML... -->
-
 
     <!-- Firebase SDK i Twoje skrypty -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
     <script src="firebase-init.js"></script>
     <script src="main.js"></script>
 </body>
