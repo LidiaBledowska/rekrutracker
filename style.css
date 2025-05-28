@@ -298,8 +298,6 @@ body {
 
 /* Tabela aplikacji - black and white theme */
 .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     border-radius: var(--border-radius-small);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -337,6 +335,20 @@ body {
 
 .applications-table tbody tr:hover {
     background-color: #f3f4f6;
+}
+
+/* Archived applications styling */
+.applications-table tbody tr.archived {
+    background-color: #f3f4f6 !important;
+    opacity: 0.7;
+}
+
+.applications-table tbody tr.archived:nth-child(even) {
+    background-color: #e5e7eb !important;
+}
+
+.applications-table tbody tr.archived:hover {
+    background-color: #d1d5db !important;
 }
 
 .applications-table .actions-cell {

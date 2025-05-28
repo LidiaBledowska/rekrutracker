@@ -140,8 +140,8 @@ async function openEditModal(appId) {
     document.getElementById('editModal').classList.add('active');
 }
 
-function loadApplications(filters = {}, showArchived = false) {
-    let query = db.collection("applications").orderBy("data", "desc");
+function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {
+    let query = db.collection("applications");
     query.get().then((querySnapshot) => {
         const tbody = document.querySelector('.applications-table tbody');
         tbody.innerHTML = '';
@@ -154,11 +154,21 @@ function loadApplications(filters = {}, showArchived = false) {
             applications.push(app);
         });
 
-        // Sort favorites first
+        // Sort applications based on sortOrder
         applications.sort((a, b) => {
+            // First sort by favorites
             if (a.favorite && !b.favorite) return -1;
             if (!a.favorite && b.favorite) return 1;
-            return new Date(b.data) - new Date(a.data);
+
+            // Then sort by date
+            const dateA = new Date(a.data);
+            const dateB = new Date(b.data);
+
+            if (sortOrder === 'asc') {
+                return dateA - dateB; // oldest first
+            } else {
+                return dateB - dateA; // newest first
+            }
         });
 
         applications.forEach((app) => {
@@ -198,6 +208,11 @@ function loadApplications(filters = {}, showArchived = false) {
 
             const tr = document.createElement('tr');
             tr.className = 'border-t border-t-[#e5e7eb] bg-white hover:bg-gray-50';
+
+            // Add archived class if application is archived
+            if (app.archiwalna === true) {
+                tr.classList.add('archived');
+            }
             tr.innerHTML = `
     <td class="px-4 py-2 text-[#141414] text-sm font-normal leading-normal min-w-[150px]" data-label="Stanowisko">
         <div class="flex items-center gap-2">
@@ -394,18 +409,41 @@ document.addEventListener('DOMContentLoaded', function () {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('input', function () {
-                loadApplications(getFilters(), document.getElementById('showArchived')?.checked);
+                const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
+                loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
             });
         }
     });
 
     if (document.getElementById('showArchived')) {
         document.getElementById('showArchived').addEventListener('change', function () {
-            loadApplications(getFilters(), this.checked);
+            const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
+            loadApplications(getFilters(), this.checked, sortOrder);
         });
     }
 
-    loadApplications(getFilters(), document.getElementById('showArchived')?.checked);
+    // Sort functionality
+    if (document.getElementById('sortOrder')) {
+        document.getElementById('sortOrder').addEventListener('change', function () {
+            const showArchived = document.getElementById('showArchived')?.checked || false;
+            loadApplications(getFilters(), showArchived, this.value);
+        });
+    }
+
+    // Toggle sort button functionality
+    const toggleSortButton = document.getElementById('toggleSort');
+    const sortContainer = document.getElementById('sortContainer');
+
+    if (toggleSortButton && sortContainer) {
+        toggleSortButton.addEventListener('click', function () {
+            const isHidden = sortContainer.style.display === 'none';
+            sortContainer.style.display = isHidden ? 'block' : 'none';
+            toggleSortButton.innerHTML = isHidden ? '<i class="fas fa-sort"></i> Ukryj sortowanie' : '<i class="fas fa-sort"></i> Sortuj';
+        });
+    }
+
+    const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
+    loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
 
     // Firebase auth state change handler
     if (firebase.auth) {
