@@ -7,7 +7,7 @@
     <title>RekruTracker - Twój osobisty asystent kariery</title>
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
     <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
-        href="https://fonts.googleapis.com/css2?display=swap&family=Inter%3Awght%40400%3B500%3B700%3B900&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
+        href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans%3Awght%40400%3B500%3B700%3B900&family=Plus+Jakarta+Sans%3Awght%40400%3B500%3B700%3B800" />
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -16,33 +16,32 @@
 
 <body>
     <div class="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden"
-        style="font-family: Inter, 'Noto Sans', sans-serif;">
+        style='--select-button-svg: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(115,115,115)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e"); font-family: "Plus Jakarta Sans", "Noto Sans", sans-serif;'>
         <div class="layout-container flex h-full grow flex-col">
             <header
-                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f2f5] px-10 py-3">
-                <div class="flex items-center gap-4 text-[#111418]">
+                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e5e7eb] px-10 py-3 bg-white">
+                <div class="flex items-center gap-4 text-[#141414]">
                     <div class="size-4">
                         <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
-                                d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z"
+                                d="M42.4379 44C42.4379 44 36.0744 33.9038 41.1692 24C46.8624 12.9336 42.2078 4 42.2078 4L7.01134 4C7.01134 4 11.6577 12.932 5.96912 23.9969C0.876273 33.9029 7.27094 44 7.27094 44L42.4379 44Z"
                                 fill="currentColor"></path>
                         </svg>
                     </div>
-                    <h2 class="text-[#111418] text-lg font-bold leading-tight tracking-[-0.015em]">RekruTracker</h2>
+                    <h2 class="text-[#141414] text-lg font-bold leading-tight tracking-[-0.015em]">RekruTracker</h2>
                 </div>
                 <div class="flex flex-1 justify-end gap-8">
                     <div class="flex items-center gap-9">
-                        <a class="text-[#111418] text-sm font-medium leading-normal" href="indextest.html">Menu
+                        <a class="text-[#141414] text-sm font-medium leading-normal" href="indextest.html">Menu
                             główne</a>
-                        <a class="text-[#111418] text-sm font-medium leading-normal"
-                            href="add-application.html">Aplikacje</a>
-                        <a class="text-[#111418] text-sm font-medium leading-normal" href="#contact-section">Kontakt</a>
-                        <a class="text-[#111418] text-sm font-medium leading-normal" href="#"
-                            title="Ulubione aplikacje">Ulubione</a>
+                        <a class="text-[#141414] text-sm font-medium leading-normal" href="#"
+                            onclick="showContactModal()">Kontakt</a>
+                        <a class="text-[#141414] text-sm font-medium leading-normal" href="#"
+                            onclick="showFavoritesModal()" title="Ulubione aplikacje">Ulubione</a>
                     </div>
                     <button
-                        class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f0f2f5] text-[#111418] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                        <div class="text-[#111418]" data-icon="Bell" data-size="20px" data-weight="regular">
+                        class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f5f5f5] text-[#141414] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 border border-[#e5e7eb]">
+                        <div class="text-[#141414]" data-icon="Bell" data-size="20px" data-weight="regular">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
                                 viewBox="0 0 256 256">
                                 <path
@@ -51,227 +50,362 @@
                             </svg>
                         </div>
                     </button>
-                    <a href="login.html" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-                        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBVcowef445Ojh2k4E6MabpqjSA31KerKmjYoUY8g6pOu5BXEyXou1yILAHWfVsmSiicFoPZ4KvyTeTHrgt0MkFXVig2kAU9HSVNJJ3EXfP2vPizIYi_dLO6J4ps7mcxR-fqmTRB4HpxnFxXiMEGE3chTloAhCd3-2vcZc-IgPeD2sf_tH7MfsU3MDlEfzYPlF1Q-rMJvz4V51wiLqjntdaSAVOJ5uHMVjDxymJjOAz02NRxXqLihgtHQzOQcVOlZLJRcC9yOAM1LCe");'></a>
+                    <!-- Login/Logout functionality -->
+                    <div id="authSection" class="flex items-center gap-2">
+                        <span id="userInfo" class="text-[#141414] text-sm font-medium leading-normal"
+                            style="display: none;"></span>
+                        <button id="loginBtn"
+                            class="text-[#141414] text-sm font-medium leading-normal bg-[#f5f5f5] px-3 py-2 rounded-lg border border-[#e5e7eb]">
+                            Zaloguj
+                        </button>
+                        <button id="logoutBtn"
+                            class="text-[#141414] text-sm font-medium leading-normal bg-[#f5f5f5] px-3 py-2 rounded-lg border border-[#e5e7eb]"
+                            style="display: none;">
+                            Wyloguj
+                        </button>
+                    </div>
                 </div>
             </header>
             <div class="px-40 flex flex-1 justify-center py-5">
                 <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
-                    <div class="flex flex-wrap justify-between gap-3 p-4">
-                        <p class="text-[#111418] tracking-light text-[32px] font-bold leading-tight min-w-72">Twoje
+                    <!-- Prominent Add Application Button -->
+                    <div class="flex flex-wrap justify-between gap-3 p-4 mb-6">
+                        <p class="text-[#141414] tracking-light text-[32px] font-bold leading-tight min-w-72">Twoje
                             aplikacje</p>
                         <a href="add-application.html"
-                            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#f0f2f5] text-[#111418] text-sm font-medium leading-normal">
+                            class="flex min-w-[140px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#141414] text-white text-base font-bold leading-normal shadow-lg hover:bg-[#2d2d2d] transition-all duration-200">
+                            <i class="fas fa-plus mr-2"></i>
                             <span class="truncate">Dodaj aplikację</span>
                         </a>
                     </div>
-                    <h3 class="text-[#111418] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">Filtry
-                    </h3>
-                    <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-                        <label class="flex flex-col min-w-40 flex-1">
-                            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Stanowisko</p>
-                            <input id="filterStanowisko" placeholder="np. Frontend Developer"
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal"
-                                value="" />
-                        </label>
-                        <label class="flex flex-col min-w-40 flex-1">
-                            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Firma</p>
-                            <input id="filterFirma" placeholder="np. Google"
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal"
-                                value="" />
-                        </label>
+
+                    <!-- Toggle Filters Button -->
+                    <div class="px-4 py-2">
+                        <button id="toggleFilters"
+                            class="flex items-center gap-2 text-[#141414] text-lg font-bold leading-tight tracking-[-0.015em] bg-[#f5f5f5] px-4 py-2 rounded-lg border border-[#e5e7eb]">
+                            <i class="fas fa-filter"></i> Pokaż filtry
+                        </button>
                     </div>
-                    <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-                        <label class="flex flex-col min-w-40 flex-1">
-                            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Data</p>
-                            <input id="filterData" type="date" placeholder="Wybierz datę"
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal"
-                                value="" />
-                        </label>
-                        <label class="flex flex-col min-w-40 flex-1">
-                            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Status</p>
-                            <select id="statusFilter"
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal">
-                                <option value="">Wszystkie statusy</option>
-                                <option value="Wysłano CV">Wysłano CV</option>
-                                <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
-                                <option value="Rozmowa online">Rozmowa online</option>
-                                <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
-                                <option value="Assessment Center">Assessment Center</option>
-                                <option value="Oferta">Oferta</option>
-                                <option value="Odrzucono">Odrzucono</option>
-                            </select>
-                        </label>
-                    </div>
-                    <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-                        <label class="flex flex-col min-w-40 flex-1">
-                            <p class="text-[#111418] text-base font-medium leading-normal pb-2">Tryb pracy</p>
-                            <select id="filterTryb"
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] focus:outline-0 focus:ring-0 border border-[#dbe0e6] bg-white focus:border-[#dbe0e6] h-14 bg-[image:--select-button-svg] placeholder:text-[#60758a] p-[15px] text-base font-normal leading-normal">
-                                <option value="">Wszystkie tryby</option>
-                                <option value="STACJONARNY">Stacjonarny</option>
-                                <option value="HYBRYDOWY">Hybrydowy</option>
-                                <option value="ZDALNY">Zdalny</option>
-                            </select>
-                        </label>
-                        <div class="flex items-center gap-2 pt-6">
-                            <input type="checkbox" id="showArchived" class="w-4 h-4">
-                            <label for="showArchived" class="text-[#111418] text-base font-medium leading-normal">Pokaż
-                                archiwalne</label>
+
+                    <!-- Hidden Filters Container -->
+                    <div id="filtersContainer" class="filters-container" style="display: none;">
+                        <h3 class="text-[#141414] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
+                            Filtry</h3>
+                        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label class="flex flex-col min-w-40 flex-1">
+                                <p class="text-[#141414] text-base font-medium leading-normal pb-2">Stanowisko</p>
+                                <input id="filterStanowisko" placeholder="np. Frontend Developer"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#141414] focus:outline-0 focus:ring-0 border border-[#e5e7eb] bg-white focus:border-[#141414] h-14 placeholder:text-neutral-500 p-[15px] text-base font-normal leading-normal"
+                                    value="" />
+                            </label>
+                            <label class="flex flex-col min-w-40 flex-1">
+                                <p class="text-[#141414] text-base font-medium leading-normal pb-2">Firma</p>
+                                <input id="filterFirma" placeholder="np. Google"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#141414] focus:outline-0 focus:ring-0 border border-[#e5e7eb] bg-white focus:border-[#141414] h-14 placeholder:text-neutral-500 p-[15px] text-base font-normal leading-normal"
+                                    value="" />
+                            </label>
+                        </div>
+                        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label class="flex flex-col min-w-40 flex-1">
+                                <p class="text-[#141414] text-base font-medium leading-normal pb-2">Data</p>
+                                <input id="filterData" type="date" placeholder="Wybierz datę"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#141414] focus:outline-0 focus:ring-0 border border-[#e5e7eb] bg-white focus:border-[#141414] h-14 placeholder:text-neutral-500 p-[15px] text-base font-normal leading-normal"
+                                    value="" />
+                            </label>
+                            <label class="flex flex-col min-w-40 flex-1">
+                                <p class="text-[#141414] text-base font-medium leading-normal pb-2">Status</p>
+                                <select id="statusFilter"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#141414] focus:outline-0 focus:ring-0 border border-[#e5e7eb] bg-white focus:border-[#141414] h-14 placeholder:text-neutral-500 p-[15px] text-base font-normal leading-normal">
+                                    <option value="">Wszystkie statusy</option>
+                                    <option value="Wysłano CV">Wysłano CV</option>
+                                    <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
+                                    <option value="Rozmowa online">Rozmowa online</option>
+                                    <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
+                                    <option value="Assessment Center">Assessment Center</option>
+                                    <option value="Oferta">Oferta</option>
+                                    <option value="Odrzucono">Odrzucono</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+                            <label class="flex flex-col min-w-40 flex-1">
+                                <p class="text-[#141414] text-base font-medium leading-normal pb-2">Tryb pracy</p>
+                                <select id="filterTryb"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#141414] focus:outline-0 focus:ring-0 border border-[#e5e7eb] bg-white focus:border-[#141414] h-14 bg-[image:--select-button-svg] placeholder:text-neutral-500 p-[15px] text-base font-normal leading-normal">
+                                    <option value="">Wszystkie tryby</option>
+                                    <option value="STACJONARNY">Stacjonarny</option>
+                                    <option value="HYBRYDOWY">Hybrydowy</option>
+                                    <option value="ZDALNY">Zdalny</option>
+                                </select>
+                            </label>
+                            <div class="flex items-center gap-2 pt-6">
+                                <input type="checkbox" id="showArchived" class="w-4 h-4">
+                                <label for="showArchived"
+                                    class="text-[#141414] text-base font-medium leading-normal">Pokaż archiwalne</label>
+                            </div>
                         </div>
                     </div>
-                    <div class="px-4 py-3 @container">
-                        <div class="flex overflow-hidden rounded-lg border border-[#dbe0e6] bg-white">
-                            <table class="flex-1 applications-table">
-                                <thead>
-                                    <tr class="bg-white">
-                                        <th
-                                            class="px-4 py-3 text-left text-[#111418] w-[400px] text-sm font-medium leading-normal">
-                                            Stanowisko
-                                        </th>
-                                        <th
-                                            class="px-4 py-3 text-left text-[#111418] w-[400px] text-sm font-medium leading-normal">
-                                            Firma</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-[#111418] w-[400px] text-sm font-medium leading-normal">
-                                            Data aplikowania
-                                        </th>
-                                        <th
-                                            class="px-4 py-3 text-left text-[#111418] w-60 text-sm font-medium leading-normal">
-                                            Status</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-[#111418] w-[400px] text-sm font-medium leading-normal">
-                                            Wynagrodzenie</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-[#111418] w-[400px] text-sm font-medium leading-normal">
-                                            Tryb</th>
-                                        <th
-                                            class="px-4 py-3 text-left text-[#111418] w-60 text-[#60758a] text-sm font-medium leading-normal">
-                                            Akcje
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Wiersze będą generowane dynamicznie przez JS -->
-                                </tbody>
-                            </table>
+
+                    <div class="px-4 py-3">
+                        <div id="applicationsCard">
+                            <!-- Licznik zostanie tu wstawiony przez JS -->
+                            <div class="table-responsive overflow-x-auto rounded-lg border border-[#e5e7eb] bg-white">
+                                <table class="w-full applications-table min-w-[800px]">
+                                    <thead>
+                                        <tr class="bg-white border-b border-[#e5e7eb]">
+                                            <th
+                                                class="px-4 py-3 text-left text-[#141414] text-sm font-medium leading-normal min-w-[150px]">
+                                                Stanowisko
+                                            </th>
+                                            <th
+                                                class="px-4 py-3 text-left text-[#141414] text-sm font-medium leading-normal min-w-[120px]">
+                                                Firma
+                                            </th>
+                                            <th
+                                                class="px-4 py-3 text-left text-[#141414] text-sm font-medium leading-normal min-w-[100px]">
+                                                Data
+                                            </th>
+                                            <th
+                                                class="px-4 py-3 text-left text-[#141414] text-sm font-medium leading-normal min-w-[120px]">
+                                                Status
+                                            </th>
+                                            <th
+                                                class="px-4 py-3 text-left text-[#141414] text-sm font-medium leading-normal min-w-[120px]">
+                                                Wynagrodzenie
+                                            </th>
+                                            <th
+                                                class="px-4 py-3 text-left text-[#141414] text-sm font-medium leading-normal min-w-[100px]">
+                                                Tryb
+                                            </th>
+                                            <th
+                                                class="px-4 py-3 text-left text-[#141414] text-sm font-medium leading-normal min-w-[100px]">
+                                                Akcje
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Wiersze będą generowane dynamicznie przez JS -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal edycji aplikacji -->
-    <div id="editModal">
-        <div class="edit-tile">
-            <button id="closeEditModal" type="button">&times;</button>
-            <h3><i class="fas fa-edit"></i> Edytuj aplikację</h3>
-            <form id="editApplicationForm">
-                <input type="hidden" id="editAppId">
-                <div class="form-group">
-                    <label for="editStanowisko">Stanowisko</label>
-                    <input type="text" id="editStanowisko" required>
+        <!-- Contact Modal -->
+        <div id="contactModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeContactModal()">&times;</button>
+                <h2 class="text-[#141414] text-2xl font-bold leading-tight mb-4">Kontakt</h2>
+                <div class="text-[#141414] text-base leading-relaxed">
+                    <p class="mb-4"><strong>Witaj w Rekrutracker – narzędziu do śledzenia aplikacji o pracę</strong></p>
+                    <p class="mb-4">Masz dość rozproszonych notatek i niekończących się arkuszy? Rekrutracker pomaga
+                        uporządkować wszystkie wysłane aplikacje, statusy rozmów i terminy odpowiedzi.</p>
+                    <p class="mb-4">W jednym miejscu widzisz, gdzie aplikowałeś, co się dzieje i co warto zrobić dalej.
+                    </p>
+                    <p class="font-semibold">Prosto. Przejrzyście. Skutecznie.</p>
                 </div>
-                <div class="form-group">
-                    <label for="editFirma">Firma</label>
-                    <input type="text" id="editFirma" required>
-                </div>
-                <div class="form-group">
-                    <label for="editData">Data aplikowania</label>
-                    <input type="date" id="editData" required>
-                </div>
-                <div class="form-group">
-                    <label for="editStatus">Status</label>
-                    <select id="editStatus" required>
-                        <option value="Wysłano CV">Wysłano CV</option>
-                        <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
-                        <option value="Rozmowa online">Rozmowa online</option>
-                        <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
-                        <option value="Assessment Center">Assessment Center</option>
-                        <option value="Odrzucono">Odrzucono</option>
-                        <option value="Oferta">Oferta</option>
-                    </select>
-                </div>
-                <div class="form-group" style="display: flex; gap: 0.5em; align-items: flex-end;">
-                    <div style="flex:2;">
-                        <label for="editWynagrodzenie">Wynagrodzenie</label>
-                        <input type="number" id="editWynagrodzenie" min="0" step="any" placeholder="np. 8000">
-                    </div>
-                    <div style="flex:1;">
-                        <label for="editWaluta" style="visibility:hidden;">Waluta</label>
-                        <select id="editWaluta"
-                            style="width:100%;padding:0.7em;border-radius:8px;border:1px solid #e2e8f0;">
-                            <option value="PLN">PLN</option>
-                            <option value="EUR">EUR</option>
-                            <option value="USD">USD</option>
-                        </select>
-                    </div>
-                    <div style="flex:1;">
-                        <label for="editWynRodzaj" style="visibility:hidden;">Rodzaj</label>
-                        <select id="editWynRodzaj"
-                            style="width:100%;padding:0.7em;border-radius:8px;border:1px solid #e2e8f0;">
-                            <option value="BRUTTO">BRUTTO</option>
-                            <option value="NETTO">NETTO</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="editTryb">Tryb</label>
-                    <select id="editTryb" required>
-                        <option value="STACJONARNY">STACJONARNY</option>
-                        <option value="HYBRYDOWY">HYBRYDOWY</option>
-                        <option value="ZDALNY">ZDALNY</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="editKontakt">Kontakt</label>
-                    <input type="text" id="editKontakt" placeholder="np. imię, email, telefon">
-                </div>
-                <div class="form-group">
-                    <label for="editLink">Link do oferty pracy</label>
-                    <input type="url" id="editLink" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label for="editNotatki" style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
-                        <i class="fas fa-sticky-note" style="color:#4f8cff;margin-right:0.3em;"></i>Notatki
-                    </label>
-                    <textarea id="editNotatki" rows="3" placeholder="Dodaj własne notatki do tej aplikacji..."
-                        style="resize:vertical;min-height:60px;width:100%;border-radius:8px;border:1px solid #d1d5db;padding:0.7em;font-size:1em;"></textarea>
-                </div>
-                <!-- Dodawanie zdjęć/screenów -->
-                <div class="form-group">
-                    <label for="editImages" style="font-weight:600;display:block;margin-bottom:0.3em;">
-                        <i class="fas fa-image" style="color:#4f8cff;margin-right:0.3em;"></i>Załącz zdjęcia/screeny
-                    </label>
-                    <input type="file" id="editImages" accept="image/*" multiple>
-                    <div id="editImagesPreview" style="margin-top:0.5em;display:flex;gap:0.5em;flex-wrap:wrap;"></div>
-                </div>
-                <div id="statusHistoryBox" style="margin:1em 0 0 0; font-size:0.95em; color:#555;">
-                    <strong>Historia statusu:</strong>
-                    <ul id="statusHistoryList" style="margin:0.5em 0 0 1em; padding:0;"></ul>
-                </div>
-                <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Zapisz zmiany</button>
-                <button type="button" id="archiveAppBtn"
-                    style="width:100%;margin-top:1em;background:#bbb;color:#fff;font-weight:600;border-radius:8px;padding:0.7em;">
-                    Archiwizuj aplikację
-                </button>
-                <button type="button" id="deleteAppBtn"
-                    style="width:100%;margin-top:1em;background:none;border:none;color:#e74c3c;font-weight:600;cursor:pointer;">
-                    <i class="fas fa-trash"></i> Usuń aplikację
-                </button>
-            </form>
-            <p id="editFormMessage" style="text-align:center; margin-top:1em; color:green;"></p>
+            </div>
         </div>
-    </div>
 
-    <!-- Firebase SDK i Twoje skrypty -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-    <script src="firebase-init.js"></script>
-    <script src="main.js"></script>
+        <!-- Favorites Modal -->
+        <div id="favoritesModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeFavoritesModal()">&times;</button>
+                <h2 class="text-[#141414] text-2xl font-bold leading-tight mb-4">Ulubione aplikacje</h2>
+                <div id="favoritesContent">
+                    <!-- Ulubione aplikacje będą tu wyświetlane -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal edycji aplikacji -->
+        <div id="editModal">
+            <div class="edit-tile">
+                <button id="closeEditModal" type="button">&times;</button>
+                <h3><i class="fas fa-edit"></i> Edytuj aplikację</h3>
+                <form id="editApplicationForm">
+                    <input type="hidden" id="editAppId">
+                    <div class="form-group">
+                        <label for="editStanowisko">Stanowisko</label>
+                        <input type="text" id="editStanowisko" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editFirma">Firma</label>
+                        <input type="text" id="editFirma" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editData">Data aplikowania</label>
+                        <input type="date" id="editData" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStatus">Status</label>
+                        <select id="editStatus" required>
+                            <option value="Wysłano CV">Wysłano CV</option>
+                            <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
+                            <option value="Rozmowa online">Rozmowa online</option>
+                            <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
+                            <option value="Assessment Center">Assessment Center</option>
+                            <option value="Odrzucono">Odrzucono</option>
+                            <option value="Oferta">Oferta</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; gap: 0.5em; align-items: flex-end;">
+                        <div style="flex:2;">
+                            <label for="editWynagrodzenie">Wynagrodzenie</label>
+                            <input type="number" id="editWynagrodzenie" min="0" step="any" placeholder="np. 8000">
+                        </div>
+                        <div style="flex:1;">
+                            <label for="editWaluta" style="visibility:hidden;">Waluta</label>
+                            <select id="editWaluta"
+                                style="width:100%;padding:0.7em;border-radius:8px;border:1px solid #e5e7eb;">
+                                <option value="PLN">PLN</option>
+                                <option value="EUR">EUR</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <label for="editWynRodzaj" style="visibility:hidden;">Rodzaj</label>
+                            <select id="editWynRodzaj"
+                                style="width:100%;padding:0.7em;border-radius:8px;border:1px solid #e5e7eb;">
+                                <option value="BRUTTO">BRUTTO</option>
+                                <option value="NETTO">NETTO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTryb">Tryb</label>
+                        <select id="editTryb" required>
+                            <option value="STACJONARNY">STACJONARNY</option>
+                            <option value="HYBRYDOWY">HYBRYDOWY</option>
+                            <option value="ZDALNY">ZDALNY</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editKontakt">Kontakt</label>
+                        <input type="text" id="editKontakt" placeholder="np. imię, email, telefon">
+                    </div>
+                    <div class="form-group">
+                        <label for="editLink">Link do oferty pracy</label>
+                        <input type="url" id="editLink" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label for="editNotatki"
+                            style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
+                            <i class="fas fa-sticky-note" style="color:#4f8cff;margin-right:0.3em;"></i>Notatki
+                        </label>
+                        <textarea id="editNotatki" rows="3" placeholder="Dodaj własne notatki do tej aplikacji..."
+                            style="resize:vertical;min-height:60px;width:100%;border-radius:8px;border:1px solid #e5e7eb;padding:0.7em;font-size:1em;"></textarea>
+                    </div>
+                    <!-- Dodawanie zdjęć/screenów -->
+                    <div class="form-group">
+                        <label for="editImages" style="font-weight:600;display:block;margin-bottom:0.3em;">
+                            <i class="fas fa-image" style="color:#4f8cff;margin-right:0.3em;"></i>Załącz zdjęcia/screeny
+                        </label>
+                        <input type="file" id="editImages" accept="image/*" multiple>
+                        <div id="editImagesPreview" style="margin-top:0.5em;display:flex;gap:0.5em;flex-wrap:wrap;">
+                        </div>
+                    </div>
+                    <div id="statusHistoryBox" style="margin:1em 0 0 0; font-size:0.95em; color:#555;">
+                        <strong>Historia statusu:</strong>
+                        <ul id="statusHistoryList" style="margin:0.5em 0 0 1em; padding:0;"></ul>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5em; cursor: pointer;">
+                            <input type="checkbox" id="editFavorite" style="width: 1.2em; height: 1.2em;">
+                            <span style="font-weight: 600;">Dodaj do ulubionych</span>
+                            <i class="fas fa-star" style="color: #fbbf24;"></i>
+                        </label>
+                    </div>
+                    <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Zapisz zmiany</button>
+                    <button type="button" id="archiveAppBtn"
+                        style="width:100%;margin-top:1em;background:#6b7280;color:#fff;font-weight:600;border-radius:8px;padding:0.7em;border:none;">
+                        Archiwizuj aplikację
+                    </button>
+                    <button type="button" id="deleteAppBtn"
+                        style="width:100%;margin-top:1em;background:none;border:none;color:#dc2626;font-weight:600;cursor:pointer;">
+                        <i class="fas fa-trash"></i> Usuń aplikację
+                    </button>
+                </form>
+                <p id="editFormMessage" style="text-align:center; margin-top:1em; color:green;"></p>
+            </div>
+        </div>
+
+        <style>
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal.active {
+                display: flex;
+            }
+
+            .modal-content {
+                background: white;
+                padding: 2rem;
+                border-radius: 12px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                position: relative;
+                border: 1px solid #e5e7eb;
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                color: #6b7280;
+                cursor: pointer;
+                transition: color 0.2s;
+            }
+
+            .modal-close:hover {
+                color: #141414;
+            }
+        </style>
+
+        <!-- Firebase SDK i Twoje skrypty -->
+        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+        <script src="firebase-init.js"></script>
+        <script src="main.js"></script>
+
+        <script>
+            function showContactModal() {
+                document.getElementById('contactModal').classList.add('active');
+            }
+
+            function closeContactModal() {
+                document.getElementById('contactModal').classList.remove('active');
+            }
+
+            function showFavoritesModal() {
+                document.getElementById('favoritesModal').classList.add('active');
+                loadFavorites();
+            }
+
+            function closeFavoritesModal() {
+                document.getElementById('favoritesModal').classList.remove('active');
+            }
+        </script>
 </body>
 
 </html>
