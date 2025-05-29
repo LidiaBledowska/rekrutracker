@@ -46,6 +46,24 @@
     box-shadow: 0 0 0 3px rgba(20, 20, 20, 0.1);
 }
 
+/* Welcome message styles */
+#welcomeMessage {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    min-height: 300px;
+}
+
+#welcomeMessage h2 {
+    color: #141414;
+    margin-bottom: 1rem;
+}
+
+#welcomeMessage p {
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+}
+
 /* Black and white theme variables */
 :root {
     --primary-color: #141414;
@@ -461,7 +479,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.5);
     align-items: center;
     justify-content: center;
     z-index: 1000;
@@ -473,16 +491,22 @@ body {
 
 #editModal .edit-tile {
     background: #fff;
-    padding: 2.2em 1.5em 1.5em 1.5em;
+    padding: 2.5rem 2rem;
     border-radius: 18px;
-    max-width: 420px;
+    max-width: 500px;
     width: 95vw;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13);
-    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
     position: relative;
     animation: fadeInScale 0.25s;
+}
+
+#editModal .edit-tile h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #141414;
 }
 
 @keyframes fadeInScale {
@@ -510,41 +534,114 @@ body {
 }
 
 #closeEditModal:hover {
-    color: var(--primary-color);
+    color: #141414;
+}
+
+#editModal .form-group {
+    margin-bottom: 1.4rem;
+    position: relative;
 }
 
 #editModal .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
     font-weight: 600;
-    color: var(--text-color);
+    color: #141414;
+}
+
+#editModal .form-group i {
+    position: absolute;
+    left: 12px;
+    top: 38px;
+    color: #6b7280;
+    font-size: 1.1em;
 }
 
 #editModal .form-group input,
 #editModal .form-group select,
 #editModal .form-group textarea {
     width: 100%;
-    padding: 0.7rem 0.7rem 0.7rem 0.7rem;
-    border: 1px solid var(--border-color);
+    padding: 0.7rem 0.7rem 0.7rem 2.5rem;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     background: white;
     font-size: 1em;
-    margin-bottom: 1em;
     transition: border-color 0.2s;
-    color: var(--text-color);
+    color: #141414;
+    box-sizing: border-box;
 }
 
 #editModal .form-group input:focus,
 #editModal .form-group select:focus,
 #editModal .form-group textarea:focus {
-    border-color: var(--primary-color);
+    border-color: #141414;
     outline: none;
-    background: #fff;
+    background: white;
+}
+
+#editModal .form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+    padding-left: 0.7rem;
+}
+
+#editModal .form-group.no-icon input,
+#editModal .form-group.no-icon select {
+    padding-left: 0.7rem;
+}
+
+#editModal .salary-group {
+    display: flex;
+    gap: 0.5em;
+    align-items: flex-end;
+    margin-bottom: 1.4rem;
+}
+
+#editModal .salary-group .salary-main {
+    flex: 2;
+}
+
+#editModal .salary-group .salary-currency,
+#editModal .salary-group .salary-type {
+    flex: 1;
+}
+
+#editModal .salary-group .form-group {
+    margin-bottom: 0;
+}
+
+#editModal .salary-group .form-group:not(:first-child) label {
+    visibility: hidden;
+}
+
+#editModal .favorite-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    margin-bottom: 1.4rem;
+}
+
+#editModal .favorite-checkbox input[type="checkbox"] {
+    width: 1.2em;
+    height: 1.2em;
+    margin: 0;
+}
+
+#editModal .favorite-checkbox span {
+    font-weight: 600;
+}
+
+#editModal .favorite-checkbox i {
+    color: #fbbf24;
+    position: static;
 }
 
 #editModal .submit-btn {
     width: 100%;
     padding: 0.9rem;
-    background: var(--primary-color);
-    color: #fff;
+    background: #141414;
+    color: white;
     border: none;
     border-radius: 8px;
     font-size: 1.1em;
@@ -554,7 +651,29 @@ body {
 }
 
 #editModal .submit-btn:hover {
-    background: var(--primary-light);
+    background: #2d2d2d;
+}
+
+@media (max-width: 500px) {
+    #editModal .edit-tile {
+        padding: 1.2rem 1rem;
+        margin: 20px auto;
+    }
+
+    #editModal .salary-group {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    #editModal .salary-group .salary-main,
+    #editModal .salary-group .salary-currency,
+    #editModal .salary-group .salary-type {
+        flex: 1;
+    }
+
+    #editModal .salary-group .form-group:not(:first-child) label {
+        visibility: visible;
+    }
 }
 
 .edit-btn {

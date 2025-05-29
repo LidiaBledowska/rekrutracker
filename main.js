@@ -443,24 +443,54 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
-    loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
-
+    
     // Firebase auth state change handler
     if (firebase.auth) {
         firebase.auth().onAuthStateChanged(function (user) {
+            const landingPage = document.getElementById('landingPage');
+            const mainContent = document.getElementById('mainContent');
+            const googleSigninButtonMain = document.getElementById('google-signin-button-main');
+            const mainUserStatus = document.getElementById('main-user-status');
+            
             if (user) {
-                // User is logged in
+                // User is logged in - show main application content
+                if (landingPage) landingPage.style.display = 'none';
+                if (mainContent) mainContent.style.display = 'block';
+                
                 if (userInfo) {
                     userInfo.textContent = `Witaj, ${user.displayName || user.email}!`;
                     userInfo.style.display = 'inline';
                 }
                 if (loginBtn) loginBtn.style.display = 'none';
                 if (logoutBtn) logoutBtn.style.display = 'inline';
+                
+                // Load applications for logged in user
+                loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
             } else {
-                // User is logged out
+                // User is logged out - show landing page
+                if (landingPage) landingPage.style.display = 'block';
+                if (mainContent) mainContent.style.display = 'none';
+                
                 if (userInfo) userInfo.style.display = 'none';
                 if (loginBtn) loginBtn.style.display = 'inline';
                 if (logoutBtn) logoutBtn.style.display = 'none';
+                
+                // Reset landing page state - hide login form, show register button
+                const loginForm = document.getElementById('loginForm');
+                const registerButton = document.getElementById('registerButton');
+                if (loginForm) loginForm.style.display = 'none';
+                if (registerButton) registerButton.style.display = 'block';
+                
+                // Setup Google signin for landing page
+                if (googleSigninButtonMain && !googleSigninButtonMain.onclick) {
+                    googleSigninButtonMain.onclick = function() {
+                        window.location.href = 'login.html';
+                    };
+                }
+                
+                if (mainUserStatus) {
+                    mainUserStatus.textContent = '';
+                }
             }
         });
     }

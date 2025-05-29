@@ -300,6 +300,16 @@
                     style="padding-left: 0.7rem;"></textarea>
             </div>
 
+            <!-- Dodawanie zdjęć/screenów -->
+            <div class="form-group">
+                <label for="images" style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
+                    <i class="fas fa-image" style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Załącz zdjęcia/screeny
+                </label>
+                <input type="file" id="images" name="images" accept="image/*" multiple
+                    style="width:100%;padding:0.7rem;border:1px solid #e5e7eb;border-radius:8px;background:white;font-size:1em;color:#141414;box-sizing:border-box;">
+                <div id="imagesPreview" style="margin-top:0.5em;display:flex;gap:0.5em;flex-wrap:wrap;"></div>
+            </div>
+
             <div class="favorite-checkbox">
                 <input type="checkbox" id="favorite" name="favorite">
                 <span>Dodaj do ulubionych</span>
@@ -314,6 +324,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
     <script>
         // Konfiguracja Firebase
         const firebaseConfig = {
@@ -327,10 +338,50 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Podgląd zdjęć przed wysłaniem
+        document.getElementById('images').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagesPreview');
+            preview.innerHTML = '';
+            
+            Array.from(e.target.files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb;';
+                        preview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        // Funkcja do przesyłania zdjęć
+        async function uploadImages(files) {
+            const uploadPromises = Array.from(files).map(async (file) => {
+                if (file.type.startsWith('image/')) {
+                    const storageRef = storage.ref(`applications/${Date.now()}_${file.name}`);
+                    const snapshot = await storageRef.put(file);
+                    return await snapshot.ref.getDownloadURL();
+                }
+                return null;
+            });
+            
+            const urls = await Promise.all(uploadPromises);
+            return urls.filter(url => url !== null);
+        }
 
         // Obsługa formularza
-        document.getElementById('addApplicationForm').addEventListener('submit', function (e) {
+        document.getElementById('addApplicationForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+            
+            // Pokaż komunikat o przetwarzaniu
+            document.getElementById('form-message').textContent = "Przetwarzanie...";
+            document.getElementById('form-message').style.color = "blue";
+            
             const stanowisko = document.getElementById('stanowisko').value;
             const firma = document.getElementById('firma').value;
             const data = document.getElementById('data').value;
@@ -343,44 +394,54 @@
             const link = document.getElementById('link').value;
             const notatki = document.getElementById('notatki').value;
             const favorite = document.getElementById('favorite').checked;
+            const images = document.getElementById('images').files;
 
-            // Przygotuj dane do zapisania
-            const applicationData = {
-                stanowisko,
-                firma,
-                data,
-                status,
-                tryb,
-                waluta,
-                wynRodzaj,
-                statusHistory: [{
-                    status: status,
-                    date: data
-                }],
-                archiwalna: false,
-                favorite: favorite
-            };
+            try {
+                // Prześlij zdjęcia jeśli są
+                let imageUrls = [];
+                if (images.length > 0) {
+                    imageUrls = await uploadImages(images);
+                }
 
-            // Dodaj opcjonalne pola tylko jeśli są wypełnione
-            if (wynagrodzenie) applicationData.wynagrodzenie = parseFloat(wynagrodzenie);
-            if (kontakt) applicationData.kontakt = kontakt;
-            if (link) applicationData.link = link;
-            if (notatki) applicationData.notatki = notatki;
+                // Przygotuj dane do zapisania
+                const applicationData = {
+                    stanowisko,
+                    firma,
+                    data,
+                    status,
+                    tryb,
+                    waluta,
+                    wynRodzaj,
+                    statusHistory: [{
+                        status: status,
+                        date: data
+                    }],
+                    archiwalna: false,
+                    favorite: favorite
+                };
 
-            db.collection("applications").add(applicationData).then(() => {
+                // Dodaj opcjonalne pola tylko jeśli są wypełnione
+                if (wynagrodzenie) applicationData.wynagrodzenie = parseFloat(wynagrodzenie);
+                if (kontakt) applicationData.kontakt = kontakt;
+                if (link) applicationData.link = link;
+                if (notatki) applicationData.notatki = notatki;
+                if (imageUrls.length > 0) applicationData.images = imageUrls;
+
+                await db.collection("applications").add(applicationData);
                 document.getElementById('form-message').textContent = "Aplikacja została dodana pomyślnie!";
                 document.getElementById('form-message').style.color = "green";
                 this.reset();
+                document.getElementById('imagesPreview').innerHTML = '';
 
                 // Przekieruj po 2 sekundach
                 setTimeout(() => {
                     window.location.href = "indextest.html";
                 }, 2000);
-            }).catch((error) => {
+            } catch (error) {
                 console.error("Błąd:", error);
                 document.getElementById('form-message').textContent = "Błąd podczas dodawania aplikacji.";
                 document.getElementById('form-message').style.color = "red";
-            });
+            }
         });
     </script>
 </body>

@@ -67,8 +67,39 @@
             <div class="flex flex-1 justify-center py-5">
                 <div class="w-full max-w-[1400px] px-8">
                     <div class="mx-auto" style="max-width: 1200px;">
+                        
+                        <!-- Landing page for non-authenticated users -->
+                        <div id="landingPage" style="display: none;">
+                            <div class="text-center py-20">
+                                <h1 class="text-[#141414] text-4xl font-bold mb-8">
+                                    RekruTracker<br>
+                                    Twój osobisty asystent kariery
+                                </h1>
+                                
+                                <p class="text-[#6b7280] text-lg mb-8 max-w-2xl mx-auto">
+                                    Skutecznie organizuj swoje aplikacje o pracę, śledź postępy i nie przegap żadnej szansy na rozwój kariery.
+                                </p>
+                                
+                                <!-- Login form - initially hidden -->
+                                <div id="loginForm" class="max-w-md mx-auto bg-white border border-[#e5e7eb] rounded-lg p-8 shadow-lg mb-8" style="display: none;">
+                                    <button id="google-signin-button-main" class="w-full inline-flex items-center justify-center px-6 py-3 border border-[#e5e7eb] rounded-lg bg-white text-[#141414] font-semibold hover:bg-[#f5f5f5] transition-all duration-200 shadow-sm">
+                                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" class="w-6 h-6 mr-3">
+                                        Zaloguj się przez Google
+                                    </button>
+                                    <p id="main-user-status" class="mt-4 text-sm text-[#6b7280]"></p>
+                                </div>
+                                
+                                <button id="registerButton" class="mx-auto block px-8 py-4 bg-[#141414] text-white font-bold rounded-lg text-lg hover:bg-[#2d2d2d] transition-all duration-200 shadow-lg">
+                                    Zarejestruj za darmo
+                                </button>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Main application content for authenticated users -->
+                        <div id="mainContent" style="display: none;">
                         <!-- Prominent Add Application Button -->
-                        <div class="flex flex-wrap justify-between gap-3 mb-6">
+                        <div id="headerSection" class="flex flex-wrap justify-between gap-3 mb-6">
                             <p class="text-[#141414] tracking-light text-[32px] font-bold leading-tight min-w-72">Twoje
                                 aplikacje</p>
                             <a href="add-application.html"
@@ -79,7 +110,7 @@
                         </div>
 
                         <!-- Toggle Filters and Sort Buttons -->
-                        <div class="py-2 flex gap-4">
+                        <div id="filterSortButtons" class="py-2 flex gap-4">
                             <button id="toggleFilters"
                                 class="flex items-center gap-2 text-[#141414] text-lg font-bold leading-tight tracking-[-0.015em] bg-[#f5f5f5] px-4 py-2 rounded-lg border border-[#e5e7eb]">
                                 <i class="fas fa-filter"></i> Pokaż filtry
@@ -169,7 +200,21 @@
                         </div>
 
                         <div class="py-3">
-                            <div id="applicationsCard">
+                            <!-- Welcome message container -->
+                        <div id="welcomeMessage" class="hidden flex justify-center items-center p-10" style="display: none;">
+                            <div class="text-center max-w-2xl">
+                                <h2 class="text-[#141414] text-3xl font-bold mb-6">Witamy w RekruTracker</h2>
+                                <p class="text-[#141414] text-lg leading-relaxed mb-8">
+                                    Twój osobisty asystent do organizowania aplikacji o pracę. 
+                                    Śledź postępy, nie przegap terminów i skutecznie zarządzaj procesem poszukiwania pracy.
+                                </p>
+                                <button id="returnToApplications" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#141414] text-white text-base font-bold leading-normal shadow-lg hover:bg-[#2d2d2d] transition-all duration-200 mx-auto">
+                                    Powrót do aplikacji
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="applicationsCard">
                                 <!-- Licznik zostanie tu wstawiony przez JS -->
                                 <div class="table-responsive rounded-lg border border-[#e5e7eb] bg-white">
                                     <table class="w-full applications-table" style="min-width: 1200px;">
@@ -212,6 +257,7 @@
                                 </div>
                             </div>
                         </div>
+                        </div> <!-- End mainContent -->
                     </div>
                 </div>
             </div>
@@ -236,80 +282,89 @@
         <div id="editModal">
             <div class="edit-tile">
                 <button id="closeEditModal" type="button">&times;</button>
-                <h3><i class="fas fa-edit"></i> Edytuj aplikację</h3>
+                <h2><i class="fas fa-plus-circle"></i> Edytuj aplikację</h2>
                 <form id="editApplicationForm">
                     <input type="hidden" id="editAppId">
                     <div class="form-group">
-                        <label for="editStanowisko">Stanowisko</label>
-                        <input type="text" id="editStanowisko" required>
+                        <label for="editStanowisko"><i class="fas fa-briefcase"></i> Stanowisko</label>
+                        <input type="text" id="editStanowisko" name="stanowisko" required placeholder="Np. Frontend Developer">
                     </div>
                     <div class="form-group">
-                        <label for="editFirma">Firma</label>
-                        <input type="text" id="editFirma" required>
+                        <label for="editFirma"><i class="fas fa-building"></i> Firma</label>
+                        <input type="text" id="editFirma" name="firma" required placeholder="Np. Tech Innovations">
                     </div>
                     <div class="form-group">
-                        <label for="editData">Data aplikowania</label>
-                        <input type="date" id="editData" required>
+                        <label for="editData"><i class="fas fa-calendar-alt"></i> Data aplikowania</label>
+                        <input type="date" id="editData" name="data" required>
                     </div>
                     <div class="form-group">
-                        <label for="editStatus">Status</label>
-                        <select id="editStatus" required>
+                        <label for="editStatus"><i class="fas fa-tasks"></i> Status</label>
+                        <select id="editStatus" name="status" required>
+                            <option value="">Wybierz status...</option>
                             <option value="Wysłano CV">Wysłano CV</option>
                             <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
                             <option value="Rozmowa online">Rozmowa online</option>
                             <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
                             <option value="Assessment Center">Assessment Center</option>
-                            <option value="Odrzucono">Odrzucono</option>
                             <option value="Oferta">Oferta</option>
+                            <option value="Odrzucono">Odrzucono</option>
                         </select>
                     </div>
-                    <div class="form-group" style="display: flex; gap: 0.5em; align-items: flex-end;">
-                        <div style="flex:2;">
-                            <label for="editWynagrodzenie">Wynagrodzenie</label>
-                            <input type="number" id="editWynagrodzenie" min="0" step="any" placeholder="np. 8000">
+
+                    <div class="salary-group">
+                        <div class="salary-main">
+                            <div class="form-group">
+                                <label for="editWynagrodzenie"><i class="fas fa-money-bill-wave"></i> Wynagrodzenie</label>
+                                <input type="number" id="editWynagrodzenie" name="wynagrodzenie" min="0" step="any"
+                                    placeholder="np. 8000" style="padding-left: 2.5rem;">
+                            </div>
                         </div>
-                        <div style="flex:1;">
-                            <label for="editWaluta" style="visibility:hidden;">Waluta</label>
-                            <select id="editWaluta"
-                                style="width:100%;padding:0.7em;border-radius:8px;border:1px solid #e5e7eb;">
-                                <option value="PLN">PLN</option>
-                                <option value="EUR">EUR</option>
-                                <option value="USD">USD</option>
-                            </select>
+                        <div class="salary-currency">
+                            <div class="form-group no-icon">
+                                <label for="editWaluta">Waluta</label>
+                                <select id="editWaluta" name="waluta">
+                                    <option value="PLN">PLN</option>
+                                    <option value="EUR">EUR</option>
+                                    <option value="USD">USD</option>
+                                </select>
+                            </div>
                         </div>
-                        <div style="flex:1;">
-                            <label for="editWynRodzaj" style="visibility:hidden;">Rodzaj</label>
-                            <select id="editWynRodzaj"
-                                style="width:100%;padding:0.7em;border-radius:8px;border:1px solid #e5e7eb;">
-                                <option value="BRUTTO">BRUTTO</option>
-                                <option value="NETTO">NETTO</option>
-                            </select>
+                        <div class="salary-type">
+                            <div class="form-group no-icon">
+                                <label for="editWynRodzaj">Rodzaj</label>
+                                <select id="editWynRodzaj" name="wynRodzaj">
+                                    <option value="BRUTTO">BRUTTO</option>
+                                    <option value="NETTO">NETTO</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <label for="editTryb">Tryb</label>
-                        <select id="editTryb" required>
-                            <option value="STACJONARNY">STACJONARNY</option>
-                            <option value="HYBRYDOWY">HYBRYDOWY</option>
-                            <option value="ZDALNY">ZDALNY</option>
+                        <label for="editTryb"><i class="fas fa-laptop-house"></i> Tryb pracy</label>
+                        <select id="editTryb" name="tryb" required>
+                            <option value="">Wybierz tryb...</option>
+                            <option value="STACJONARNY">Stacjonarny</option>
+                            <option value="HYBRYDOWY">Hybrydowy</option>
+                            <option value="ZDALNY">Zdalny</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="editKontakt">Kontakt</label>
-                        <input type="text" id="editKontakt" placeholder="np. imię, email, telefon">
+                        <label for="editKontakt"><i class="fas fa-address-book"></i> Kontakt</label>
+                        <input type="text" id="editKontakt" name="kontakt" placeholder="np. imię, email, telefon">
                     </div>
                     <div class="form-group">
-                        <label for="editLink">Link do oferty pracy</label>
-                        <input type="url" id="editLink" placeholder="https://...">
+                        <label for="editLink"><i class="fas fa-link"></i> Link do oferty</label>
+                        <input type="url" id="editLink" name="link" placeholder="https://...">
                     </div>
                     <div class="form-group">
-                        <label for="editNotatki"
-                            style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
-                            <i class="fas fa-sticky-note" style="color:#4f8cff;margin-right:0.3em;"></i>Notatki
+                        <label for="editNotatki" style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
+                            <i class="fas fa-sticky-note" style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Notatki
                         </label>
-                        <textarea id="editNotatki" rows="3" placeholder="Dodaj własne notatki do tej aplikacji..."
-                            style="resize:vertical;min-height:60px;width:100%;border-radius:8px;border:1px solid #e5e7eb;padding:0.7em;font-size:1em;"></textarea>
+                        <textarea id="editNotatki" name="notatki" rows="3" placeholder="Dodaj własne notatki do tej aplikacji..."
+                            style="padding-left: 0.7rem;"></textarea>
                     </div>
+
                     <!-- Dodawanie zdjęć/screenów -->
                     <div class="form-group">
                         <label for="editImages" style="font-weight:600;display:block;margin-bottom:0.3em;">
@@ -319,17 +374,21 @@
                         <div id="editImagesPreview" style="margin-top:0.5em;display:flex;gap:0.5em;flex-wrap:wrap;">
                         </div>
                     </div>
-                    <div id="statusHistoryBox" style="margin:1em 0 0 0; font-size:0.95em; color:#555;">
-                        <strong>Historia statusu:</strong>
-                        <ul id="statusHistoryList" style="margin:0.5em 0 0 1em; padding:0;"></ul>
+
+                    <!-- Historia statusu -->
+                    <div id="statusHistoryBox" style="margin:1em 0; padding:1em; background:#f9fafb; border-radius:8px; border:1px solid #e5e7eb;">
+                        <strong style="color:#141414; display:flex; align-items:center; gap:0.5em;">
+                            <i class="fas fa-history" style="color:#6b7280;"></i>Historia statusu:
+                        </strong>
+                        <ul id="statusHistoryList" style="margin:0.5em 0 0 1.5em; padding:0; list-style-type:disc; color:#6b7280;"></ul>
                     </div>
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 0.5em; cursor: pointer;">
-                            <input type="checkbox" id="editFavorite" style="width: 1.2em; height: 1.2em;">
-                            <span style="font-weight: 600;">Dodaj do ulubionych</span>
-                            <i class="fas fa-star" style="color: #fbbf24;"></i>
-                        </label>
+
+                    <div class="favorite-checkbox">
+                        <input type="checkbox" id="editFavorite" name="favorite">
+                        <span>Dodaj do ulubionych</span>
+                        <i class="fas fa-star"></i>
                     </div>
+
                     <button type="submit" class="submit-btn"><i class="fas fa-save"></i> Zapisz zmiany</button>
                     <button type="button" id="archiveAppBtn"
                         style="width:100%;margin-top:1em;background:#6b7280;color:#fff;font-weight:600;border-radius:8px;padding:0.7em;border:none;">
@@ -401,12 +460,46 @@
 
         <script>
             function showContactModal() {
-                document.getElementById('contactModal').classList.add('active');
+                // Hide main application elements
+                document.getElementById('headerSection').style.display = 'none';
+                document.getElementById('filterSortButtons').style.display = 'none';
+                document.getElementById('filtersContainer').style.display = 'none';
+                document.getElementById('sortContainer').style.display = 'none';
+                document.getElementById('applicationsCard').style.display = 'none';
+                
+                // Show welcome message
+                document.getElementById('welcomeMessage').style.display = 'flex';
             }
 
             function closeContactModal() {
-                document.getElementById('contactModal').classList.remove('active');
+                // Hide welcome message
+                document.getElementById('welcomeMessage').style.display = 'none';
+                
+                // Show main application elements
+                document.getElementById('headerSection').style.display = 'flex';
+                document.getElementById('filterSortButtons').style.display = 'flex';
+                document.getElementById('applicationsCard').style.display = 'block';
             }
+            
+            // Event listener for the return button
+            document.addEventListener('DOMContentLoaded', function() {
+                const returnToApplicationsBtn = document.getElementById('returnToApplications');
+                if (returnToApplicationsBtn) {
+                    returnToApplicationsBtn.addEventListener('click', function() {
+                        closeContactModal();
+                    });
+                }
+                
+                // Register button click handler - show login form
+                const registerButton = document.getElementById('registerButton');
+                const loginForm = document.getElementById('loginForm');
+                if (registerButton && loginForm) {
+                    registerButton.addEventListener('click', function() {
+                        loginForm.style.display = 'block';
+                        registerButton.style.display = 'none';
+                    });
+                }
+            });
         </script>
 </body>
 
