@@ -166,7 +166,7 @@
         // Przekierowanie po zalogowaniu
         signInButton.onclick = () =>
             signInWithPopup(auth, provider).then(() => {
-                window.location.href = "indextest.html";
+                window.location.href = "index.html";
             });
 
         signOutButton.onclick = () => signOut(auth);
