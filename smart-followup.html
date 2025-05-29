@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Follow-up – RekruTracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: white;
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #141414;
+        }
+
+        .hero-header {
+            text-align: center;
+            padding: 1.5rem 0 0.5rem 0;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            font-weight: 700;
+            font-size: 2rem;
+            color: white;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .followup-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #f5f5f5;
+            color: #141414;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e40af;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #475569;
+            margin-top: 5px;
+        }
+
+        .followups-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8fafc;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #141414;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .followup-list {
+            padding: 20px;
+        }
+
+        .followup-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .followup-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .followup-item.urgent {
+            border-left: 4px solid #ef4444;
+        }
+
+        .followup-item.today {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .followup-item.upcoming {
+            border-left: 4px solid #10b981;
+        }
+
+        .followup-header {
+            padding: 15px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .company-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #141414 0%, #2d2d2d 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .company-details h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #141414;
+        }
+
+        .company-details p {
+            margin: 2px 0 0 0;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .followup-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .priority-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .priority-low {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .days-since {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .followup-content {
+            padding: 20px;
+        }
+
+        .suggestion-box {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .suggestion-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #0369a1;
+        }
+
+        .suggestion-text {
+            color: #075985;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .email-template {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .email-header {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .email-body {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #334155;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #d1d5db;
+        }
+
+        @media (max-width: 768px) {
+            .followup-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .followup-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .followup-meta {
+                align-self: flex-end;
+            }
+
+            .action-buttons {
+                justify-content: center;
+            }
+
+            .hero-header {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="hero-header">
+        <i class="fas fa-bell"></i> Smart Follow-up System
+    </header>
+
+    <div class="followup-container">
+        <a href="indextest.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Powrót do menu głównego
+        </a>
+
+        <!-- Summary Card -->
+        <div class="summary-card">
+            <div class="summary-title">
+                <i class="fas fa-chart-pie"></i>
+                Podsumowanie Follow-up
+            </div>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="urgentCount">0</div>
+                    <div class="stat-label">Pilne (>14 dni)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="todayCount">0</div>
+                    <div class="stat-label">Dzisiaj</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="weekCount">0</div>
+                    <div class="stat-label">W tym tygodniu</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalPending">0</div>
+                    <div class="stat-label">Łącznie do kontaktu</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Follow-ups Section -->
+        <div class="followups-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-tasks"></i>
+                    Rekomendowane Follow-up
+                </div>
+                <select class="filter-select" id="priorityFilter">
+                    <option value="all">Wszystkie priorytety</option>
+                    <option value="high">Wysoki priorytet</option>
+                    <option value="medium">Średni priorytet</option>
+                    <option value="low">Niski priorytet</option>
+                </select>
+            </div>
+
+            <div class="followup-list" id="followupList">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module">
+        import { auth, db } from './firebase-init.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { collection, getDocs, query, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        let applicationsData = [];
+        let followups = [];
+
+        // Check authentication
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadApplications();
+                initFilters();
+            } else {
+                window.location.href = 'indextest.html';
+            }
+        });
+
+        async function loadApplications() {
+            try {
+                const q = query(collection(db, "applications"), orderBy("data", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                applicationsData = [];
+                querySnapshot.forEach((doc) => {
+                    applicationsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                generateFollowups();
+                renderFollowups();
+                updateSummary();
+            } catch (error) {
+                console.error("Error loading applications:", error);
+            }
+        }
+
+        function generateFollowups() {
+            followups = [];
+            const now = new Date();
+
+            applicationsData.forEach(app => {
+                const applicationDate = new Date(app.data);
+                const daysSince = Math.floor((now - applicationDate) / (1000 * 60 * 60 * 24));
+
+                // Only generate follow-ups for applications without response
+                if (app.status === 'Wysłano CV' && daysSince >= 7) {
+                    let priority = 'low';
+                    let suggestion = '';
+                    let template = '';
+
+                    if (daysSince >= 21) {
+                        priority = 'high';
+                        suggestion = `⚠️ Bardzo ważne! Minęły już ${daysSince} dni od wysłania aplikacji. To jest ostatni moment na profesjonalny follow-up przed uznaniem braku zainteresowania.`;
+                        template = generateEmailTemplate(app, 'final');
+                    } else if (daysSince >= 14) {
+                        priority = 'medium';
+                        suggestion = `⏰ Minęło ${daysSince} dni od aplikacji. To dobry moment na delikatne przypomnienie o sobie z dodatkiem nowej wartości.`;
+                        template = generateEmailTemplate(app, 'second');
+                    } else if (daysSince >= 7) {
+                        priority = 'low';
+                        suggestion = `📧 Minął tydzień od wysłania aplikacji. Możesz wysłać uprzejmy follow-up wyrażający dalsze zainteresowanie.`;
+                        template = generateEmailTemplate(app, 'first');
+                    }
+
+                    followups.push({
+                        ...app,
+                        daysSince,
+                        priority,
+                        suggestion,
+                        template,
+                        lastFollowup: app.lastFollowup || null
+                    });
+                }
+            });
+
+            // Sort by priority and days since
+            followups.sort((a, b) => {
+                const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+                    return priorityOrder[b.priority] - priorityOrder[a.priority];
+                }
+                return b.daysSince - a.daysSince;
+            });
+        }
+
+        function generateEmailTemplate(app, type) {
+            const templates = {
+                first: {
+                    subject: `Ponowne zainteresowanie pozycją ${app.stanowisko} - ${app.firma}`,
+                    body: `Dzień dobry,
+
+Przed tygodniem wysłałem/am aplikację na stanowisko ${app.stanowisko} w Państwa firmie. 
+
+Chciałbym/am potwierdzić moje duże zainteresowanie tą pozycją i Państwa organizacją. Jestem przekonany/a, że moje doświadczenie idealnie pasuje do wymagań tej roli.
+
+Czy mogliby Państwo poinformować mnie o aktualnym statusie procesu rekrutacyjnego?
+
+Z wyrazami szacunku,
+[Twoje imię i nazwisko]`
+                },
+                second: {
+                    subject: `Aktualizacja aplikacji - ${app.stanowisko} w ${app.firma}`,
+                    body: `Dzień dobry,
+
+Dwa tygodnie temu aplikowałem/am na pozycję ${app.stanowisko}. 
+
+Od tamtej pory ukończyłem/am [DODAJ NOWY CERTYFIKAT/PROJEKT/OSIĄGNIĘCIE], co jeszcze bardziej wzmacnia moje kwalifikacje do tej roli.
+
+Nadal jestem bardzo zainteresowany/a współpracą z Państwem i chętnie przedstawię więcej szczegółów podczas rozmowy.
+
+Czy mogę liczyć na informację o kolejnych krokach w procesie?
+
+Pozdrawiam serdecznie,
+[Twoje imię i nazwisko]`
+                },
+                final: {
+                    subject: `Ostatnie przypomnienie - aplikacja ${app.stanowisko}`,
+                    body: `Dzień dobry,
+
+Trzy tygodnie temu wysłałem/am aplikację na stanowisko ${app.stanowisko} w Państwa firmie.
+
+Rozumiem, że proces rekrutacyjny może być czasochłonny, jednak chciałbym/am po raz ostatni zapytać o możliwość rozważenia mojej kandydatury.
+
+Jeśli pozycja została już obsadzona lub mój profil nie pasuje do wymagań, będę wdzięczny/a za krótką informację.
+
+Dziękuję za poświęcony czas i życzę powodzenia w znalezieniu idealnego kandydata.
+
+Z poważaniem,
+[Twoje imię i nazwisko]`
+                }
+            };
+
+            return templates[type] || templates.first;
+        }
+
+        function renderFollowups() {
+            const followupList = document.getElementById('followupList');
+
+            if (followups.length === 0) {
+                followupList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Świetna robota!</h3>
+                        <p>Nie masz żadnych oczekujących follow-up. Wszystkie Twoje aplikacje są aktualne lub otrzymały już odpowiedzi.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            followupList.innerHTML = followups.map(followup => `
+                <div class="followup-item ${followup.priority === 'high' ? 'urgent' : followup.daysSince <= 7 ? 'today' : 'upcoming'}">
+                    <div class="followup-header">
+                        <div class="company-info">
+                            <div class="company-avatar">
+                                ${followup.firma.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="company-details">
+                                <h4>${followup.firma}</h4>
+                                <p>${followup.stanowisko}</p>
+                            </div>
+                        </div>
+                        <div class="followup-meta">
+                            <span class="priority-badge priority-${followup.priority}">
+                                ${followup.priority === 'high' ? 'Pilne' : followup.priority === 'medium' ? 'Średnie' : 'Normalne'}
+                            </span>
+                            <span class="days-since">${followup.daysSince} dni temu</span>
+                        </div>
+                    </div>
+                    
+                    <div class="followup-content">
+                        <div class="suggestion-box">
+                            <div class="suggestion-header">
+                                <i class="fas fa-lightbulb"></i>
+                                AI Rekomendacja
+                            </div>
+                            <div class="suggestion-text">${followup.suggestion}</div>
+                        </div>
+                        
+                        <div class="email-template">
+                            <div class="email-header">
+                                📧 Sugerowany temat: ${followup.template.subject}
+                            </div>
+                            <div class="email-body">
+                                ${followup.template.body.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="copyTemplate('${followup.id}')">
+                                <i class="fas fa-copy"></i> Kopiuj szablon
+                            </button>
+                            <button class="btn btn-success" onclick="markAsSent('${followup.id}')">
+                                <i class="fas fa-check"></i> Oznacz jako wysłane
+                            </button>
+                            <button class="btn btn-secondary" onclick="snoozeFollowup('${followup.id}')">
+                                <i class="fas fa-clock"></i> Przypomnij za 3 dni
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateSummary() {
+            const urgent = followups.filter(f => f.priority === 'high').length;
+            const today = followups.filter(f => f.daysSince === 7).length;
+            const week = followups.filter(f => f.daysSince >= 7 && f.daysSince <= 14).length;
+            const total = followups.length;
+
+            document.getElementById('urgentCount').textContent = urgent;
+            document.getElementById('todayCount').textContent = today;
+            document.getElementById('weekCount').textContent = week;
+            document.getElementById('totalPending').textContent = total;
+        }
+
+        function initFilters() {
+            const priorityFilter = document.getElementById('priorityFilter');
+            priorityFilter.addEventListener('change', (e) => {
+                const filter = e.target.value;
+                const filteredFollowups = filter === 'all'
+                    ? followups
+                    : followups.filter(f => f.priority === filter);
+
+                renderFilteredFollowups(filteredFollowups);
+            });
+        }
+
+        function renderFilteredFollowups(filteredFollowups) {
+            const followupList = document.getElementById('followupList');
+
+            if (filteredFollowups.length === 0) {
+                followupList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-filter"></i>
+                        <h3>Brak wyników</h3>
+                        <p>Nie znaleziono follow-up dla wybranego filtra.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Use the same render logic but with filtered data
+            const originalFollowups = followups;
+            followups = filteredFollowups;
+            renderFollowups();
+            followups = originalFollowups;
+        }
+
+        // Global functions for button actions
+        window.copyTemplate = function (appId) {
+            const followup = followups.find(f => f.id === appId);
+            if (followup) {
+                const text = `${followup.template.subject}\n\n${followup.template.body}`;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Szablon e-maila został skopiowany do schowka!');
+                });
+            }
+        };
+
+        window.markAsSent = async function (appId) {
+            try {
+                const now = new Date().toISOString();
+                await updateDoc(doc(db, "applications", appId), {
+                    lastFollowup: now
+                });
+
+                // Remove from current followups
+                followups = followups.filter(f => f.id !== appId);
+                renderFollowups();
+                updateSummary();
+
+                alert('Follow-up został oznaczony jako wysłany!');
+            } catch (error) {
+                console.error("Error updating follow-up:", error);
+                alert('Błąd podczas aktualizacji. Spróbuj ponownie.');
+            }
+        };
+
+        window.snoozeFollowup = function (appId) {
+            // Remove from current view (simulated snooze)
+            followups = followups.filter(f => f.id !== appId);
+            renderFollowups();
+            updateSummary();
+
+            alert('Follow-up został przełożony o 3 dni.');
+        };
+    </script>
+</body>
+
+</html>

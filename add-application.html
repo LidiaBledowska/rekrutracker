@@ -321,7 +321,8 @@
             <!-- Dodawanie zdjęć/screenów -->
             <div class="form-group">
                 <label for="images" style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
-                    <i class="fas fa-image" style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Załącz zdjęcia/screeny
+                    <i class="fas fa-image" style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Załącz
+                    zdjęcia/screeny
                 </label>
                 <input type="file" id="images" name="images" accept="image/*" multiple
                     style="width:100%;padding:0.7rem;border:1px solid #e5e7eb;border-radius:8px;background:white;font-size:1em;color:#141414;box-sizing:border-box;">
@@ -359,14 +360,14 @@
         const storage = firebase.storage();
 
         // Podgląd zdjęć przed wysłaniem
-        document.getElementById('images').addEventListener('change', function(e) {
+        document.getElementById('images').addEventListener('change', function (e) {
             const preview = document.getElementById('imagesPreview');
             preview.innerHTML = '';
-            
+
             Array.from(e.target.files).forEach(file => {
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         const img = document.createElement('img');
                         img.src = e.target.result;
                         img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb;';
@@ -387,7 +388,7 @@
                 }
                 return null;
             });
-            
+
             const urls = await Promise.all(uploadPromises);
             return urls.filter(url => url !== null);
         }
@@ -395,11 +396,11 @@
         // Obsługa formularza
         document.getElementById('addApplicationForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             // Pokaż komunikat o przetwarzaniu
             document.getElementById('form-message').textContent = "Przetwarzanie...";
             document.getElementById('form-message').style.color = "blue";
-            
+
             const stanowisko = document.getElementById('stanowisko').value;
             const firma = document.getElementById('firma').value;
             const data = document.getElementById('data').value;

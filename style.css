@@ -371,6 +371,7 @@ body #mainContent .applications-table {
 
 /* Responsive table adjustments */
 @media (max-width: 1200px) {
+
     .applications-table th,
     .applications-table td {
         padding: 0.5rem 0.7rem;
@@ -379,12 +380,13 @@ body #mainContent .applications-table {
 }
 
 @media (max-width: 900px) {
+
     .applications-table th,
     .applications-table td {
         padding: 0.4rem 0.5rem;
         font-size: 0.85rem;
     }
-    
+
     #mainContent {
         padding: 0 0.5rem !important;
     }
@@ -789,7 +791,7 @@ body #mainContent .applications-table {
     justify-content: center !important;
 }
 
-.layout-container .flex.flex-1.justify-center.py-5 > div {
+.layout-container .flex.flex-1.justify-center.py-5>div {
     max-width: none !important;
     width: 100% !important;
 }

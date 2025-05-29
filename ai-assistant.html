@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Asystent Kariery – RekruTracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: white;
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #141414;
+        }
+
+        .hero-header {
+            text-align: center;
+            padding: 1.5rem 0 0.5rem 0;
+            background: linear-gradient(135deg, #141414 0%, #2d2d2d 100%);
+            font-weight: 700;
+            font-size: 2rem;
+            color: white;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #f5f5f5;
+            color: #141414;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .ai-chat {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #141414 0%, #2d2d2d 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ai-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #10b981 0%, #16a34a 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .chat-info h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .chat-info p {
+            margin: 5px 0 0 0;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, #10b981 0%, #16a34a 100%);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #141414;
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .message.user .message-content {
+            background: #141414;
+            color: white;
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .input-form {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-textarea {
+            width: 100%;
+            min-height: 50px;
+            max-height: 120px;
+            padding: 15px 50px 15px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-textarea:focus {
+            border-color: #141414;
+        }
+
+        .send-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 35px;
+            height: 35px;
+            background: #141414;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #2d2d2d;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .send-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: translateY(-50%);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .quick-action:hover {
+            background: #141414;
+            color: white;
+            border-color: #141414;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 20px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            max-width: 70%;
+            margin-bottom: 20px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .recommendation-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .recommendation-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #0369a1;
+        }
+
+        .recommendation-content {
+            color: #075985;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .ai-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .ai-chat {
+                height: 75vh;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .hero-header {
+                font-size: 1.5rem;
+            }
+
+            .quick-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="hero-header">
+        <i class="fas fa-robot"></i> AI Asystent Kariery
+    </header>
+
+    <div class="ai-container">
+        <a href="indextest.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Powrót do menu głównego
+        </a>
+
+        <div class="ai-chat">
+            <div class="chat-header">
+                <div class="ai-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="chat-info">
+                    <h3>CareerBot</h3>
+                    <p>Twój inteligentny asystent kariery</p>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        Cześć! 👋 Jestem Twoim AI asystentem kariery. Pomogę Ci analizować Twoje aplikacje,
+                        optymalizować strategię poszukiwania pracy i udzielę spersonalizowanych rad.<br><br>
+                        Czym mogę Ci pomóc dzisiaj?
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <div class="quick-actions" id="quickActions">
+                    <div class="quick-action" data-message="Przeanalizuj moje aplikacje">📊 Analizuj aplikacje</div>
+                    <div class="quick-action" data-message="Jak poprawić CV?">📝 Poprawa CV</div>
+                    <div class="quick-action" data-message="Kiedy wysłać follow-up?">⏰ Follow-up timing</div>
+                    <div class="quick-action" data-message="Strategia poszukiwania pracy">🎯 Strategia</div>
+                </div>
+                <form class="input-form" id="chatForm">
+                    <div class="input-wrapper">
+                        <textarea id="messageInput" class="chat-textarea" placeholder="Zadaj pytanie o swoją karierę..."
+                            rows="1"></textarea>
+                        <button type="submit" class="send-btn" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module">
+        import { auth, db } from './firebase-init.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        let applicationsData = [];
+        let userProfile = {};
+
+        // Check authentication
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userProfile = {
+                    name: user.displayName || 'Użytkowniku',
+                    email: user.email
+                };
+                loadUserData();
+                initChat();
+            } else {
+                window.location.href = 'indextest.html';
+            }
+        });
+
+        async function loadUserData() {
+            try {
+                const q = query(collection(db, "applications"), orderBy("data", "desc"));
+                const querySnapshot = await getDocs(q);
+
+                applicationsData = [];
+                querySnapshot.forEach((doc) => {
+                    applicationsData.push({ id: doc.id, ...doc.data() });
+                });
+            } catch (error) {
+                console.error("Error loading user data:", error);
+            }
+        }
+
+        function initChat() {
+            const chatForm = document.getElementById('chatForm');
+            const messageInput = document.getElementById('messageInput');
+            const chatMessages = document.getElementById('chatMessages');
+            const quickActions = document.getElementById('quickActions');
+
+            // Auto-resize textarea
+            messageInput.addEventListener('input', function () {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            // Quick actions
+            quickActions.addEventListener('click', (e) => {
+                if (e.target.classList.contains('quick-action')) {
+                    const message = e.target.dataset.message;
+                    sendMessage(message);
+                }
+            });
+
+            // Form submission
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+                if (message) {
+                    sendMessage(message);
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                }
+            });
+
+            // Enter to send (Shift+Enter for new line)
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    chatForm.dispatchEvent(new Event('submit'));
+                }
+            });
+        }
+
+        function sendMessage(message) {
+            const chatMessages = document.getElementById('chatMessages');
+
+            // Add user message
+            addMessage(message, 'user');
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Simulate AI processing and response
+            setTimeout(() => {
+                hideTypingIndicator();
+                const response = generateAIResponse(message);
+                addMessage(response, 'ai');
+            }, 1000 + Math.random() * 2000);
+        }
+
+        function addMessage(content, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = sender === 'ai' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = content;
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai';
+            typingDiv.id = 'typingIndicator';
+
+            typingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="typing-indicator">
+                    <span style="margin-right: 8px; color: #6b7280; font-size: 0.85rem;">CareerBot pisze</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function generateAIResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+
+            // Analyze user applications for context
+            const totalApps = applicationsData.length;
+            const interviews = applicationsData.filter(app =>
+                ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'].includes(app.status)
+            ).length;
+            const responseRate = totalApps > 0 ? Math.round((interviews / totalApps) * 100) : 0;
+
+            if (message.includes('analizuj') || message.includes('aplikacje') || message.includes('statystyki')) {
+                return generateApplicationAnalysis();
+            } else if (message.includes('cv') || message.includes('życiorys')) {
+                return generateCVAdvice();
+            } else if (message.includes('follow') || message.includes('przypomnienie') || message.includes('kiedy')) {
+                return generateFollowUpAdvice();
+            } else if (message.includes('strategia') || message.includes('plan')) {
+                return generateStrategyAdvice();
+            } else if (message.includes('rozmowa') || message.includes('interview')) {
+                return generateInterviewAdvice();
+            } else if (message.includes('motywacyjny') || message.includes('list')) {
+                return generateCoverLetterAdvice();
+            } else {
+                return generateGeneralAdvice(userMessage);
+            }
+        }
+
+        function generateApplicationAnalysis() {
+            const total = applicationsData.length;
+            const interviews = applicationsData.filter(app =>
+                ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'].includes(app.status)
+            ).length;
+            const offers = applicationsData.filter(app => app.status === 'Oferta').length;
+            const responseRate = total > 0 ? Math.round((interviews / total) * 100) : 0;
+
+            if (total === 0) {
+                return `
+                    <div class="recommendation-card">
+                        <div class="recommendation-header">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Analiza aplikacji</span>
+                        </div>
+                        <div class="recommendation-content">
+                            Nie masz jeszcze żadnych aplikacji w systemie. Zacznij od dodania pierwszej aplikacji, a będę mógł dostarczyć Ci szczegółowe analizy i rekomendacje!
+                        </div>
+                    </div>
+                `;
+            }
+
+            let analysis = `
+                <div class="recommendation-card">
+                    <div class="recommendation-header">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analiza Twoich aplikacji</span>
+                    </div>
+                    <div class="recommendation-content">
+                        📊 <strong>Podsumowanie:</strong><br>
+                        • Wysłane aplikacje: ${total}<br>
+                        • Otrzymane odpowiedzi: ${interviews}<br>
+                        • Współczynnik odpowiedzi: ${responseRate}%<br>
+                        • Otrzymane oferty: ${offers}
+                    </div>
+                </div>
+            `;
+
+            if (responseRate < 15) {
+                analysis += `
+                    <div class="recommendation-card">
+                        <div class="recommendation-header">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Rekomendacja</span>
+                        </div>
+                        <div class="recommendation-content">
+                            Twój współczynnik odpowiedzi (${responseRate}%) jest poniżej średniej rynkowej (15-20%). Sugeruję:
+                            <br>• Spersonalizuj listy motywacyjne
+                            <br>• Sprawdź, czy aplikujesz na odpowiednie stanowiska
+                            <br>• Popraw jakość CV
+                        </div>
+                    </div>
+                `;
+            } else if (responseRate > 25) {
+                analysis += `
+                    <div class="recommendation-card">
+                        <div class="recommendation-header">
+                            <i class="fas fa-star"></i>
+                            <span>Gratulacje!</span>
+                        </div>
+                        <div class="recommendation-content">
+                            Świetnie! Twój współczynnik odpowiedzi (${responseRate}%) jest powyżej średniej. Kontynuuj obecną strategię i rozważ zwiększenie liczby aplikacji.
+                        </div>
+                    </div>
+                `;
+            }
+
+            return analysis;
+        }
+
+        function generateCVAdvice() {
+            return `
+                <div class="recommendation-card">
+                    <div class="recommendation-header">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Optymalizacja CV</span>
+                    </div>
+                    <div class="recommendation-content">
+                        <strong>Kluczowe elementy skutecznego CV:</strong><br><br>
+                        
+                        📝 <strong>Struktura:</strong><br>
+                        • Dane kontaktowe na górze<br>
+                        • Krótkie podsumowanie profilu (2-3 zdania)<br>
+                        • Doświadczenie zawodowe (od najnowszego)<br>
+                        • Wykształcenie i certyfikaty<br>
+                        • Kluczowe umiejętności<br><br>
+                        
+                        🎯 <strong>Personalizacja:</strong><br>
+                        • Dostosuj słowa kluczowe do ogłoszenia<br>
+                        • Podkreśl relevantne doświadczenie<br>
+                        • Użyj konkretnych liczb i osiągnięć<br><br>
+                        
+                        💡 <strong>Wskazówka:</strong> CV powinno być jedną stroną dla doświadczenia < 10 lat, maksymalnie dwie strony dla dłuższego doświadczenia.
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateFollowUpAdvice() {
+            return `
+                <div class="recommendation-card">
+                    <div class="recommendation-header">
+                        <i class="fas fa-clock"></i>
+                        <span>Strategia Follow-up</span>
+                    </div>
+                    <div class="recommendation-content">
+                        <strong>Optymalne timing dla kontaktu:</strong><br><br>
+                        
+                        📅 <strong>Timeline:</strong><br>
+                        • 1 tydzień po aplikacji - delikatne przypomnienie<br>
+                        • 2 tygodnie - jeśli brak odpowiedzi, drugi kontakt<br>
+                        • 1 miesiąc - ostatni follow-up<br><br>
+                        
+                        📧 <strong>Jak napisać follow-up:</strong><br>
+                        • Zwięzłość (max 3-4 zdania)<br>
+                        • Przypomnienie o swojej aplikacji<br>
+                        • Wyrażenie dalszego zainteresowania<br>
+                        • Dodanie wartości (nowe osiągnięcie, certyfikat)<br><br>
+                        
+                        ⚠️ <strong>Uwaga:</strong> Nie wysyłaj follow-up częściej niż raz na tydzień!
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateStrategyAdvice() {
+            const totalApps = applicationsData.length;
+
+            return `
+                <div class="recommendation-card">
+                    <div class="recommendation-header">
+                        <i class="fas fa-chess"></i>
+                        <span>Strategia poszukiwania pracy</span>
+                    </div>
+                    <div class="recommendation-content">
+                        <strong>Zoptymalizowana strategia dla Ciebie:</strong><br><br>
+                        
+                        🎯 <strong>Cele tygodniowe:</strong><br>
+                        ${totalApps < 20 ?
+                    '• Wysyłaj 5-10 aplikacji tygodniowo<br>• Skup się na jakości, nie ilości' :
+                    '• Kontynuuj obecne tempo<br>• Analizuj i optymalizuj podejście'
+                }<br><br>
+                        
+                        🔍 <strong>Kanały poszukiwania:</strong><br>
+                        • 40% - portale ogłoszeniowe (Pracuj.pl, LinkedIn)<br>
+                        • 30% - bezpośrednie aplikacje do firm<br>
+                        • 20% - networking i polecenia<br>
+                        • 10% - agencje rekrutacyjne<br><br>
+                        
+                        📈 <strong>Monitorowanie:</strong><br>
+                        • Śledź źródła najlepszych odpowiedzi<br>
+                        • Testuj różne wersje CV i listów<br>
+                        • Analizuj feedback z rozmów
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateInterviewAdvice() {
+            return `
+                <div class="recommendation-card">
+                    <div class="recommendation-header">
+                        <i class="fas fa-handshake"></i>
+                        <span>Przygotowanie do rozmowy</span>
+                    </div>
+                    <div class="recommendation-content">
+                        <strong>Plan przygotowań:</strong><br><br>
+                        
+                        🔍 <strong>Research firmy:</strong><br>
+                        • Historia i misja firmy<br>
+                        • Ostatnie osiągnięcia i newsy<br>
+                        • Profil na LinkedIn rekrutujących<br>
+                        • Produkty/usługi firmy<br><br>
+                        
+                        💬 <strong>Przygotuj odpowiedzi na:</strong><br>
+                        • "Opowiedz o sobie"<br>
+                        • "Dlaczego chcesz pracować u nas?"<br>
+                        • "Jakie są Twoje mocne/słabe strony?"<br>
+                        • Pytania o konkreetne projekty z CV<br><br>
+                        
+                        ❓ <strong>Twoje pytania do rekrutera:</strong><br>
+                        • O zespół i kulturę firmy<br>
+                        • O wyzwania na stanowisku<br>
+                        • O możliwości rozwoju<br>
+                        • O proces onboardingu
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateCoverLetterAdvice() {
+            return `
+                <div class="recommendation-card">
+                    <div class="recommendation-header">
+                        <i class="fas fa-envelope"></i>
+                        <span>Skuteczny list motywacyjny</span>
+                    </div>
+                    <div class="recommendation-content">
+                        <strong>Struktura idealnego listu:</strong><br><br>
+                        
+                        📝 <strong>Akapit 1 - Hook:</strong><br>
+                        • Dlaczego aplikujesz do tej konkretnej firmy<br>
+                        • Co Cię zainteresowało w ogłoszeniu<br><br>
+                        
+                        🎯 <strong>Akapit 2-3 - Value Proposition:</strong><br>
+                        • Jak Twoje doświadczenie rozwiąże ich problemy<br>
+                        • Konkretne przykłady i osiągnięcia<br>
+                        • Dopasowanie do wymagań<br><br>
+                        
+                        🚀 <strong>Akapit 4 - Call to Action:</strong><br>
+                        • Wyrażenie chęci spotkania<br>
+                        • Dostępność na rozmowę<br><br>
+                        
+                        💡 <strong>Tip:</strong> List powinien być maksymalnie na 1 stronę i pokazywać entuzjazm bez przesady!
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateGeneralAdvice(userMessage) {
+            const responses = [
+                `Rozumiem Twoje pytanie. Czy chciałbyś, żebym przeanalizował Twoje aplikacje i dostarczył spersonalizowane rekomendacje?`,
+
+                `Na podstawie Twoich aplikacji mogę pomóc w kilku obszarach:
+                <br>• Analiza skuteczności aplikacji
+                <br>• Optymalizacja CV i listów motywacyjnych  
+                <br>• Strategia follow-up i networking
+                <br>• Przygotowanie do rozmów kwalifikacyjnych
+                <br><br>O czym chciałbyś porozmawiać szczegółowo?`,
+
+                `Każda sytuacja zawodowa jest unikalna. Aby dostarczyć Ci najlepsze rady, mogę przeanalizować Twoje dane i trendy w aplikacjach. Jakie konkretne wyzwanie chciałbyś rozwiązać?`
+            ];
+
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+    </script>
+</body>
+
+</html>

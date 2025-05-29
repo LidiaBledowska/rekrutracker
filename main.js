@@ -1,17 +1,17 @@
-// Global function for status color mapping
+// Global function for status color mapping - INLINE STYLES VERSION
 function getStatusColors(status) {
     // Normalize the status string to handle any whitespace/encoding issues
     const normalizedStatus = (status || '').trim().toLowerCase();
     
-    // Define color mappings with case-insensitive matching
+    // Return inline style strings with !important to override Tailwind CSS
     const colorMap = {
-        'wysłano cv': 'bg-blue-100 text-blue-800',
-        'rozmowa telefoniczna': 'bg-blue-100 text-blue-800',
-        'rozmowa online': 'bg-blue-100 text-blue-800',
-        'rozmowa stacjonarna': 'bg-blue-100 text-blue-800',
-        'assessment center': 'bg-pink-100 text-pink-800',
-        'oferta': 'bg-green-100 text-green-800',
-        'odrzucono': 'bg-gray-100 text-gray-800'
+        'wysłano cv': 'background-color: #dbeafe !important; color: #1e40af !important; border: 2px solid #3b82f6 !important;',
+        'rozmowa telefoniczna': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
+        'rozmowa online': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
+        'rozmowa stacjonarna': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
+        'assessment center': 'background-color: #fce7f3 !important; color: #be185d !important; border: 2px solid #ec4899 !important;',
+        'oferta': 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;',
+        'odrzucono': 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;'
     };
     
     // Direct match first
@@ -21,17 +21,17 @@ function getStatusColors(status) {
     
     // Fallback with partial matching
     if (normalizedStatus.includes('rozmowa')) {
-        return 'bg-blue-100 text-blue-800';
+        return 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;';
     } else if (normalizedStatus.includes('assessment')) {
-        return 'bg-pink-100 text-pink-800';
+        return 'background-color: #fce7f3 !important; color: #be185d !important; border: 2px solid #ec4899 !important;';
     } else if (normalizedStatus.includes('oferta')) {
-        return 'bg-green-100 text-green-800';
+        return 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;';
     } else if (normalizedStatus.includes('odrzucono')) {
-        return 'bg-gray-100 text-gray-800';
+        return 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;';
     }
     
     // Default fallback
-    return 'bg-gray-100 text-gray-800';
+    return 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;';
 }
 
 function updateApplicationsCount(count) {
@@ -112,7 +112,7 @@ function loadFavorites() {
                                 </h3>
                                 <p class="text-gray-600">${app.firma}</p>
                                 <p class="text-sm text-gray-500">Data: ${app.data}</p>
-                                <div class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium ${getStatusColors(app.status)} mb-1">
+                                <div class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium mb-1" style="${getStatusColors(app.status)}">
                                     ${app.status}
                                 </div>
                                 ${wynagrodzenieText ? `<p class="text-sm text-gray-500">Wynagrodzenie: ${wynagrodzenieText}</p>` : ''}
@@ -248,7 +248,7 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
 
             // Funkcje do konwersji wartości na czytelny tekst
             const getRodzajText = (rodzaj) => {
-                switch(rodzaj) {
+                switch (rodzaj) {
                     case 'PELNY_ETAT': return 'Pełny etat';
                     case 'NIEPELNY_ETAT': return 'Niepełny etat';
                     case 'STAZ': return 'Staż';
@@ -257,7 +257,7 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             };
 
             const getUmowaText = (umowa) => {
-                switch(umowa) {
+                switch (umowa) {
                     case 'UMOWA_O_PRACE': return 'Umowa o pracę';
                     case 'UMOWA_B2B': return 'Umowa B2B';
                     case 'UMOWA_ZLECENIE': return 'Umowa zlecenie';
@@ -282,7 +282,7 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
     <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[120px]" data-label="Firma">${app.firma}</td>
     <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]" data-label="Data">${app.data}</td>
     <td class="px-4 py-2 text-sm font-normal leading-normal min-w-[120px]" data-label="Status">
-        <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 ${getStatusColors(app.status)} text-sm font-medium leading-normal w-full border border-transparent">
+        <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 text-sm font-medium leading-normal w-full" style="${getStatusColors(app.status)}">
             <span class="truncate">${app.status}${lastStatusDate}</span>
         </button>
     </td>
@@ -307,7 +307,24 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                 openEditModal(appId);
             });
         });
+        
+        // Auto-fix colors after table is rendered
+        autoFixColors();
     });
+}
+
+function autoFixColors() {
+    // Simple fix that runs after table is loaded to ensure colors are applied
+    setTimeout(() => {
+        const buttons = document.querySelectorAll('td[data-label="Status"] button');
+        buttons.forEach(button => {
+            const statusText = button.textContent.trim().replace(/\s*\([^)]*\)\s*$/, '');
+            const styles = getStatusColors(statusText);
+            if (!button.getAttribute('style') || !button.getAttribute('style').includes('!important')) {
+                button.setAttribute('style', styles);
+            }
+        });
+    }, 500);
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -510,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
-    
+
     // Firebase auth state change handler
     if (firebase.auth) {
         firebase.auth().onAuthStateChanged(function (user) {
@@ -518,43 +535,43 @@ document.addEventListener('DOMContentLoaded', function () {
             const mainContent = document.getElementById('mainContent');
             const googleSigninButtonMain = document.getElementById('google-signin-button-main');
             const mainUserStatus = document.getElementById('main-user-status');
-            
+
             if (user) {
                 // User is logged in - show main application content
                 if (landingPage) landingPage.style.display = 'none';
                 if (mainContent) mainContent.style.display = 'block';
-                
+
                 if (userInfo) {
                     userInfo.textContent = `Witaj, ${user.displayName || user.email}!`;
                     userInfo.style.display = 'inline';
                 }
                 if (loginBtn) loginBtn.style.display = 'none';
                 if (logoutBtn) logoutBtn.style.display = 'inline';
-                
+
                 // Load applications for logged in user
                 loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
             } else {
                 // User is logged out - show landing page
                 if (landingPage) landingPage.style.display = 'block';
                 if (mainContent) mainContent.style.display = 'none';
-                
+
                 if (userInfo) userInfo.style.display = 'none';
                 if (loginBtn) loginBtn.style.display = 'inline';
                 if (logoutBtn) logoutBtn.style.display = 'none';
-                
+
                 // Reset landing page state - hide login form, show register button
                 const loginForm = document.getElementById('loginForm');
                 const registerButton = document.getElementById('registerButton');
                 if (loginForm) loginForm.style.display = 'none';
                 if (registerButton) registerButton.style.display = 'block';
-                
+
                 // Setup Google signin for landing page
                 if (googleSigninButtonMain && !googleSigninButtonMain.onclick) {
-                    googleSigninButtonMain.onclick = function() {
+                    googleSigninButtonMain.onclick = function () {
                         window.location.href = 'login.html';
                     };
                 }
-                
+
                 if (mainUserStatus) {
                     mainUserStatus.textContent = '';
                 }
@@ -563,324 +580,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Test function to debug status colors
-window.testStatusColors = function() {
-    console.log('Testing status colors:');
-    const statuses = ['Wysłano CV', 'Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna', 'Assessment Center', 'Oferta', 'Odrzucono'];
-    statuses.forEach(status => {
-        const colors = getStatusColors(status);
-        console.log(`Status: "${status}" -> Colors: "${colors}"`);
-    });
-};
-
-// Test function to create sample table row with colors
-window.testTableColors = function() {
-    console.log('Creating test table with status colors...');
-    const tbody = document.querySelector('.applications-table tbody');
-    if (!tbody) {
-        console.log('Table not found, creating test div instead');
-        const testDiv = document.createElement('div');
-        testDiv.id = 'colorTest';
-        testDiv.innerHTML = '<h3>Test kolorów statusów:</h3>';
-        document.body.appendChild(testDiv);
-        
-        const statuses = ['Wysłano CV', 'Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna', 'Assessment Center', 'Oferta', 'Odrzucono'];
-        statuses.forEach(status => {
-            const colors = getStatusColors(status);
-            const button = document.createElement('button');
-            button.className = `flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 ${colors} text-sm font-medium leading-normal w-full border border-transparent mb-2`;
-            button.innerHTML = `<span class="truncate">${status}</span>`;
-            testDiv.appendChild(button);
-        });
-        return;
-    }
-    
-    tbody.innerHTML = '';
-    const statuses = ['Wysłano CV', 'Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna', 'Assessment Center', 'Oferta', 'Odrzucono'];
-    
-    statuses.forEach((status, index) => {
-        const colors = getStatusColors(status);
-        const tr = document.createElement('tr');
-        tr.className = 'border-t border-t-[#e5e7eb] bg-white hover:bg-gray-50';
-        tr.innerHTML = `
-            <td class="px-4 py-2 text-[#141414] text-sm font-normal leading-normal min-w-[150px]">Test ${index + 1}</td>
-            <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[120px]">Test Firma</td>
-            <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]">2024-01-01</td>
-            <td class="px-4 py-2 text-sm font-normal leading-normal min-w-[120px]">
-                <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 ${colors} text-sm font-medium leading-normal w-full border border-transparent">
-                    <span class="truncate">${status}</span>
-                </button>
-            </td>
-            <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[120px]">Test</td>
-        `;
-        tbody.appendChild(tr);
-    });
-    
-    console.log('Test table created with all status colors');
-};
-
-// Debug function to analyze status values from database
-window.analyzeStatuses = function() {
-    if (!db) {
-        console.log('Database not available');
-        return;
-    }
-    
-    db.collection("applications").get().then((querySnapshot) => {
-        console.log('=== STATUS ANALYSIS ===');
-        const statusCounts = {};
-        
-        querySnapshot.forEach((doc) => {
-            const app = doc.data();
-            const status = app.status;
-            
-            if (status) {
-                // Count occurrences
-                statusCounts[status] = (statusCounts[status] || 0) + 1;
-                
-                // Show detailed info for first occurrence
-                if (statusCounts[status] === 1) {
-                    console.log('Status found:', {
-                        text: status,
-                        length: status.length,
-                        charCodes: Array.from(status).map(char => char.charCodeAt(0)),
-                        colors: getStatusColors(status)
-                    });
-                }
-            }
-        });
-        
-        console.log('Status counts:', statusCounts);
-        console.log('=== END ANALYSIS ===');
-    }).catch(error => {
-        console.error('Error analyzing statuses:', error);
-    });
-};
-
-// Test function to check actual Firebase data and status processing
-window.testRealDataStatuses = function() {
-    if (!auth.currentUser) {
-        console.log('Please log in first to test real data statuses');
-        return;
-    }
-    
-    const userApplicationsRef = collection(db, 'users', auth.currentUser.uid, 'applications');
-    getDocs(userApplicationsRef).then((querySnapshot) => {
-        console.log('=== REAL DATA STATUS ANALYSIS ===');
-        console.log(`Total applications found: ${querySnapshot.size}`);
-        
-        const statusCounts = {};
-        const statusSamples = {};
-        
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const status = data.status;
-            const normalizedStatus = (status || '').trim();
-            
-            // Count occurrences
-            if (!statusCounts[normalizedStatus]) {
-                statusCounts[normalizedStatus] = 0;
-                statusSamples[normalizedStatus] = {
-                    original: status,
-                    normalized: normalizedStatus,
-                    colors: getStatusColors(status),
-                    company: data.firma || 'N/A'
-                };
-            }
-            statusCounts[normalizedStatus]++;
-        });
-        
-        console.log('\n=== STATUS BREAKDOWN ===');
-        Object.keys(statusCounts).forEach(status => {
-            const sample = statusSamples[status];
-            console.log(`Status: "${status}"`);
-            console.log(`  Count: ${statusCounts[status]}`);
-            console.log(`  Original: "${sample.original}"`);
-            console.log(`  Normalized: "${sample.normalized}"`);
-            console.log(`  Colors: ${sample.colors}`);
-            console.log(`  Sample company: ${sample.company}`);
-            console.log('---');
-        });
-    }).catch((error) => {
-        console.error('Error fetching applications:', error);
-    });
-};
-
-// Quick visual test function to verify colors are working
-window.quickColorTest = function() {
-    const testStatuses = [
-        'Wysłano CV',
-        'Rozmowa telefoniczna', 
-        'Rozmowa online',
-        'Rozmowa stacjonarna',
-        'Assessment Center',
-        'Oferta',
-        'Odrzucono'
-    ];
-    
-    const testContainer = document.createElement('div');
-    testContainer.id = 'colorTest';
-    testContainer.style.cssText = `
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        background: white;
-        border: 2px solid #333;
-        padding: 15px;
-        border-radius: 8px;
-        z-index: 10000;
-        max-width: 300px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    `;
-    
-    testContainer.innerHTML = `
-        <h3 style="margin: 0 0 10px 0; font-size: 16px; font-weight: bold;">Status Color Test</h3>
-        ${testStatuses.map(status => {
-            const colors = getStatusColors(status);
-            return `
-                <div style="margin: 5px 0;">
-                    <button class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium ${colors} mb-1">
-                        ${status}
-                    </button>
-                </div>
-            `;
-        }).join('')}
-        <button onclick="document.getElementById('colorTest').remove()" 
-                style="margin-top: 10px; padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            Close Test
-        </button>
-    `;
-    
-    // Remove existing test if present
-    const existing = document.getElementById('colorTest');
-    if (existing) existing.remove();
-    
-    document.body.appendChild(testContainer);
-    
-    console.log('Color test displayed! Check top-right corner of the page.');
-};
-
-console.log('Debug: main.js loaded, getStatusColors function available:', typeof getStatusColors);
-console.log('=== DEBUG FUNCTIONS AVAILABLE ===');
-console.log('🎯 IMMEDIATE TESTS (work without login):');
-console.log('  window.testTailwindColors() - Tests if Tailwind classes work');
-console.log('  window.quickColorTest() - Shows color test overlay');
-console.log('🔧 TABLE TESTS (require logged in with data):');
-console.log('  window.forceTestColors() - Forces colors on existing table rows');
-console.log('  window.testRealDataStatuses() - Analyzes real Firebase data');
-console.log('⚙️ ADVANCED DEBUGGING:');
-console.log('  window.debugStatusProcessing() - Real-time color assignment logging');
-console.log('==================================');
-
-// Test if we can access getStatusColors immediately
-console.log('✅ getStatusColors function test:');
-console.log('  "Wysłano CV" →', getStatusColors('Wysłano CV'));
-console.log('  "Oferta" →', getStatusColors('Oferta'));
-console.log('  "Assessment Center" →', getStatusColors('Assessment Center'));
-
-// Enhanced debugging function to capture and log status processing in real-time
-window.debugStatusProcessing = function() {
-    // Override the getStatusColors function temporarily to add logging
-    const originalGetStatusColors = window.getStatusColors;
-    
-    window.getStatusColors = function(status) {
-        const result = originalGetStatusColors(status);
-        console.log(`STATUS DEBUG: Input: "${status}" | Normalized: "${(status || '').trim()}" | Colors: ${result}`);
-        return result;
-    };
-    
-    console.log('Status processing debugging enabled. Colors will be logged to console.');
-    console.log('To disable, call: window.disableStatusDebugging()');
-};
-
-window.disableStatusDebugging = function() {
-    // Restore original function
-    window.getStatusColors = function getStatusColors(status) {
-        const normalizedStatus = (status || '').trim();
-        
-        switch(normalizedStatus) {
-            case 'Wysłano CV':
-                return 'bg-blue-100 text-blue-800';
-            case 'Rozmowa telefoniczna':
-                return 'bg-blue-100 text-blue-800';
-            case 'Rozmowa online':
-                return 'bg-blue-100 text-blue-800';
-            case 'Rozmowa stacjonarna':
-                return 'bg-blue-100 text-blue-800';
-            case 'Assessment Center':
-                return 'bg-pink-100 text-pink-800';
-            case 'Oferta':
-                return 'bg-green-100 text-green-800';
-            case 'Odrzucono':
-                return 'bg-gray-100 text-gray-800';
-            default:
-                if (normalizedStatus.includes('Rozmowa')) {
-                    return 'bg-blue-100 text-blue-800';
-                } else if (normalizedStatus.includes('Assessment')) {
-                    return 'bg-pink-100 text-pink-800';
-                } else if (normalizedStatus.includes('Oferta')) {
-                    return 'bg-green-100 text-green-800';
-                } else if (normalizedStatus.includes('Odrzucono')) {
-                    return 'bg-gray-100 text-gray-800';
-                }
-                return 'bg-gray-100 text-gray-800';
-        }
-    };
-    console.log('Status processing debugging disabled.');
-};
-
-// Direct table color testing - will modify existing table rows
-window.forceTestColors = function() {
-    console.log('🎨 Forcing color test on existing table...');
-    
-    // Find all status buttons in the table
-    const statusButtons = document.querySelectorAll('td[data-label="Status"] button');
-    console.log(`Found ${statusButtons.length} status buttons`);
-    
-    if (statusButtons.length === 0) {
-        console.log('❌ No status buttons found. Make sure you are logged in and have applications loaded.');
-        return;
-    }
-    
-    // Apply test colors to existing buttons
-    statusButtons.forEach((button, index) => {
-        const statusText = button.textContent.trim();
-        const originalText = statusText;
-        
-        // Remove existing color classes
-        button.className = button.className.replace(/bg-\w+-\d+/g, '').replace(/text-\w+-\d+/g, '');
-        
-        // Apply new colors based on index for testing
-        const testColors = [
-            'bg-blue-100 text-blue-800',   // Blue
-            'bg-pink-100 text-pink-800',   // Pink  
-            'bg-green-100 text-green-800', // Green
-            'bg-gray-100 text-gray-800',   // Gray
-            'bg-purple-100 text-purple-800' // Purple
-        ];
-        
-        const colorClass = testColors[index % testColors.length];
-        button.className += ` ${colorClass}`;
-        
-        console.log(`Button ${index + 1}: "${originalText}" -> ${colorClass}`);
-    });
-    
-    console.log('✅ Test colors applied! You should see different colored status buttons now.');
-};
-
-// Simple function to test if Tailwind classes work at all
-window.testTailwindColors = function() {
-    const testDiv = document.createElement('div');
-    testDiv.innerHTML = `
-        <div style="position: fixed; top: 50px; right: 10px; background: white; border: 2px solid black; padding: 15px; z-index: 9999; border-radius: 8px;">
-            <h3 style="margin: 0 0 10px 0;">Tailwind Color Test</h3>
-            <div class="bg-blue-100 text-blue-800" style="padding: 5px; margin: 2px; border-radius: 4px;">Blue Test</div>
-            <div class="bg-pink-100 text-pink-800" style="padding: 5px; margin: 2px; border-radius: 4px;">Pink Test</div>
-            <div class="bg-green-100 text-green-800" style="padding: 5px; margin: 2px; border-radius: 4px;">Green Test</div>
-            <div class="bg-gray-100 text-gray-800" style="padding: 5px; margin: 2px; border-radius: 4px;">Gray Test</div>
-            <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 10px; padding: 5px 10px; background: red; color: white; border: none; border-radius: 4px;">Close</button>
-        </div>
-    `;
-    document.body.appendChild(testDiv);
-    console.log('🎨 Tailwind color test displayed in top-right corner');
-};
