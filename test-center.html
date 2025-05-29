@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Wyśrodkowania</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .table-container {
+            width: 100%;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .test-table th,
+        .test-table td {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        
+        .test-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        
+        .add-btn {
+            background-color: #141414;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1>Twoje aplikacje</h1>
+            <a href="#" class="add-btn">Dodaj aplikację</a>
+        </div>
+        
+        <div class="table-container">
+            <table class="test-table">
+                <thead>
+                    <tr>
+                        <th style="width: 180px;">Stanowisko</th>
+                        <th style="width: 130px;">Firma</th>
+                        <th style="width: 110px;">Data</th>
+                        <th style="width: 120px;">Status</th>
+                        <th style="width: 130px;">Wynagrodzenie</th>
+                        <th style="width: 100px;">Tryb</th>
+                        <th style="width: 100px;">Rodzaj</th>
+                        <th style="width: 100px;">Umowa</th>
+                        <th style="width: 110px;">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Frontend Developer</td>
+                        <td>Tech Company</td>
+                        <td>2025-05-20</td>
+                        <td>Wysłano CV</td>
+                        <td>8000 PLN</td>
+                        <td>ZDALNY</td>
+                        <td>PELNY_ETAT</td>
+                        <td>UMOWA_O_PRACE</td>
+                        <td>Edytuj | Usuń</td>
+                    </tr>
+                    <tr>
+                        <td>Backend Developer</td>
+                        <td>Another Corp</td>
+                        <td>2025-05-18</td>
+                        <td>Rozmowa telefoniczna</td>
+                        <td>9000 PLN</td>
+                        <td>HYBRYDOWY</td>
+                        <td>PELNY_ETAT</td>
+                        <td>UMOWA_B2B</td>
+                        <td>Edytuj | Usuń</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

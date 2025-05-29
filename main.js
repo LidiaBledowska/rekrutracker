@@ -111,6 +111,8 @@ async function openEditModal(appId) {
     document.getElementById('editWaluta').value = app.waluta || "PLN";
     document.getElementById('editWynRodzaj').value = app.wynRodzaj || "BRUTTO";
     document.getElementById('editTryb').value = app.tryb || "STACJONARNY";
+    document.getElementById('editRodzaj').value = app.rodzaj || "PELNY_ETAT";
+    document.getElementById('editUmowa').value = app.umowa || "UMOWA_O_PRACE";
     document.getElementById('editKontakt').value = app.kontakt || "";
     document.getElementById('editLink').value = app.link || "";
     document.getElementById('editNotatki').value = app.notatki || "";
@@ -206,6 +208,25 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                 }
             }
 
+            // Funkcje do konwersji wartości na czytelny tekst
+            const getRodzajText = (rodzaj) => {
+                switch(rodzaj) {
+                    case 'PELNY_ETAT': return 'Pełny etat';
+                    case 'NIEPELNY_ETAT': return 'Niepełny etat';
+                    case 'STAZ': return 'Staż';
+                    default: return rodzaj || '';
+                }
+            };
+
+            const getUmowaText = (umowa) => {
+                switch(umowa) {
+                    case 'UMOWA_O_PRACE': return 'Umowa o pracę';
+                    case 'UMOWA_B2B': return 'Umowa B2B';
+                    case 'UMOWA_ZLECENIE': return 'Umowa zlecenie';
+                    default: return umowa || '';
+                }
+            };
+
             const tr = document.createElement('tr');
             tr.className = 'border-t border-t-[#e5e7eb] bg-white hover:bg-gray-50';
 
@@ -229,6 +250,8 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
     </td>
     <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[120px]" data-label="Wynagrodzenie">${wynagrodzenieCell}</td>
     <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]" data-label="Tryb">${app.tryb || ''}</td>
+    <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]" data-label="Rodzaj">${getRodzajText(app.rodzaj)}</td>
+    <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]" data-label="Umowa">${getUmowaText(app.umowa)}</td>
     <td class="px-4 py-2 text-center min-w-[100px]">
         <button class="edit-btn px-3 py-1 rounded bg-[#141414] text-white hover:bg-[#2d2d2d] transition-colors text-sm" data-id="${app.id}">
             <i class="fas fa-edit"></i> Edytuj
@@ -289,7 +312,9 @@ document.addEventListener('DOMContentLoaded', function () {
             firma: document.getElementById('filterFirma')?.value || "",
             data: document.getElementById('filterData')?.value || "",
             status: document.getElementById('statusFilter')?.value || "",
-            tryb: document.getElementById('filterTryb')?.value || ""
+            tryb: document.getElementById('filterTryb')?.value || "",
+            rodzaj: document.getElementById('filterRodzaj')?.value || "",
+            umowa: document.getElementById('filterUmowa')?.value || ""
         };
     }
 
@@ -331,6 +356,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const waluta = document.getElementById('editWaluta').value;
         const wynRodzaj = document.getElementById('editWynRodzaj').value;
         const tryb = document.getElementById('editTryb').value;
+        const rodzaj = document.getElementById('editRodzaj').value;
+        const umowa = document.getElementById('editUmowa').value;
         const kontakt = document.getElementById('editKontakt').value;
         const link = document.getElementById('editLink').value;
         const notatki = document.getElementById('editNotatki').value;
@@ -360,6 +387,8 @@ document.addEventListener('DOMContentLoaded', function () {
             waluta,
             wynRodzaj,
             tryb,
+            rodzaj,
+            umowa,
             kontakt,
             link,
             notatki,
@@ -404,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     [
-        'filterStanowisko', 'filterFirma', 'filterData', 'statusFilter', 'filterTryb'
+        'filterStanowisko', 'filterFirma', 'filterData', 'statusFilter', 'filterTryb', 'filterRodzaj', 'filterUmowa'
     ].forEach(id => {
         const el = document.getElementById(id);
         if (el) {

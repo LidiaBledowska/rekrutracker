@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Wyśrodkowania Tabeli</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9fafb;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        .main-container {
+            max-width: 1180px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .table-container {
+            width: 100%;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+        
+        .test-table th,
+        .test-table td {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        
+        .test-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .test-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        .btn {
+            background-color: #141414;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <h1>Twoje aplikacje</h1>
+            <button class="btn">+ Dodaj aplikację</button>
+        </div>
+        
+        <div class="table-container">
+            <table class="test-table">
+                <thead>
+                    <tr>
+                        <th style="width: 180px;">Stanowisko</th>
+                        <th style="width: 130px;">Firma</th>
+                        <th style="width: 110px;">Data aplikowania</th>
+                        <th style="width: 120px;">Status</th>
+                        <th style="width: 130px;">Wynagrodzenie</th>
+                        <th style="width: 100px;">Tryb</th>
+                        <th style="width: 100px;">Rodzaj</th>
+                        <th style="width: 100px;">Umowa</th>
+                        <th style="width: 110px;">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Frontend Developer</td>
+                        <td>TechCorp</td>
+                        <td>2025-05-25</td>
+                        <td>Rozmowa online</td>
+                        <td>12000-15000 PLN</td>
+                        <td>Hybrydowy</td>
+                        <td>Pełny etat</td>
+                        <td>Umowa o pracę</td>
+                        <td>Edytuj | Usuń</td>
+                    </tr>
+                    <tr>
+                        <td>React Developer</td>
+                        <td>StartupXYZ</td>
+                        <td>2025-05-22</td>
+                        <td>Wysłano CV</td>
+                        <td>8000-12000 PLN</td>
+                        <td>Zdalny</td>
+                        <td>Pełny etat</td>
+                        <td>Umowa B2B</td>
+                        <td>Edytuj | Usuń</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

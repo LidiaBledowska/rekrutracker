@@ -188,10 +188,36 @@ body {
 .main-content {
     flex-grow: 1;
     padding: var(--spacing-unit);
-    max-width: 1200px;
+    max-width: 1240px;
     margin: calc(var(--spacing-unit) * 2) auto;
     display: grid;
     gap: calc(var(--spacing-unit) * 2);
+}
+
+/* Center main content wrapper - most important rule */
+#mainContent {
+    max-width: 95% !important;
+    margin: 0 auto !important;
+    padding: 0 1rem !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+/* Direct table centering with higher specificity */
+body #mainContent #applicationsCard {
+    width: 100% !important;
+    margin: 1rem auto !important;
+}
+
+body #mainContent #applicationsCard .table-responsive {
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+body #mainContent .applications-table {
+    width: 100% !important;
+    margin: 0 auto !important;
+    table-layout: auto !important;
 }
 
 /* Filtry */
@@ -314,16 +340,23 @@ body {
     font-size: 1.2rem;
 }
 
-/* Tabela aplikacji - black and white theme */
+/* Tabela aplikacji - responsive design */
 .table-responsive {
     border-radius: var(--border-radius-small);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin: 1rem auto;
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    overflow-x: visible;
 }
 
 .applications-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    margin: 0 auto;
+    display: table;
+    table-layout: auto;
 }
 
 .applications-table th,
@@ -332,6 +365,29 @@ body {
     border: 1px solid var(--border-color);
     text-align: left;
     vertical-align: middle;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Responsive table adjustments */
+@media (max-width: 1200px) {
+    .applications-table th,
+    .applications-table td {
+        padding: 0.5rem 0.7rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .applications-table th,
+    .applications-table td {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    #mainContent {
+        padding: 0 0.5rem !important;
+    }
 }
 
 .applications-table th {
@@ -698,4 +754,80 @@ body {
 
 .edit-btn i {
     font-size: 1.1em;
+}
+
+/* Header section with add button alignment */
+#headerSection {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+/* Filter and sort buttons container */
+#filterSortButtons {
+    display: flex !important;
+    gap: 1rem !important;
+    margin: 1rem 0 !important;
+}
+
+/* Welcome message centering */
+#welcomeMessage {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0.5rem 0;
+}
+
+/* Override main container restrictions for proper centering */
+.layout-container {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+.layout-container .flex.flex-1.justify-center.py-5 {
+    width: 100% !important;
+    max-width: none !important;
+    justify-content: center !important;
+}
+
+.layout-container .flex.flex-1.justify-center.py-5 > div {
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* Table centering - responsive approach */
+#mainContent {
+    max-width: 95%;
+    margin: 0 auto !important;
+    padding: 0 1rem !important;
+    width: 100% !important;
+}
+
+/* Direct centering for table container */
+#applicationsCard {
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+#applicationsCard .table-responsive {
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+/* Header section centering */
+#headerSection {
+    margin: 0 auto 1.5rem auto !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+/* Filter sections centering */
+#filterSortButtons {
+    margin: 0 auto 1rem auto !important;
+    display: flex !important;
+    gap: 1rem !important;
+}
+
+.filters-container {
+    margin: 0 auto 1.5rem auto !important;
 }
