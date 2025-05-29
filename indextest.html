@@ -349,47 +349,7 @@
                         </div>
 
                         <div class="py-3">
-                            <!-- Contact page container -->
-                        <div id="contactPage" class="flex justify-center items-center p-10" style="display: none;">
-                            <div class="text-center max-w-3xl">
-                                <h2 class="text-[#141414] text-3xl font-bold mb-6">Witamy w RekruTracker</h2>
-                                <p class="text-[#141414] text-lg leading-relaxed mb-8">
-                                    Twój osobisty asystent do organizowania aplikacji o pracę. 
-                                    Śledź postępy, nie przegap terminów i skutecznie zarządzaj procesem poszukiwania pracy.
-                                </p>
-                                
-                                <!-- Contact information section -->
-                                <div class="bg-white p-8 rounded-xl border border-[#e5e7eb] shadow-lg mb-8">
-                                    <h3 class="text-[#141414] text-2xl font-bold mb-6">Kontakt</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                        <div class="flex items-center gap-3">
-                                            <i class="fas fa-envelope text-[#141414] w-5"></i>
-                                            <span class="text-[#141414] text-lg">rekrutracker@example.com</span>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <i class="fab fa-github text-[#141414] w-5"></i>
-                                            <a href="https://github.com/lidiabledowska" target="_blank" class="text-[#141414] text-lg hover:underline">github.com/lidiabledowska</a>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <i class="fab fa-linkedin text-[#141414] w-5"></i>
-                                            <a href="https://linkedin.com/in/lidiabledowska" target="_blank" class="text-[#141414] text-lg hover:underline">LinkedIn</a>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <i class="fas fa-globe text-[#141414] w-5"></i>
-                                            <span class="text-[#141414] text-lg">www.rekrutracker.pl</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-[#6b7280] text-base mt-6">
-                                        Masz pytania lub sugestie? Skontaktuj się z nami! Zawsze chętnie pomożemy i wysłuchamy Twoich opinii.
-                                    </p>
-                                </div>
-                                
-                                <button id="returnToApplications" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#141414] text-white text-base font-bold leading-normal shadow-lg hover:bg-[#2d2d2d] transition-all duration-200 mx-auto">
-                                    Powrót do aplikacji
-                                </button>
-                            </div>
-                        </div>
-
+                        
                         <div id="applicationsCard">
                                 <!-- Licznik zostanie tu wstawiony przez JS -->
                                 <div class="table-responsive rounded-lg border border-[#e5e7eb] bg-white">
@@ -442,6 +402,35 @@
                             </div>
                         </div>
                         </div> <!-- End mainContent -->
+                        
+                        <!-- Contact page container (outside mainContent) -->
+                        <div id="contactPage" class="flex justify-center items-center p-10" style="display: none;">
+                            <div class="text-center max-w-3xl">
+                                <h2 class="text-[#141414] text-3xl font-bold mb-6">Witamy w RekruTracker</h2>
+                                <p class="text-[#141414] text-lg leading-relaxed mb-8">
+                                    Twój osobisty asystent do organizowania aplikacji o pracę. 
+                                    Śledź postępy, nie przegap terminów i skutecznie zarządzaj procesem poszukiwania pracy.
+                                </p>
+                                
+                                <!-- Contact information section -->
+                                <div class="bg-white p-8 rounded-xl border border-[#e5e7eb] shadow-lg mb-8">
+                                    <h3 class="text-[#141414] text-2xl font-bold mb-6">Kontakt</h3>
+                                    <div class="flex justify-center">
+                                        <div class="flex items-center gap-3">
+                                            <i class="fas fa-envelope text-[#141414] w-5"></i>
+                                            <span class="text-[#141414] text-lg">rekrutracker@example.com</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-[#6b7280] text-base mt-6">
+                                        Masz pytania lub sugestie? Skontaktuj się z nami! Zawsze chętnie pomożemy i wysłuchamy Twoich opinii.
+                                    </p>
+                                </div>
+                                
+                                <button id="returnToApplications" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#141414] text-white text-base font-bold leading-normal shadow-lg hover:bg-[#2d2d2d] transition-all duration-200 mx-auto">
+                                    Powrót do aplikacji
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
