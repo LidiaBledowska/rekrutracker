@@ -549,20 +549,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
 
-    // Initialize page state immediately
-    const currentUser = firebase.auth().currentUser;
+    // Initialize page state immediately and prevent page flashing
     const landingPage = document.getElementById('landingPage');
     const mainContent = document.getElementById('mainContent');
     
-    if (currentUser) {
-        // User is already logged in, show main content immediately
+    // Check if we're in the authenticated state by checking localStorage persistence
+    const isLikelyAuthenticated = localStorage.getItem('firebase:authUser:AIzaSyDYDz8W1Br_8ljRSfKAr4wXJ1sZQ3cKyFI:[DEFAULT]') !== null;
+    
+    if (isLikelyAuthenticated) {
+        // User likely authenticated, show main content immediately
         if (landingPage) landingPage.style.display = 'none';
         if (mainContent) {
             mainContent.style.display = 'block';
             mainContent.style.opacity = '1';
         }
     } else {
-        // User is not logged in, show landing page
+        // User likely not authenticated, show landing page
         if (landingPage) {
             landingPage.style.display = 'block';
             landingPage.style.opacity = '1';
@@ -587,27 +589,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (user) {
-                // User is logged in - check if main content is already visible
-                const isMainContentVisible = mainContent && mainContent.style.display === 'block';
-                
-                if (!isMainContentVisible) {
-                    // Only animate if we're not already showing main content
-                    if (landingPage && landingPage.style.display !== 'none') {
-                        landingPage.style.opacity = '0';
-                        setTimeout(() => {
-                            landingPage.style.display = 'none';
-                            if (mainContent) {
-                                mainContent.style.display = 'block';
-                                mainContent.style.opacity = '0';
-                                setTimeout(() => {
-                                    mainContent.style.opacity = '1';
-                                }, 10);
-                            }
-                        }, 300);
-                    } else if (mainContent) {
-                        mainContent.style.display = 'block';
-                        mainContent.style.opacity = '1';
-                    }
+                // User is logged in - ensure main content is visible immediately
+                if (landingPage) {
+                    landingPage.style.display = 'none';
+                    landingPage.style.opacity = '0';
+                }
+                if (mainContent) {
+                    mainContent.style.display = 'block';
+                    mainContent.style.opacity = '1';
                 }
 
                 if (userInfo) {
@@ -621,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
             } else {
                 // User is logged out - show landing page with smooth transition
-                if (mainContent) {
+                if (mainContent && mainContent.style.display === 'block') {
                     mainContent.style.opacity = '0';
                     setTimeout(() => {
                         mainContent.style.display = 'none';
@@ -633,9 +622,15 @@ document.addEventListener('DOMContentLoaded', function () {
                             }, 10);
                         }
                     }, 300);
-                } else if (landingPage) {
-                    landingPage.style.display = 'block';
-                    landingPage.style.opacity = '1';
+                } else {
+                    // Direct switch to landing page if main content wasn't visible
+                    if (landingPage) {
+                        landingPage.style.display = 'block';
+                        landingPage.style.opacity = '1';
+                    }
+                    if (mainContent) {
+                        mainContent.style.display = 'none';
+                    }
                 }
 
                 if (userInfo) userInfo.style.display = 'none';
