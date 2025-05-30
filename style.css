@@ -608,18 +608,31 @@ body #mainContent .applications-table {
 }
 
 #editModal .form-group i {
-    position: absolute;
-    left: 12px;
-    top: 38px;
     color: #6b7280;
     font-size: 1.1em;
+    margin-right: 0.5em;
+}
+
+/* Only position icons inside inputs, not in labels */
+#editModal .form-group.has-input-icon i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: 0;
+}
+
+#editModal .form-group.has-input-icon input,
+#editModal .form-group.has-input-icon select,
+#editModal .form-group.has-input-icon textarea {
+    padding-left: 2.5rem;
 }
 
 #editModal .form-group input,
 #editModal .form-group select,
 #editModal .form-group textarea {
     width: 100%;
-    padding: 0.7rem 0.7rem 0.7rem 2.5rem;
+    padding: 0.7rem;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     background: white;
@@ -627,6 +640,7 @@ body #mainContent .applications-table {
     transition: border-color 0.2s;
     color: #141414;
     box-sizing: border-box;
+    min-height: 2.8rem;
 }
 
 #editModal .form-group input:focus,

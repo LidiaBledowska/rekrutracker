@@ -78,18 +78,31 @@
         }
 
         .form-group i {
-            position: absolute;
-            left: 12px;
-            top: 38px;
             color: #6b7280;
             font-size: 1.1em;
+            margin-right: 0.5em;
+        }
+
+        /* Only position icons inside inputs, not in labels */
+        .form-group.has-input-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-right: 0;
+        }
+
+        .form-group.has-input-icon input,
+        .form-group.has-input-icon select,
+        .form-group.has-input-icon textarea {
+            padding-left: 2.5rem;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 0.7rem 0.7rem 0.7rem 2.5rem;
+            padding: 0.7rem;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             background: white;
@@ -97,6 +110,7 @@
             transition: border-color 0.2s;
             color: #141414;
             box-sizing: border-box;
+            min-height: 2.8rem;
         }
 
         .form-group input:focus,
@@ -325,7 +339,12 @@
                     zdjęcia/screeny
                 </label>
                 <input type="file" id="images" name="images" accept="image/*" multiple
-                    style="width:100%;padding:0.7rem;border:1px solid #e5e7eb;border-radius:8px;background:white;font-size:1em;color:#141414;box-sizing:border-box;">
+                    style="width:100%;padding:0.7rem;border:1px solid #e5e7eb;border-radius:12px;background:white;font-size:1em;color:#141414;box-sizing:border-box;cursor:pointer;transition:all 0.2s ease;border:2px dashed #e5e7eb;"
+                    onmouseover="this.style.borderColor='#4f8cff'; this.style.backgroundColor='#f8faff';"
+                    onmouseout="this.style.borderColor='#e5e7eb'; this.style.backgroundColor='white';"
+                    onfocus="this.style.borderColor='#4f8cff'; this.style.boxShadow='0 0 0 3px rgba(79, 140, 255, 0.1)';"
+                    onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
+                    >
                 <div id="imagesPreview" style="margin-top:0.5em;display:flex;gap:0.5em;flex-wrap:wrap;"></div>
             </div>
 
