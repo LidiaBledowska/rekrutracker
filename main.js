@@ -400,6 +400,27 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('editFormMessage').textContent = "Zdjęcia dodane (nie zapomnij zapisać zmian)!";
     });
 
+    // Walidacja pól Stanowisko i Firma w formularzu edycji - tylko litery
+    function validateLettersOnly(input) {
+        const regex = /[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]/g;
+        input.value = input.value.replace(regex, '');
+    }
+
+    const editStanowiskoField = document.getElementById('editStanowisko');
+    const editFirmaField = document.getElementById('editFirma');
+    
+    if (editStanowiskoField) {
+        editStanowiskoField.addEventListener('input', function() {
+            validateLettersOnly(this);
+        });
+    }
+    
+    if (editFirmaField) {
+        editFirmaField.addEventListener('input', function() {
+            validateLettersOnly(this);
+        });
+    }
+
     document.getElementById('editApplicationForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         const appId = document.getElementById('editAppId').value;

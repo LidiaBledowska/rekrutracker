@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Color Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .test-row {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-text {
+            font-weight: bold;
+            width: 200px;
+        }
+
+        .test-button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .expected-info {
+            font-size: 12px;
+            color: #666;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .debug-section {
+            margin-top: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .debug-output {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>Status Color Test</h1>
+        <p>This page tests the <code>getStatusColors()</code> function in isolation.</p>
+
+        <div id="testButtons"></div>
+
+        <div class="debug-section">
+            <h3>Debug Information</h3>
+            <div id="debugOutput" class="debug-output"></div>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="runTest()"
+                style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Run Color Test
+            </button>
+            <button onclick="clearOutput()"
+                style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                Clear Output
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Copy the exact getStatusColors function from main.js (with !important)
+        function getStatusColors(status) {
+            // Normalize the status string to handle any whitespace/encoding issues
+            const normalizedStatus = (status || '').trim().toLowerCase();
+
+            // Return inline style strings with !important to override Tailwind CSS
+            const colorMap = {
+                'wysłano cv': 'background-color: #dbeafe !important; color: #1e40af !important; border: 2px solid #3b82f6 !important;',
+                'rozmowa telefoniczna': 'background-color: #dbeafe !important; color: #1e40af !important; border: 2px solid #3b82f6 !important;',
+                'rozmowa online': 'background-color: #dbeafe !important; color: #1e40af !important; border: 2px solid #3b82f6 !important;',
+                'rozmowa stacjonarna': 'background-color: #dbeafe !important; color: #1e40af !important; border: 2px solid #3b82f6 !important;',
+                'assessment center': 'background-color: #fce7f3 !important; color: #be185d !important; border: 2px solid #ec4899 !important;',
+                'oferta': 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;',
+                'odrzucono': 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;'
+            };
+
+            // Direct match first
+            if (colorMap[normalizedStatus]) {
+                return colorMap[normalizedStatus];
+            }
+
+            // Fallback with partial matching
+            if (normalizedStatus.includes('rozmowa')) {
+                return 'background-color: #dbeafe !important; color: #1e40af !important; border: 2px solid #3b82f6 !important;';
+            } else if (normalizedStatus.includes('assessment')) {
+                return 'background-color: #fce7f3 !important; color: #be185d !important; border: 2px solid #ec4899 !important;';
+            } else if (normalizedStatus.includes('oferta')) {
+                return 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;';
+            } else if (normalizedStatus.includes('odrzucono')) {
+                return 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;';
+            }
+
+            // Default fallback
+            return 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;';
+        }
+
+        function log(message) {
+            const output = document.getElementById('debugOutput');
+            output.textContent += message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            document.getElementById('debugOutput').textContent = '';
+        }
+
+        function runTest() {
+            clearOutput();
+            log('=== STATUS COLOR TEST ===');
+            log('Testing getStatusColors() function with different status values\n');
+
+            const testStatuses = [
+                'Wysłano CV',
+                'Rozmowa telefoniczna',
+                'Rozmowa online',
+                'Rozmowa stacjonarna',
+                'Assessment Center',
+                'Oferta',
+                'Odrzucono',
+                // Test with some variations
+                'wysłano cv',  // lowercase
+                'ROZMOWA TELEFONICZNA',  // uppercase
+                ' Assessment Center ', // with spaces
+                'Rozmowa telefoniczna/online/stacjonarna', // compound
+                'UnknownStatus' // unknown
+            ];
+
+            const container = document.getElementById('testButtons');
+            container.innerHTML = '';
+
+            testStatuses.forEach((status, index) => {
+                const styles = getStatusColors(status);
+
+                log(`${index + 1}. "${status}"`);
+                log(`   → Normalized: "${(status || '').trim().toLowerCase()}"`);
+                log(`   → Styles: ${styles}`);
+
+                // Create visual test
+                const row = document.createElement('div');
+                row.className = 'test-row';
+
+                const statusText = document.createElement('div');
+                statusText.className = 'status-text';
+                statusText.textContent = status;
+
+                const button = document.createElement('button');
+                button.className = 'test-button';
+                button.textContent = status;
+                button.style.cssText = styles;
+
+                const expectedInfo = document.createElement('div');
+                expectedInfo.className = 'expected-info';
+
+                // Determine expected color
+                const normalized = (status || '').trim().toLowerCase();
+                let expectedColor = 'Gray (default)';
+                if (normalized.includes('wysłano') || normalized.includes('rozmowa')) {
+                    expectedColor = 'Blue';
+                } else if (normalized.includes('assessment')) {
+                    expectedColor = 'Pink';
+                } else if (normalized.includes('oferta')) {
+                    expectedColor = 'Green';
+                } else if (normalized.includes('odrzucono')) {
+                    expectedColor = 'Gray';
+                }
+                expectedInfo.textContent = `Expected: ${expectedColor}`;
+
+                row.appendChild(statusText);
+                row.appendChild(button);
+                row.appendChild(expectedInfo);
+                container.appendChild(row);
+
+                log('');
+            });
+
+            log('=== TEST COMPLETE ===');
+            log('Check the visual buttons above to see if colors are applied correctly.');
+        }
+
+        // Run test automatically when page loads
+        window.onload = function () {
+            runTest();
+        };
+    </script>
+</body>
+
+</html>
