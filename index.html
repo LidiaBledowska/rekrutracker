@@ -76,7 +76,7 @@
                 </div>
                 <div class="flex flex-1 justify-end gap-8">
                     <div class="flex items-center gap-9">
-                        <a class="text-[#141414] text-sm font-medium leading-normal" href="index.html">Menu
+                        <a id="mainMenuLink" class="text-[#141414] text-sm font-medium leading-normal" href="#" style="display: none;">Menu
                             główne</a>
                         <a class="text-[#141414] text-sm font-medium leading-normal" href="#"
                             onclick="showContactModal()">Kontakt</a>
@@ -774,6 +774,22 @@
                 if (returnToApplicationsBtn) {
                     returnToApplicationsBtn.addEventListener('click', function () {
                         closeContactModal();
+                    });
+                }
+
+                // Main menu link handler
+                const mainMenuLink = document.getElementById('mainMenuLink');
+                if (mainMenuLink) {
+                    mainMenuLink.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        // Hide contact page and show main content
+                        document.getElementById('contactPage').style.display = 'none';
+                        document.getElementById('mainContent').style.display = 'block';
+                        // Hide landing page if it's visible
+                        const landingPage = document.getElementById('landingPage');
+                        if (landingPage && landingPage.style.display !== 'none') {
+                            landingPage.style.display = 'none';
+                        }
                     });
                 }
 

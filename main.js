@@ -552,6 +552,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize page state immediately and prevent page flashing
     const landingPage = document.getElementById('landingPage');
     const mainContent = document.getElementById('mainContent');
+    const mainMenuLink = document.getElementById('mainMenuLink');
     
     // Check if we're in the authenticated state by checking localStorage persistence
     const isLikelyAuthenticated = localStorage.getItem('firebase:authUser:AIzaSyDYDz8W1Br_8ljRSfKAr4wXJ1sZQ3cKyFI:[DEFAULT]') !== null;
@@ -563,6 +564,10 @@ document.addEventListener('DOMContentLoaded', function () {
             mainContent.style.display = 'block';
             mainContent.style.opacity = '1';
         }
+        // Show main menu link for likely authenticated users
+        if (mainMenuLink) {
+            mainMenuLink.style.display = 'inline';
+        }
     } else {
         // User likely not authenticated, show landing page
         if (landingPage) {
@@ -570,6 +575,10 @@ document.addEventListener('DOMContentLoaded', function () {
             landingPage.style.opacity = '1';
         }
         if (mainContent) mainContent.style.display = 'none';
+        // Hide main menu link for unauthenticated users
+        if (mainMenuLink) {
+            mainMenuLink.style.display = 'none';
+        }
     }
 
     // Firebase auth state change handler
@@ -579,6 +588,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const mainContent = document.getElementById('mainContent');
             const googleSigninButtonMain = document.getElementById('google-signin-button-main');
             const mainUserStatus = document.getElementById('main-user-status');
+            const mainMenuLink = document.getElementById('mainMenuLink');
 
             // Add smooth transition class if not already present
             if (landingPage && !landingPage.style.transition) {
@@ -599,6 +609,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     mainContent.style.opacity = '1';
                 }
 
+                // Show main menu link for authenticated users
+                if (mainMenuLink) {
+                    mainMenuLink.style.display = 'inline';
+                }
+
                 if (userInfo) {
                     userInfo.textContent = `Witaj, ${user.displayName || user.email}!`;
                     userInfo.style.display = 'inline';
@@ -609,6 +624,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Load applications for logged in user
                 loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
             } else {
+                // User is logged out - hide main menu link
+                if (mainMenuLink) {
+                    mainMenuLink.style.display = 'none';
+                }
+
                 // User is logged out - show landing page with smooth transition
                 if (mainContent && mainContent.style.display === 'block') {
                     mainContent.style.opacity = '0';
