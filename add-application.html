@@ -196,6 +196,53 @@
             position: static;
         }
 
+        /* Image preview styles */
+        .image-preview-container {
+            position: relative;
+            display: inline-block;
+            margin: 0.25rem;
+        }
+
+        .image-preview {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            display: block;
+        }
+
+        .image-remove-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .image-remove-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .images-preview {
+            margin-top: 0.5em;
+            display: flex;
+            gap: 0.5em;
+            flex-wrap: wrap;
+        }
+
         @media (max-width: 500px) {
             .form-container {
                 padding: 1.2rem 0.5rem;
@@ -344,7 +391,18 @@
                     onfocus="this.style.borderColor='#4f8cff'; this.style.boxShadow='0 0 0 3px rgba(79, 140, 255, 0.1)';"
                     onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
                     >
-                <div id="imagesPreview" style="margin-top:0.5em;display:flex;gap:0.5em;flex-wrap:wrap;"></div>
+                <div id="imagesPreview" class="images-preview"></div>
+                <div id="imageCount" style="margin-top: 0.5rem; font-size: 0.9em; color: #666; text-align: center; display: none;">
+                    <i class="fas fa-info-circle"></i> Wybrano <span id="imageCountNumber">0</span> zdjęć
+                </div>
+                <div style="margin-top: 0.5rem; text-align: center;">
+                    <button type="button" onclick="clearAllImages()" style="background: #dc3545; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.9em; cursor: pointer;" title="Usuń wszystkie zdjęcia">
+                        <i class="fas fa-trash"></i> Usuń wszystkie
+                    </button>
+                    <button type="button" onclick="skipImages()" style="background: #6c757d; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.9em; cursor: pointer; margin-left: 0.5rem;" title="Zapisz bez zdjęć">
+                        <i class="fas fa-forward"></i> Pomiń zdjęcia
+                    </button>
+                </div>
             </div>
 
             <div class="favorite-checkbox">
@@ -356,45 +414,137 @@
             <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Dodaj aplikację</button>
         </form>
         <p id="form-message" style="text-align:center; margin-top:1em; color:green;"></p>
+        
+        <!-- Debug section -->
+        <div id="auth-debug" style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 8px; font-size: 0.9em; color: #666;">
+            <strong>Status uwierzytelnienia:</strong>
+            <div id="auth-status">Sprawdzanie...</div>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script src="firebase-init.js"></script>
     <script>
-        // Konfiguracja Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
-            authDomain: "rekrutracker-app.firebaseapp.com",
-            projectId: "rekrutracker-app",
-            storageBucket: "rekrutracker-app.firebasestorage.app",
-            messagingSenderId: "758407291898",
-            appId: "1:758407291898:web:a573e2cd3b416596d37a43",
-            measurementId: "G-HQW1YLG9Q1"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+        // Firebase services are now available globally from firebase-init.js
+        // storage, db, and auth are declared there
+
+        // Add console logging for Firebase initialization
+        console.log('Firebase initialized:', !!firebase);
+        console.log('Firestore available:', !!db);
+        console.log('Storage available:', !!storage);
+        console.log('Auth available:', !!auth);
+
+        // Check authentication status on page load
+        auth.onAuthStateChanged(function(user) {
+            const authStatus = document.getElementById('auth-status');
+            if (user) {
+                console.log('User authenticated:', user);
+                authStatus.innerHTML = `✅ Zalogowany jako: ${user.email || user.uid}<br>UID: ${user.uid}`;
+            } else {
+                console.log('User not authenticated');
+                authStatus.innerHTML = '❌ Nie zalogowany - przekierowywanie...';
+                // User is not authenticated, redirect to login
+                alert('Musisz być zalogowany, aby dodać aplikację.');
+                window.location.href = 'login.html';
+                return;
+            }
+        });
+
+        // Arrays to store selected files and their preview URLs
+        let selectedFiles = [];
+        let previewUrls = [];
 
         // Podgląd zdjęć przed wysłaniem
         document.getElementById('images').addEventListener('change', function (e) {
-            const preview = document.getElementById('imagesPreview');
-            preview.innerHTML = '';
-
-            Array.from(e.target.files).forEach(file => {
+            const newFiles = Array.from(e.target.files);
+            
+            // Add new files to the selected files array
+            newFiles.forEach(file => {
                 if (file.type.startsWith('image/')) {
+                    selectedFiles.push(file);
+                    
                     const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb;';
-                        preview.appendChild(img);
+                    reader.onload = function (event) {
+                        previewUrls.push(event.target.result);
+                        updateImagePreview();
                     };
                     reader.readAsDataURL(file);
                 }
             });
+            
+            // Clear the input to allow selecting the same files again if needed
+            e.target.value = '';
         });
+
+        function updateImagePreview() {
+            const preview = document.getElementById('imagesPreview');
+            const imageCount = document.getElementById('imageCount');
+            const imageCountNumber = document.getElementById('imageCountNumber');
+            
+            preview.innerHTML = '';
+            
+            if (selectedFiles.length === 0) {
+                imageCount.style.display = 'none';
+                return;
+            }
+            
+            // Update counter
+            imageCountNumber.textContent = selectedFiles.length;
+            imageCount.style.display = 'block';
+            
+            // Create preview for each image
+            previewUrls.forEach((url, index) => {
+                const container = document.createElement('div');
+                container.className = 'image-preview-container';
+                
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'image-preview';
+                img.alt = `Preview ${index + 1}`;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'image-remove-btn';
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.type = 'button';
+                removeBtn.title = 'Usuń zdjęcie';
+                removeBtn.onclick = function() {
+                    removeImage(index);
+                };
+                
+                container.appendChild(img);
+                container.appendChild(removeBtn);
+                preview.appendChild(container);
+            });
+        }
+
+        function removeImage(index) {
+            selectedFiles.splice(index, 1);
+            previewUrls.splice(index, 1);
+            updateImagePreview();
+        }
+
+        function clearAllImages() {
+            selectedFiles = [];
+            previewUrls = [];
+            updateImagePreview();
+        }
+        
+        function skipImages() {
+            if (selectedFiles.length > 0) {
+                const confirmSkip = confirm('Czy na pewno chcesz usunąć wszystkie zdjęcia i zapisać aplikację bez nich?');
+                if (confirmSkip) {
+                    clearAllImages();
+                    // Submit form without images
+                    document.getElementById('addApplicationForm').dispatchEvent(new Event('submit'));
+                }
+            } else {
+                alert('Nie ma zdjęć do pominięcia.');
+            }
+        }
 
         // Walidacja pól Stanowisko i Firma - tylko litery
         function validateLettersOnly(input) {
@@ -411,23 +561,103 @@
         });
 
         // Funkcja do przesyłania zdjęć
-        async function uploadImages(files) {
-            const uploadPromises = Array.from(files).map(async (file) => {
-                if (file.type.startsWith('image/')) {
-                    const storageRef = storage.ref(`applications/${Date.now()}_${file.name}`);
-                    const snapshot = await storageRef.put(file);
-                    return await snapshot.ref.getDownloadURL();
-                }
-                return null;
-            });
+        async function uploadImages() {
+            if (selectedFiles.length === 0) {
+                console.log('No images to upload');
+                return [];
+            }
+            
+            console.log(`Starting upload of ${selectedFiles.length} images...`);
+            console.log('Storage available:', !!storage);
+            console.log('Auth current user:', !!auth.currentUser);
+            
+            try {
+                const uploadPromises = selectedFiles.map(async (file, index) => {
+                    console.log(`Processing file ${index + 1}/${selectedFiles.length}: ${file.name}`);
+                    
+                    // Validate file
+                    if (!file.type.startsWith('image/')) {
+                        console.warn(`Skipping non-image file: ${file.name}`);
+                        return null;
+                    }
+                    
+                    // Check file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        console.warn(`File too large (${(file.size / 1024 / 1024).toFixed(2)}MB): ${file.name}`);
+                        alert(`Plik ${file.name} jest za duży. Maksymalny rozmiar to 5MB.`);
+                        return null;
+                    }
+                    
+                    try {
+                        const timestamp = Date.now();
+                        const fileName = `${timestamp}_${index}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                        
+                        // SECURE: Use user-specific storage path
+                        console.log(`Creating storage reference for: users/${auth.currentUser.uid}/applications/${fileName}`);
+                        const storageRef = storage.ref(`users/${auth.currentUser.uid}/applications/${fileName}`);
+                        console.log('Storage reference created successfully');
+                        
+                        console.log(`Starting upload to: users/${auth.currentUser.uid}/applications/${fileName}`);
+                        
+                        // Upload with timeout and detailed progress
+                        const uploadPromise = storageRef.put(file);
+                        const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
+                        );
+                        
+                        // Add progress monitoring
+                        uploadPromise.on('state_changed', 
+                            (snapshot) => {
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                console.log(`Upload progress for ${fileName}: ${progress.toFixed(1)}%`);
+                            },
+                            (error) => {
+                                console.error(`Upload error for ${fileName}:`, error);
+                            }
+                        );
+                        
+                        console.log('Waiting for upload to complete...');
+                        const snapshot = await Promise.race([uploadPromise, timeoutPromise]);
+                        console.log('Upload completed, getting download URL...');
+                        
+                        const downloadURL = await snapshot.ref.getDownloadURL();
+                        
+                        console.log(`File uploaded successfully: ${downloadURL}`);
+                        return downloadURL;
+                        
+                    } catch (fileError) {
+                        console.error(`Error uploading file ${file.name}:`, fileError);
+                        console.error(`Error code: ${fileError.code}`);
+                        console.error(`Error message: ${fileError.message}`);
+                        alert(`Błąd podczas przesyłania pliku ${file.name}: ${fileError.message}`);
+                        return null;
+                    }
+                });
 
-            const urls = await Promise.all(uploadPromises);
-            return urls.filter(url => url !== null);
+                console.log('Waiting for all uploads to complete...');
+                const urls = await Promise.all(uploadPromises);
+                const validUrls = urls.filter(url => url !== null);
+                
+                console.log(`Upload completed. ${validUrls.length}/${selectedFiles.length} files uploaded successfully`);
+                return validUrls;
+                
+            } catch (error) {
+                console.error('General upload error:', error);
+                throw new Error(`Błąd podczas przesyłania zdjęć: ${error.message}`);
+            }
         }
 
         // Obsługa formularza
         document.getElementById('addApplicationForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+
+            // Check if user is authenticated
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Musisz być zalogowany, aby dodać aplikację.');
+                window.location.href = 'login.html';
+                return;
+            }
 
             // Pokaż komunikat o przetwarzaniu
             document.getElementById('form-message').textContent = "Przetwarzanie...";
@@ -447,13 +677,22 @@
             const link = document.getElementById('link').value;
             const notatki = document.getElementById('notatki').value;
             const favorite = document.getElementById('favorite').checked;
-            const images = document.getElementById('images').files;
 
             try {
+                console.log('Starting form submission...');
+                console.log('User:', user.uid, user.email);
+                
                 // Prześlij zdjęcia jeśli są
                 let imageUrls = [];
-                if (images.length > 0) {
-                    imageUrls = await uploadImages(images);
+                if (selectedFiles.length > 0) {
+                    console.log('Uploading', selectedFiles.length, 'images...');
+                    document.getElementById('form-message').textContent = `Przesyłanie ${selectedFiles.length} zdjęć...`;
+                    document.getElementById('form-message').style.color = "blue";
+                    
+                    imageUrls = await uploadImages();
+                    console.log('Images uploaded:', imageUrls);
+                    
+                    document.getElementById('form-message').textContent = "Zapisywanie aplikacji...";
                 }
 
                 // Przygotuj dane do zapisania
@@ -472,7 +711,9 @@
                         date: data
                     }],
                     archiwalna: false,
-                    favorite: favorite
+                    favorite: favorite,
+                    userId: user.uid, // Add user ID for security
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
                 // Dodaj opcjonalne pola tylko jeśli są wypełnione
@@ -482,11 +723,15 @@
                 if (notatki) applicationData.notatki = notatki;
                 if (imageUrls.length > 0) applicationData.images = imageUrls;
 
+                console.log('Saving application data:', applicationData);
+                
                 await db.collection("applications").add(applicationData);
+                console.log('Application saved successfully!');
+                
                 document.getElementById('form-message').textContent = "Aplikacja została dodana pomyślnie!";
                 document.getElementById('form-message').style.color = "green";
                 this.reset();
-                document.getElementById('imagesPreview').innerHTML = '';
+                clearAllImages(); // Clear image arrays and preview
 
                 // Przekieruj po 2 sekundach
                 setTimeout(() => {
@@ -494,7 +739,94 @@
                 }, 2000);
             } catch (error) {
                 console.error("Błąd:", error);
-                document.getElementById('form-message').textContent = "Błąd podczas dodawania aplikacji.";
+                
+                // Check if error is related to image upload
+                if (error.message && error.message.includes('zdjęć') && selectedFiles.length > 0) {
+                    const saveWithoutImages = confirm(
+                        `Wystąpił błąd podczas przesyłania zdjęć: ${error.message}\n\n` +
+                        `Czy chcesz zapisać aplikację bez zdjęć?`
+                    );
+                    
+                    if (saveWithoutImages) {
+                        try {
+                            console.log('Saving application without images...');
+                            document.getElementById('form-message').textContent = "Zapisywanie bez zdjęć...";
+                            document.getElementById('form-message').style.color = "orange";
+                            
+                            // Save without images
+                            const applicationData = {
+                                stanowisko,
+                                firma,
+                                data,
+                                status,
+                                tryb,
+                                rodzaj,
+                                umowa,
+                                waluta,
+                                wynRodzaj,
+                                statusHistory: [{
+                                    status: status,
+                                    date: data
+                                }],
+                                archiwalna: false,
+                                favorite: favorite,
+                                userId: user.uid,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            };
+                            
+                            // Add optional fields
+                            if (wynagrodzenie) applicationData.wynagrodzenie = parseFloat(wynagrodzenie);
+                            if (kontakt) applicationData.kontakt = kontakt;
+                            if (link) applicationData.link = link;
+                            if (notatki) applicationData.notatki = notatki;
+                            
+                            await db.collection("applications").add(applicationData);
+                            
+                            document.getElementById('form-message').textContent = "Aplikacja zapisana (bez zdjęć)!";
+                            document.getElementById('form-message').style.color = "green";
+                            this.reset();
+                            clearAllImages();
+                            
+                            setTimeout(() => {
+                                window.location.href = "index.html";
+                            }, 2000);
+                            return;
+                            
+                        } catch (saveError) {
+                            console.error("Error saving without images:", saveError);
+                        }
+                    }
+                }
+                
+                // More detailed error handling
+                let errorMessage = "Błąd podczas dodawania aplikacji.";
+                if (error.code) {
+                    switch(error.code) {
+                        case 'permission-denied':
+                            errorMessage = "Brak uprawnień. Sprawdź czy jesteś zalogowany.";
+                            break;
+                        case 'unavailable':
+                            errorMessage = "Usługa tymczasowo niedostępna. Spróbuj ponownie.";
+                            break;
+                        case 'unauthenticated':
+                            errorMessage = "Nie jesteś zalogowany. Przekierowywanie...";
+                            setTimeout(() => window.location.href = 'login.html', 2000);
+                            break;
+                        case 'storage/unauthorized':
+                            errorMessage = "Brak dostępu do przesyłania plików. Skontaktuj się z administratorem.";
+                            break;
+                        case 'storage/canceled':
+                            errorMessage = "Przesyłanie zostało anulowane.";
+                            break;
+                        case 'storage/unknown':
+                            errorMessage = "Nieznany błąd podczas przesyłania plików.";
+                            break;
+                        default:
+                            errorMessage = `Błąd: ${error.message}`;
+                    }
+                }
+                
+                document.getElementById('form-message').textContent = errorMessage;
                 document.getElementById('form-message').style.color = "red";
             }
         });

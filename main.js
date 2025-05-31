@@ -53,7 +53,14 @@ function loadFavorites() {
     const favoritesContent = document.getElementById('favoritesContent');
     if (!favoritesContent) return;
 
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        favoritesContent.innerHTML = '<p class="text-gray-500">Musisz się zalogować, aby zobaczyć ulubione.</p>';
+        return;
+    }
+
     db.collection("applications")
+        .where("userId", "==", user.uid)
         .where("favorite", "==", true)
         .where("archiwalna", "==", false)
         .orderBy("data", "desc")
@@ -111,8 +118,26 @@ function loadFavorites() {
 }
 
 async function openEditModal(appId) {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert("Musisz być zalogowany!");
+        return;
+    }
+    
     const docSnap = await db.collection("applications").doc(appId).get();
+    if (!docSnap.exists) {
+        alert("Aplikacja nie istnieje!");
+        return;
+    }
+    
     const app = docSnap.data();
+    
+    // SECURITY CHECK: Verify user owns this application
+    if (app.userId !== user.uid) {
+        alert("Nie masz uprawnień do edycji tej aplikacji!");
+        return;
+    }
+    
     document.getElementById('editAppId').value = appId;
     document.getElementById('editStanowisko').value = app.stanowisko;
     document.getElementById('editFirma').value = app.firma;
@@ -154,7 +179,13 @@ async function openEditModal(appId) {
 }
 
 function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {
-    let query = db.collection("applications");
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        console.log("No user logged in, cannot load applications");
+        return;
+    }
+    
+    let query = db.collection("applications").where("userId", "==", user.uid);
     query.get().then((querySnapshot) => {
         const tbody = document.querySelector('.applications-table tbody');
         tbody.innerHTML = '';
@@ -376,11 +407,27 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('editImages').addEventListener('change', async function (e) {
         const files = Array.from(e.target.files);
         if (!files.length) return;
-        document.getElementById('editFormMessage').textContent = "Trwa przesyłanie zdjęć...";
+        
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            alert("Musisz być zalogowany!");
+            return;
+        }
+        
         const appId = document.getElementById('editAppId').value;
+        
+        // SECURITY CHECK: Verify user owns this application before uploading
+        const docSnap = await db.collection("applications").doc(appId).get();
+        if (!docSnap.exists || docSnap.data().userId !== user.uid) {
+            alert("Nie masz uprawnień do dodawania zdjęć do tej aplikacji!");
+            return;
+        }
+        
+        document.getElementById('editFormMessage').textContent = "Trwa przesyłanie zdjęć...";
         uploadedImages = [];
         for (const file of files) {
-            const storageRef = firebase.storage().ref().child(`applications/${appId}/${file.name}`);
+            // SECURE: Use user-specific storage path
+            const storageRef = firebase.storage().ref().child(`users/${user.uid}/applications/${appId}/${file.name}`);
             await storageRef.put(file);
             const url = await storageRef.getDownloadURL();
             uploadedImages.push(url);
@@ -416,7 +463,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('editApplicationForm').addEventListener('submit', async function (e) {
         e.preventDefault();
+        
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            alert("Musisz być zalogowany!");
+            return;
+        }
+        
         const appId = document.getElementById('editAppId').value;
+        
+        // SECURITY CHECK: Verify user owns this application before updating
+        const docSnap = await db.collection("applications").doc(appId).get();
+        if (!docSnap.exists || docSnap.data().userId !== user.uid) {
+            alert("Nie masz uprawnień do edycji tej aplikacji!");
+            return;
+        }
+        
         const stanowisko = document.getElementById('editStanowisko').value;
         const firma = document.getElementById('editFirma').value;
         const data = document.getElementById('editData').value;
@@ -480,8 +542,22 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (document.getElementById('archiveAppBtn')) {
-        document.getElementById('archiveAppBtn').onclick = function () {
+        document.getElementById('archiveAppBtn').onclick = async function () {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert("Musisz być zalogowany!");
+                return;
+            }
+            
             const appId = document.getElementById('editAppId').value;
+            
+            // SECURITY CHECK: Verify user owns this application before archiving
+            const docSnap = await db.collection("applications").doc(appId).get();
+            if (!docSnap.exists || docSnap.data().userId !== user.uid) {
+                alert("Nie masz uprawnień do archiwizacji tej aplikacji!");
+                return;
+            }
+            
             db.collection("applications").doc(appId).update({
                 archiwalna: true
             }).then(() => {
@@ -491,8 +567,22 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    document.getElementById('deleteAppBtn').onclick = function () {
+    document.getElementById('deleteAppBtn').onclick = async function () {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            alert("Musisz być zalogowany!");
+            return;
+        }
+        
         const appId = document.getElementById('editAppId').value;
+        
+        // SECURITY CHECK: Verify user owns this application before deleting
+        const docSnap = await db.collection("applications").doc(appId).get();
+        if (!docSnap.exists || docSnap.data().userId !== user.uid) {
+            alert("Nie masz uprawnień do usunięcia tej aplikacji!");
+            return;
+        }
+        
         if (confirm("Czy na pewno chcesz usunąć tę aplikację?")) {
             db.collection("applications").doc(appId).delete().then(() => {
                 document.getElementById('editModal').classList.remove('active');
@@ -548,7 +638,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const mainMenuLink = document.getElementById('mainMenuLink');
     
     // Check if we're in the authenticated state by checking localStorage persistence
-    const isLikelyAuthenticated = localStorage.getItem('firebase:authUser:AIzaSyDYDz8W1Br_8ljRSfKAr4wXJ1sZQ3cKyFI:[DEFAULT]') !== null;
+    const isLikelyAuthenticated = localStorage.getItem('firebase:authUser:AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68:[DEFAULT]') !== null;
     
     if (isLikelyAuthenticated) {
         // User likely authenticated, show main content immediately

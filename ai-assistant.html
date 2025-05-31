@@ -394,7 +394,7 @@
     <script type="module">
         import { auth, db } from './firebase-init.js';
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         let applicationsData = [];
         let userProfile = {};
@@ -415,7 +415,17 @@
 
         async function loadUserData() {
             try {
-                const q = query(collection(db, "applications"), orderBy("data", "desc"));
+                const user = auth.currentUser;
+                if (!user) {
+                    console.log("No user logged in");
+                    return;
+                }
+                
+                const q = query(
+                    collection(db, "applications"), 
+                    where("userId", "==", user.uid),
+                    orderBy("data", "desc")
+                );
                 const querySnapshot = await getDocs(q);
 
                 applicationsData = [];

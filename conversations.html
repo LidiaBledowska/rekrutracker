@@ -504,7 +504,7 @@
             // Show loading state
             showLoadingState();
             
-            let query = db.collection("applications");
+            let query = db.collection("applications").where("userId", "==", user.uid);
             query.get().then((querySnapshot) => {
                 applicationsData = [];
                 querySnapshot.forEach((doc) => {
