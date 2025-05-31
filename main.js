@@ -310,6 +310,14 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
         
         // Auto-fix colors after table is rendered
         autoFixColors();
+        
+        // Update status summary cards with the loaded applications
+        generateStatusSummaryCards(applications);
+        
+        // Enhance table row visuals
+        setTimeout(() => {
+            enhanceTableRowVisuals();
+        }, 100);
     });
 }
 
@@ -358,6 +366,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const isHidden = filtersContainer.style.display === 'none';
             filtersContainer.style.display = isHidden ? 'block' : 'none';
             toggleFiltersButton.innerHTML = isHidden ? '<i class="fas fa-filter"></i> Ukryj filtry' : '<i class="fas fa-filter"></i> Pokaż filtry';
+        });
+    }
+
+    // Clear status filter button event listener
+    const clearStatusFilterBtn = document.getElementById('clearStatusFilter');
+    if (clearStatusFilterBtn) {
+        clearStatusFilterBtn.addEventListener('click', function () {
+            clearStatusFilter();
         });
     }
 
@@ -676,5 +692,218 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // Status Summary Cards functionality
+    let currentStatusFilter = null;
+
+    function getStatusCardConfig() {
+        return {
+            'Wysłano CV': {
+                icon: 'fas fa-paper-plane',
+                color: '#3b82f6',
+                bgColor: '#dbeafe',
+                label: 'Wysłano CV'
+            },
+            'Rozmowa telefoniczna': {
+                icon: 'fas fa-phone',
+                color: '#f59e0b',
+                bgColor: '#fef3c7',
+                label: 'Rozmowy telefoniczne'
+            },
+            'Rozmowa online': {
+                icon: 'fas fa-video',
+                color: '#8b5cf6',
+                bgColor: '#ede9fe',
+                label: 'Rozmowy online'
+            },
+            'Rozmowa stacjonarna': {
+                icon: 'fas fa-handshake',
+                color: '#06b6d4',
+                bgColor: '#cffafe',
+                label: 'Rozmowy stacjonarne'
+            },
+            'Assessment Center': {
+                icon: 'fas fa-tasks',
+                color: '#ec4899',
+                bgColor: '#fce7f3',
+                label: 'Assessment Center'
+            },
+            'Oferta': {
+                icon: 'fas fa-trophy',
+                color: '#10b981',
+                bgColor: '#d1fae5',
+                label: 'Oferty'
+            },
+            'Odrzucono': {
+                icon: 'fas fa-times-circle',
+                color: '#6b7280',
+                bgColor: '#f3f4f6',
+                label: 'Odrzucone'
+            }
+        };
+    }
+
+    function generateStatusSummaryCards(applications) {
+        const statusCards = document.getElementById('statusCards');
+        if (!statusCards) return;
+
+        const statusConfig = getStatusCardConfig();
+        const statusCounts = {};
+        const totalApplications = applications.filter(app => !app.archiwalna).length;
+
+        // Count applications by status
+        applications.forEach(app => {
+            if (app.archiwalna) return; // Skip archived applications
+            const status = app.status || 'Brak statusu';
+            statusCounts[status] = (statusCounts[status] || 0) + 1;
+        });
+
+        // Generate cards HTML
+        let cardsHTML = '';
+        
+        // Add "All Applications" card first
+        cardsHTML += `
+            <div class="status-card ${currentStatusFilter === null ? 'active' : ''}" onclick="filterByStatus(null)">
+                <div class="status-card-header">
+                    <div class="status-card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-list"></i>
+                    </div>
+                </div>
+                <div class="status-card-count">${totalApplications}</div>
+                <div class="status-card-label">Wszystkie aplikacje</div>
+                <div class="status-card-progress">
+                    <div class="status-card-progress-fill" style="width: 100%; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+                </div>
+            </div>
+        `;
+
+        // Add status-specific cards
+        Object.entries(statusConfig).forEach(([status, config]) => {
+            const count = statusCounts[status] || 0;
+            const percentage = totalApplications > 0 ? (count / totalApplications) * 100 : 0;
+            
+            if (count > 0 || ['Wysłano CV', 'Oferta'].includes(status)) { // Always show key statuses
+                cardsHTML += `
+                    <div class="status-card ${currentStatusFilter === status ? 'active' : ''}" onclick="filterByStatus('${status}')">
+                        <div class="status-card-header">
+                            <div class="status-card-icon" style="background: ${config.color};">
+                                <i class="${config.icon}"></i>
+                            </div>
+                        </div>
+                        <div class="status-card-count">${count}</div>
+                        <div class="status-card-label">${config.label}</div>
+                        <div class="status-card-progress">
+                            <div class="status-card-progress-fill" style="width: ${percentage}%; background: ${config.color};"></div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        statusCards.innerHTML = cardsHTML;
+        updateActiveStatusFilter();
+    }
+
+    function filterByStatus(status) {
+        currentStatusFilter = status;
+        
+        // Update visual state of cards
+        document.querySelectorAll('.status-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        
+        // Find and activate the clicked card
+        if (status === null) {
+            document.querySelector('.status-card[onclick="filterByStatus(null)"]')?.classList.add('active');
+        } else {
+            document.querySelector(`.status-card[onclick="filterByStatus('${status}')"]`)?.classList.add('active');
+        }
+        
+        updateActiveStatusFilter();
+        
+        // Apply filter to applications
+        const filters = getFilters();
+        if (status) {
+            filters.status = status;
+        }
+        
+        const showArchived = document.getElementById('showArchived')?.checked || false;
+        const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
+        loadApplications(filters, showArchived, sortOrder);
+    }
+
+    function updateActiveStatusFilter() {
+        const activeStatusFilter = document.getElementById('activeStatusFilter');
+        const activeFilterStatus = document.getElementById('activeFilterStatus');
+        
+        if (!activeStatusFilter || !activeFilterStatus) return;
+        
+        if (currentStatusFilter) {
+            const statusConfig = getStatusCardConfig();
+            const config = statusConfig[currentStatusFilter];
+            activeFilterStatus.textContent = config ? config.label : currentStatusFilter;
+            activeStatusFilter.style.display = 'block';
+        } else {
+            activeStatusFilter.style.display = 'none';
+        }
+    }
+
+    function clearStatusFilter() {
+        filterByStatus(null);
+    }
+
+    // Enhanced visual status indicators for table rows
+    function enhanceTableRowVisuals() {
+        const rows = document.querySelectorAll('.applications-table tbody tr');
+        const statusConfig = getStatusCardConfig();
+        
+        rows.forEach(row => {
+            const statusButton = row.querySelector('td[data-label="Status"] button');
+            if (!statusButton) return;
+            
+            const statusText = statusButton.textContent.trim().split('(')[0].trim(); // Remove date part
+            const config = statusConfig[statusText];
+            
+            if (config) {
+                // Add subtle left border to row based on status
+                row.style.borderLeft = `4px solid ${config.color}`;
+                
+                // Add priority indicator for important statuses
+                if (['Oferta', 'Assessment Center', 'Rozmowa online', 'Rozmowa stacjonarna'].includes(statusText)) {
+                    const priorityIndicator = document.createElement('div');
+                    priorityIndicator.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 0.8rem; margin-left: 0.5rem;"></i>';
+                    priorityIndicator.title = 'Wymaga uwagi';
+                    
+                    const firstCell = row.querySelector('td');
+                    if (firstCell && !firstCell.querySelector('.fas.fa-exclamation-triangle')) {
+                        firstCell.appendChild(priorityIndicator);
+                    }
+                }
+                
+                // Add days since application indicator
+                const dateCell = row.querySelector('td[data-label="Data"]');
+                if (dateCell) {
+                    const dateText = dateCell.textContent.trim();
+                    const applicationDate = new Date(dateText);
+                    const now = new Date();
+                    const daysDiff = Math.floor((now - applicationDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff > 14 && statusText === 'Wysłano CV') {
+                        // Add indicator for applications older than 2 weeks without response
+                        const staleIndicator = document.createElement('div');
+                        staleIndicator.innerHTML = `<span style="color: #dc2626; font-size: 0.75rem; font-weight: 600;">(${daysDiff} dni)</span>`;
+                        staleIndicator.title = 'Długo bez odpowiedzi';
+                        dateCell.appendChild(staleIndicator);
+                    }
+                }
+            }
+        });
+    }
+
+    // Initial load
+    loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
+    generateStatusSummaryCards([]);
 });
+
+//# sourceMappingURL=app.js.map
 
