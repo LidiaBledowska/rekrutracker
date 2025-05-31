@@ -31,31 +31,7 @@ function getStatusColors(status) {
     return 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;';
 }
 
-function updateApplicationsCount(count) {
-    const tableContainer = document.querySelector('#applicationsCard');
-    const tableResponsive = tableContainer.querySelector('.table-responsive');
-    let counter = document.getElementById('applicationsCount');
-    if (!counter) {
-        counter = document.createElement('div');
-        counter.id = 'applicationsCount';
-        counter.style.cssText = `
-            font-size: 1rem;
-            color: #141414;
-            font-weight: 600;
-            background: white;
-            border-radius: 0.5rem;
-            padding: 0.3em 1em;
-            border: 1px solid #e5e7eb;
-            display: inline-block;
-            margin-bottom: 1.2em;
-        `;
-    }
-    // Zawsze wstawiaj licznik tuż nad tabelą
-    if (tableResponsive && counter !== tableResponsive.previousSibling) {
-        tableContainer.insertBefore(counter, tableResponsive);
-    }
-    counter.textContent = `Liczba aplikacji: ${count}`;
-}
+
 
 function showImagesPreview(urls) {
     const preview = document.getElementById('editImagesPreview');
@@ -303,8 +279,6 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             tbody.appendChild(tr);
         });
 
-        updateApplicationsCount(count);
-
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const appId = this.getAttribute('data-id');
@@ -386,7 +360,6 @@ document.addEventListener('DOMContentLoaded', function () {
             stanowisko: document.getElementById('filterStanowisko')?.value || "",
             firma: document.getElementById('filterFirma')?.value || "",
             data: document.getElementById('filterData')?.value || "",
-            status: document.getElementById('statusFilter')?.value || "",
             tryb: document.getElementById('filterTryb')?.value || "",
             rodzaj: document.getElementById('filterRodzaj')?.value || "",
             umowa: document.getElementById('filterUmowa')?.value || ""
@@ -529,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     [
-        'filterStanowisko', 'filterFirma', 'filterData', 'statusFilter', 'filterTryb', 'filterRodzaj', 'filterUmowa'
+        'filterStanowisko', 'filterFirma', 'filterData', 'filterTryb', 'filterRodzaj', 'filterUmowa'
     ].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -774,7 +747,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Add "All Applications" card first
         cardsHTML += `
-            <div class="status-card ${currentStatusFilter === null ? 'active' : ''}" onclick="filterByStatus(null)">
+            <div class="status-card ${currentStatusFilter === null ? 'active' : ''}" data-filter="null">
                 <div class="status-card-header">
                     <div class="status-card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                         <i class="fas fa-list"></i>
@@ -868,21 +841,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function attachStatusCardEventListeners() {
-        console.log('Attaching event listeners to status cards');
-        
         // Add listeners for regular status cards
         document.querySelectorAll('.status-card[data-filter]:not(.composite-card)').forEach(card => {
             const filter = card.getAttribute('data-filter');
             card.addEventListener('click', () => {
-                console.log('Regular card clicked:', filter);
-                filterByStatus(filter);
+                // Convert string "null" to actual null
+                const actualFilter = filter === 'null' ? null : filter;
+                filterByStatus(actualFilter);
             });
         });
         
         // Add listeners for composite card main elements
         document.querySelectorAll('.composite-card [data-filter="Rozmowy"]').forEach(element => {
             element.addEventListener('click', () => {
-                console.log('Composite card main clicked');
                 filterByStatus('Rozmowy');
             });
         });
@@ -891,7 +862,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('[data-toggle-composite]').forEach(toggle => {
             toggle.addEventListener('click', (e) => {
                 e.stopPropagation();
-                console.log('Dropdown toggle clicked');
                 toggleCompositeCard(toggle.closest('.composite-card'));
             });
         });
@@ -901,7 +871,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const filter = option.getAttribute('data-filter');
             option.addEventListener('click', (e) => {
                 e.stopPropagation();
-                console.log('Sub-option clicked:', filter);
                 filterByStatus(filter);
             });
         });
@@ -922,7 +891,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Find and activate the clicked card or sub-option
         if (status === null) {
-            document.querySelector('.status-card[onclick="filterByStatus(null)"]')?.classList.add('active');
+            document.querySelector('.status-card[data-filter="null"]')?.classList.add('active');
         } else {
             // Check if it's a composite status (interview type)
             const compositeCard = document.querySelector('.composite-card');
@@ -932,13 +901,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (rozmowy && rozmowy.subStatuses.includes(status)) {
                 // Activate composite card and specific sub-option
                 compositeCard?.classList.add('active');
-                document.querySelector(`.status-sub-option[onclick*="'${status}'"]`)?.classList.add('active');
+                document.querySelector(`.status-sub-option[data-filter="${status}"]`)?.classList.add('active');
             } else if (status === 'Rozmowy') {
                 // Main "Rozmowy" card clicked - activate composite card only
                 compositeCard?.classList.add('active');
             } else {
                 // Regular status card
-                document.querySelector(`.status-card[onclick="filterByStatus('${status}')"]`)?.classList.add('active');
+                document.querySelector(`.status-card[data-filter="${status}"]`)?.classList.add('active');
             }
         }
         
@@ -964,34 +933,13 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (!activeStatusFilter || !activeFilterStatus) return;
         
-        if (currentStatusFilter) {
-            const statusConfig = getStatusCardConfig();
-            let config = statusConfig[currentStatusFilter];
-            let label = currentStatusFilter;
-            
-            if (currentStatusFilter === 'Rozmowy') {
-                // Special handling for main "Rozmowy" filter
-                config = statusConfig['Rozmowy'];
-                label = 'Wszystkie rozmowy';
-            } else if (!config) {
-                // Check if it's a sub-status (interview type)
-                const rozmowy = statusConfig['Rozmowy'];
-                if (rozmowy && rozmowy.subStatuses.includes(currentStatusFilter)) {
-                    config = rozmowy.subConfig[currentStatusFilter];
-                    label = `Rozmowy - ${config.label}`;
-                }
-            } else {
-                label = config.label;
-            }
-            
-            activeFilterStatus.textContent = label;
-            activeStatusFilter.style.display = 'block';
-        } else {
-            activeStatusFilter.style.display = 'none';
-        }
+        // Hide the status filter notification for all status filters
+        // Users can see which applications are displayed directly in the table
+        activeStatusFilter.style.display = 'none';
     }
 
     function clearStatusFilter() {
+        currentStatusFilter = null;
         filterByStatus(null);
     }
 

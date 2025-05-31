@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rozmowy Functionality - Final Test</title>
+    <script src="https://kit.fontawesome.com/5b8f4bb78b.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .test-panel {
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section {
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button.secondary {
+            background: #f59e0b;
+        }
+        
+        button.success {
+            background: #10b981;
+        }
+        
+        button.danger {
+            background: #ef4444;
+        }
+        
+        .result-panel {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+        
+        h1 {
+            color: #1e3a8a;
+        }
+        
+        #console-output {
+            background: #1a1a1a;
+            color: #00ff00;
+            font-family: monospace;
+            padding: 15px;
+            border-radius: 8px;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        /* Status cards styling */
+        .status-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 20px 0;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        .status-card.active {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+        }
+        
+        .status-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+        
+        .status-card-count {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #141414;
+            margin: 0.3rem 0;
+        }
+        
+        .status-card-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .status-card-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #e5e7eb;
+        }
+        
+        .status-card-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            transition: width 0.8s ease;
+        }
+        
+        .dropdown-indicator {
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 50%;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-indicator:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #374151;
+        }
+        
+        .status-card-dropdown {
+            margin-top: 0.8rem;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 0.5rem;
+        }
+        
+        .status-sub-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            margin-bottom: 0.3rem;
+            border-bottom: none;
+        }
+        
+        .status-sub-option:hover {
+            background: #f8fafc;
+        }
+        
+        .status-sub-option.active {
+            background: #f0f9ff;
+            border-color: #3b82f6;
+        }
+        
+        .status-sub-option i {
+            font-size: 1rem;
+            color: #f59e0b;
+            width: 1.2rem;
+            text-align: center;
+        }
+        
+        .status-sub-option span:first-of-type {
+            flex: 1;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .sub-count {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            min-width: 1.5rem;
+            text-align: center;
+        }
+        
+        .status-sub-option.active .sub-count {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .composite-card {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Rozmowy Functionality Test</h1>
+        <div>
+            <button id="showCodeBtn">Show Code Structure</button>
+        </div>
+    </div>
+    
+    <div id="console-output"></div>
+    
+    <div class="test-panel">
+        <div class="test-section">
+            <div class="test-title">Function Availability Tests</div>
+            <div class="test-buttons">
+                <button id="testFunctionsBtn">Test Global Functions</button>
+                <button id="testEventListenersBtn" class="secondary">Test Event Listeners</button>
+                <button id="toggleConsoleBtn" class="danger">Clear Console</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">Card Generation Test</div>
+            <div class="test-buttons">
+                <button id="generateCardsBtn">Generate Status Cards</button>
+                <button id="checkStructureBtn" class="secondary">Check HTML Structure</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">Filter Operation Tests</div>
+            <div class="test-buttons">
+                <button id="filterRozmowy" class="secondary">Filter by Rozmowy</button>
+                <button id="filterTelefoniczna" class="secondary">Filter by Telefoniczna</button>
+                <button id="filterOnline" class="secondary">Filter by Online</button>
+                <button id="filterStacjonarna" class="secondary">Filter by Stacjonarna</button>
+                <button id="clearFilter" class="success">Clear Filter</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">Toggle Tests</div>
+            <div class="test-buttons">
+                <button id="toggleRozmowy" class="secondary">Toggle Rozmowy Dropdown</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="statusCards" class="status-cards-grid">
+        <!-- Status cards will be generated here -->
+    </div>
+    
+    <div class="result-panel">
+        <div class="test-title">Current Filter:</div>
+        <div id="currentFilter">None</div>
+    </div>
+    
+    <!-- Main script -->
+    <script src="main.js"></script>
+    
+    <!-- Test script -->
+    <script>
+        // Override console.log
+        const originalConsoleLog = console.log;
+        const consoleOutput = document.getElementById('console-output');
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleOutput.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+        
+        // Mock applications data
+        const mockApplications = [
+            { status: 'Wysłano CV', archiwalna: false },
+            { status: 'Rozmowa telefoniczna', archiwalna: false },
+            { status: 'Rozmowa telefoniczna', archiwalna: false },
+            { status: 'Rozmowa online', archiwalna: false },
+            { status: 'Rozmowa online', archiwalna: false },
+            { status: 'Rozmowa stacjonarna', archiwalna: false },
+            { status: 'Oferta', archiwalna: false },
+            { status: 'Odrzucono', archiwalna: false }
+        ];
+        
+        // Test functions
+        function testGlobalFunctions() {
+            console.log('Testing global functions...');
+            
+            const functionsToTest = [
+                'filterByStatus',
+                'toggleCompositeCard',
+                'clearStatusFilter',
+                'generateStatusSummaryCards',
+                'getStatusCardConfig'
+            ];
+            
+            functionsToTest.forEach(funcName => {
+                if (typeof window[funcName] === 'function') {
+                    console.log(`✅ ${funcName} is available as a global function`);
+                } else {
+                    console.log(`❌ ${funcName} is NOT available globally`);
+                }
+            });
+        }
+        
+        function testEventListeners() {
+            console.log('Testing event listeners...');
+            
+            // Generate cards first
+            if (typeof window.generateStatusSummaryCards === 'function') {
+                window.generateStatusSummaryCards(mockApplications);
+            }
+            
+            setTimeout(() => {
+                // Check if cards were generated
+                const cards = document.querySelectorAll('.status-card');
+                console.log(`Found ${cards.length} status cards`);
+                
+                // Check composite card
+                const compositeCard = document.querySelector('.composite-card');
+                if (compositeCard) {
+                    console.log('✅ Composite card generated');
+                    
+                    // Check dropdown elements
+                    const dropdownToggle = compositeCard.querySelector('[data-toggle-composite]');
+                    if (dropdownToggle) {
+                        console.log('✅ Dropdown toggle element found');
+                    } else {
+                        console.log('❌ Dropdown toggle element missing');
+                    }
+                    
+                    const subOptions = compositeCard.querySelectorAll('.status-sub-option');
+                    console.log(`Found ${subOptions.length} sub-options`);
+                } else {
+                    console.log('❌ Composite card not found');
+                }
+                
+                // Check click handlers (don't actually click, just verify structure)
+                console.log('Verifying data attributes for event handling:');
+                console.log(`- Regular cards with data-filter: ${document.querySelectorAll('.status-card[data-filter]:not(.composite-card)').length}`);
+                console.log(`- Composite main elements with data-filter="Rozmowy": ${document.querySelectorAll('.composite-card [data-filter="Rozmowy"]').length}`);
+                console.log(`- Elements with data-toggle-composite: ${document.querySelectorAll('[data-toggle-composite]').length}`);
+                console.log(`- Sub-options with data-filter: ${document.querySelectorAll('.status-sub-option[data-filter]').length}`);
+            }, 500);
+        }
+        
+        function checkCardStructure() {
+            const compositeCard = document.querySelector('.composite-card');
+            if (!compositeCard) {
+                console.log('❌ No composite card found to analyze');
+                return;
+            }
+            
+            console.log('Analyzing composite card structure:');
+            console.log('-------------------------------');
+            
+            // Check header elements
+            const header = compositeCard.querySelector('.status-card-header');
+            if (header) {
+                console.log('✅ Header found');
+                console.log(`   - data-filter attribute: ${header.getAttribute('data-filter')}`);
+            }
+            
+            // Check dropdown toggle
+            const toggle = compositeCard.querySelector('.dropdown-indicator');
+            if (toggle) {
+                console.log('✅ Dropdown toggle found');
+                console.log(`   - data-toggle-composite attribute: ${toggle.hasAttribute('data-toggle-composite')}`);
+            }
+            
+            // Check card body elements
+            console.log('✅ Card content elements:');
+            const count = compositeCard.querySelector('.status-card-count');
+            if (count) {
+                console.log(`   - Count element: ${count.textContent}`);
+                console.log(`   - data-filter attribute: ${count.getAttribute('data-filter')}`);
+            }
+            
+            // Check dropdown
+            const dropdown = compositeCard.querySelector('.status-card-dropdown');
+            if (dropdown) {
+                console.log('✅ Dropdown container found');
+                console.log(`   - Display state: ${dropdown.style.display}`);
+                
+                const subOptions = dropdown.querySelectorAll('.status-sub-option');
+                console.log(`   - Sub-options count: ${subOptions.length}`);
+                
+                if (subOptions.length > 0) {
+                    const firstOption = subOptions[0];
+                    console.log(`   - First sub-option data-filter: ${firstOption.getAttribute('data-filter')}`);
+                }
+            }
+            
+            console.log('-------------------------------');
+        }
+        
+        // UI Actions
+        document.getElementById('testFunctionsBtn').addEventListener('click', testGlobalFunctions);
+        document.getElementById('testEventListenersBtn').addEventListener('click', testEventListeners);
+        document.getElementById('generateCardsBtn').addEventListener('click', () => {
+            if (typeof window.generateStatusSummaryCards === 'function') {
+                window.generateStatusSummaryCards(mockApplications);
+                console.log('Cards generated with mock data');
+            } else {
+                console.log('❌ generateStatusSummaryCards function not available');
+            }
+        });
+        
+        document.getElementById('checkStructureBtn').addEventListener('click', checkCardStructure);
+        
+        document.getElementById('filterRozmowy').addEventListener('click', () => {
+            if (typeof window.filterByStatus === 'function') {
+                window.filterByStatus('Rozmowy');
+                document.getElementById('currentFilter').textContent = 'Rozmowy';
+                console.log('Applied filter: Rozmowy');
+            }
+        });
+        
+        document.getElementById('filterTelefoniczna').addEventListener('click', () => {
+            if (typeof window.filterByStatus === 'function') {
+                window.filterByStatus('Rozmowa telefoniczna');
+                document.getElementById('currentFilter').textContent = 'Rozmowa telefoniczna';
+                console.log('Applied filter: Rozmowa telefoniczna');
+            }
+        });
+        
+        document.getElementById('filterOnline').addEventListener('click', () => {
+            if (typeof window.filterByStatus === 'function') {
+                window.filterByStatus('Rozmowa online');
+                document.getElementById('currentFilter').textContent = 'Rozmowa online';
+                console.log('Applied filter: Rozmowa online');
+            }
+        });
+        
+        document.getElementById('filterStacjonarna').addEventListener('click', () => {
+            if (typeof window.filterByStatus === 'function') {
+                window.filterByStatus('Rozmowa stacjonarna');
+                document.getElementById('currentFilter').textContent = 'Rozmowa stacjonarna';
+                console.log('Applied filter: Rozmowa stacjonarna');
+            }
+        });
+        
+        document.getElementById('clearFilter').addEventListener('click', () => {
+            if (typeof window.clearStatusFilter === 'function') {
+                window.clearStatusFilter();
+                document.getElementById('currentFilter').textContent = 'None';
+                console.log('Filter cleared');
+            }
+        });
+        
+        document.getElementById('toggleRozmowy').addEventListener('click', () => {
+            const compositeCard = document.querySelector('.composite-card');
+            if (compositeCard && typeof window.toggleCompositeCard === 'function') {
+                window.toggleCompositeCard(compositeCard);
+                console.log('Toggled Rozmowy dropdown');
+            }
+        });
+        
+        document.getElementById('toggleConsoleBtn').addEventListener('click', () => {
+            consoleOutput.innerHTML = '';
+        });
+        
+        document.getElementById('showCodeBtn').addEventListener('click', () => {
+            console.log('--- CODE STRUCTURE OVERVIEW ---');
+            
+            console.log('Key functions exported to window:');
+            console.log('- window.filterByStatus: Filter applications by status');
+            console.log('- window.toggleCompositeCard: Toggle the dropdown for composite cards');
+            console.log('- window.clearStatusFilter: Clear the current status filter');
+            console.log('- window.generateStatusSummaryCards: Generate the status summary cards');
+            console.log('- window.getStatusCardConfig: Get the configuration for status cards');
+            
+            console.log('\nHTML structure for cards:');
+            console.log('1. Regular cards: <div class="status-card" data-filter="StatusName">...</div>');
+            console.log('2. Composite card: <div class="status-card composite-card" data-status="Rozmowy">');
+            console.log('   - Main elements with data-filter="Rozmowy"');
+            console.log('   - Toggle with data-toggle-composite attribute');
+            console.log('   - Sub-options with data-filter="SubStatusName"');
+            
+            console.log('\nEvent handling:');
+            console.log('- Event listeners attached after HTML generation');
+            console.log('- Uses data-* attributes instead of inline onclick handlers');
+            console.log('- attachStatusCardEventListeners() handles all bindings');
+        });
+        
+        // Auto-run initial tests on load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, running initial tests...');
+            testGlobalFunctions();
+            
+            setTimeout(() => {
+                if (typeof window.generateStatusSummaryCards === 'function') {
+                    window.generateStatusSummaryCards(mockApplications);
+                    console.log('Generated cards with mock data');
+                    
+                    setTimeout(testEventListeners, 500);
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
