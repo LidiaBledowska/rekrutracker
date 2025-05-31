@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversations - RekruTracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tab-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .tab-button.active {
+            color: #3b82f6;
+            background: white;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #3b82f6;
+        }
+
+        .tab-content {
+            padding: 24px;
+            min-height: 500px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .conversation-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .conversation-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .conversation-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .conversation-title {
+            font-weight: 600;
+            color: #1e293b;
+            flex-grow: 1;
+        }
+
+        .conversation-date {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .conversation-preview {
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .conversation-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tag.urgent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tag.completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .add-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: background 0.2s;
+        }
+
+        .add-button:hover {
+            background: #2563eb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 2px dashed #e5e7eb;
+            margin: 1rem 0;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+            display: block;
+        }
+
+        .empty-state h3 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 24px 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #1f2937;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close {
+            color: #6b7280;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close:hover {
+            color: #374151;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row strong {
+            color: #374151;
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        .detail-row span {
+            color: #6b7280;
+            text-align: right;
+            flex: 1;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 24px 24px 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-briefcase"></i>
+                <span>RekruTracker</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="add-application.html" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    <span>Dodaj aplikację</span>
+                </a>
+                <a href="conversations.html" class="nav-link active">
+                    <i class="fas fa-comments"></i>
+                    <span>Conversations</span>
+                </a>
+                <a href="analytics.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analityka</span>
+                </a>
+                <a href="smart-followup.html" class="nav-link">
+                    <i class="fas fa-clock"></i>
+                    <span>Smart Follow-up</span>
+                </a>
+                <a href="ai-assistant.html" class="nav-link">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Assistant</span>
+                </a>
+            </div>
+            <div class="nav-user">
+                <span id="userEmail"></span>
+                <button onclick="logout()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="authContent" style="display: none;">
+                <div class="page-header">
+                    <h1><i class="fas fa-comments"></i> Conversations</h1>
+                    <p>Zarządzaj komunikacją z potencjalnymi pracodawcami</p>
+                    
+                    <!-- Quick Stats -->
+                    <div id="quickStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1rem 0; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <!-- Stats will be dynamically populated -->
+                    </div>
+                </div>
+
+                <div class="tab-container">
+                    <div class="tab-header">
+                        <button class="tab-button active" data-tab="messages">
+                            <i class="fas fa-envelope"></i> Wiadomości
+                        </button>
+                        <button class="tab-button" data-tab="followups">
+                            <i class="fas fa-clock"></i> Follow-ups
+                        </button>
+                        <button class="tab-button" data-tab="interviews">
+                            <i class="fas fa-video"></i> Rozmowy
+                        </button>
+                        <button class="tab-button" data-tab="notes">
+                            <i class="fas fa-sticky-note"></i> Notatki
+                        </button>
+                    </div>
+
+                    <div class="tab-content">
+                        <!-- Messages Tab -->
+                        <div id="messages-tab" class="tab-pane active">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <button class="add-button" onclick="addNewMessage()">
+                                    <i class="fas fa-plus"></i> Nowa wiadomość
+                                </button>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div style="position: relative;">
+                                        <input type="text" id="messagesSearch" placeholder="Szukaj aplikacji..." 
+                                               style="padding: 8px 32px 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 200px;"
+                                               onkeyup="filterMessages(this.value)" onkeydown="handleSearchKeydown(event, 'messages')">
+                                        <button onclick="clearSearch('messages')" 
+                                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280; cursor: pointer;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <button onclick="exportMessages()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                                        <i class="fas fa-download"></i> Eksportuj
+                                    </button>
+                                    <button onclick="refreshMessages()" style="background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                                        <i class="fas fa-sync"></i> Odśwież
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="messages-list">
+                                <!-- Dynamic content will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Follow-ups Tab -->
+                        <div id="followups-tab" class="tab-pane">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <button class="add-button" onclick="addNewFollowup()">
+                                    <i class="fas fa-plus"></i> Zaplanuj follow-up
+                                </button>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div style="position: relative;">
+                                        <input type="text" id="followupsSearch" placeholder="Szukaj follow-ups..." 
+                                               style="padding: 8px 32px 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 200px;"
+                                               onkeyup="filterFollowups(this.value)" onkeydown="handleSearchKeydown(event, 'followups')">
+                                        <button onclick="clearSearch('followups')" 
+                                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280; cursor: pointer;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <button onclick="exportFollowups()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                                        <i class="fas fa-download"></i> Eksportuj
+                                    </button>
+                                    <button onclick="markAllFollowupsRead()" style="background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                                        <i class="fas fa-check"></i> Oznacz jako wykonane
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="followups-list">
+                                <!-- Dynamic content will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Interviews Tab -->
+                        <div id="interviews-tab" class="tab-pane">
+                            <button class="add-button" onclick="addNewInterview()">
+                                <i class="fas fa-plus"></i> Zaplanuj rozmowę
+                            </button>
+                            <div id="interviews-list">
+                                <!-- Dynamic content will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Notes Tab -->
+                        <div id="notes-tab" class="tab-pane">
+                            <button class="add-button" onclick="addNewNote()">
+                                <i class="fas fa-plus"></i> Dodaj notatkę
+                            </button>
+                            <div id="notes-list">
+                                <!-- Dynamic content will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login prompt -->
+            <div id="loginPrompt" class="login-prompt">
+                <div class="login-box">
+                    <h2>Zaloguj się</h2>
+                    <p>Aby zobaczyć conversations, musisz się zalogować.</p>
+                    <a href="login.html" class="login-btn">Przejdź do logowania</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="firebase-init.js"></script>
+
+    <script>
+        let applicationsData = [];
+
+        // Auth state listener
+        firebase.auth().onAuthStateChanged((user) => {
+            const authContent = document.getElementById('authContent');
+            const loginPrompt = document.getElementById('loginPrompt');
+            const userEmailSpan = document.getElementById('userEmail');
+
+            if (user) {
+                authContent.style.display = 'block';
+                loginPrompt.style.display = 'none';
+                userEmailSpan.textContent = user.email;
+                loadApplicationsData();
+            } else {
+                authContent.style.display = 'none';
+                loginPrompt.style.display = 'flex';
+            }
+        });
+
+        // Load applications from Firebase
+        function loadApplicationsData() {
+            const db = firebase.firestore();
+            const user = firebase.auth().currentUser;
+            
+            if (!user) {
+                console.log("No user logged in, cannot load applications");
+                return;
+            }
+
+            console.log("Loading applications from Firebase...");
+            
+            // Show loading state
+            showLoadingState();
+            
+            let query = db.collection("applications");
+            query.get().then((querySnapshot) => {
+                applicationsData = [];
+                querySnapshot.forEach((doc) => {
+                    const app = doc.data();
+                    app.id = doc.id;
+                    applicationsData.push(app);
+                });
+                
+                console.log(`Loaded ${applicationsData.length} applications:`, applicationsData);
+                
+                // Update all tabs with current data
+                updateAllTabs();
+                hideLoadingState();
+            }).catch((error) => {
+                console.error("Error loading applications:", error);
+                showErrorState(error.message);
+                hideLoadingState();
+            });
+        }
+
+        function showLoadingState() {
+            const quickStats = document.getElementById('quickStats');
+            if (quickStats) {
+                quickStats.innerHTML = `
+                    <div style="text-align: center; color: #6b7280; grid-column: 1 / -1;">
+                        <i class="fas fa-spinner fa-spin"></i> Ładowanie danych...
+                    </div>
+                `;
+            }
+        }
+
+        function hideLoadingState() {
+            // Loading state will be replaced by updateQuickStats
+        }
+
+        function showErrorState(errorMessage) {
+            const quickStats = document.getElementById('quickStats');
+            if (quickStats) {
+                quickStats.innerHTML = `
+                    <div style="text-align: center; color: #dc2626; grid-column: 1 / -1;">
+                        <i class="fas fa-exclamation-triangle"></i> Błąd ładowania: ${errorMessage}
+                    </div>
+                `;
+            }
+        }
+
+        // Update all tabs with filtered data
+        function updateAllTabs() {
+            updateQuickStats();
+            updateMessagesTab();
+            updateFollowupsTab();
+            updateInterviewsTab();
+            updateNotesTab();
+        }
+
+        // Update quick stats display
+        function updateQuickStats() {
+            const quickStats = document.getElementById('quickStats');
+            if (!quickStats) return;
+
+            const sentApps = applicationsData.filter(app => 
+                app.status && app.status.toLowerCase().includes('wysłano cv')
+            ).length;
+
+            const interviews = applicationsData.filter(app => 
+                app.status && app.status.toLowerCase().includes('rozmowa')
+            ).length;
+
+            const needFollowUp = applicationsData.filter(app => {
+                const daysSinceApplication = getDaysSinceApplication(app.data);
+                return app.status && 
+                       app.status.toLowerCase().includes('wysłano cv') && 
+                       daysSinceApplication >= 7;
+            }).length;
+
+            const totalActive = applicationsData.filter(app => !app.archiwalna).length;
+
+            quickStats.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #3b82f6;">${sentApps}</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">Wysłano CV</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #f59e0b;">${interviews}</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">Rozmowy</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: ${needFollowUp > 0 ? '#dc2626' : '#10b981'};">${needFollowUp}</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">Follow-up</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #8b5cf6;">${totalActive}</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">Aktywne</div>
+                </div>
+            `;
+        }
+
+        // Filter applications by status for Messages tab
+        function updateMessagesTab() {
+            console.log("Updating Messages tab...");
+            const sentApplications = applicationsData.filter(app => 
+                app.status && app.status.toLowerCase().includes('wysłano cv')
+            );
+            
+            console.log(`Found ${sentApplications.length} applications with "Wysłano CV" status:`, sentApplications);
+            
+            const messagesList = document.getElementById('messages-list');
+            
+            // Add stats header
+            let statsHtml = `
+                <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 14px; color: #0369a1;">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Wysłano CV:</strong> ${sentApplications.length} aplikacji
+                </div>
+            `;
+            
+            messagesList.innerHTML = statsHtml;
+            
+            if (sentApplications.length === 0) {
+                messagesList.innerHTML += `
+                    <div class="empty-state">
+                        <i class="fas fa-envelope-open"></i>
+                        <h3>Brak wiadomości</h3>
+                        <p>Nie masz jeszcze aplikacji ze statusem "Wysłano CV"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            sentApplications.forEach(app => {
+                const item = createConversationItem(
+                    `CV wysłane - ${app.position || app.stanowisko}`,
+                    app.company || app.firma,
+                    `Aplikacja wysłana: ${app.applicationDate || app.data}`,
+                    app.applicationDate || app.data,
+                    ['CV Wysłane', app.company || app.firma],
+                    app
+                );
+                messagesList.appendChild(item);
+            });
+        }
+
+        // Filter applications for Follow-ups tab (applications that need follow-up)
+        function updateFollowupsTab() {
+            const needFollowUp = applicationsData.filter(app => {
+                const daysSinceApplication = getDaysSinceApplication(app.data);
+                return app.status && 
+                       app.status.toLowerCase().includes('wysłano cv') && 
+                       daysSinceApplication >= 7; // Need follow-up after 7 days
+            });
+            
+            const followupsList = document.getElementById('followups-list');
+            followupsList.innerHTML = '';
+            
+            if (needFollowUp.length === 0) {
+                followupsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clock"></i>
+                        <h3>Brak follow-up</h3>
+                        <p>Wszystkie Twoje aplikacje są aktualne</p>
+                    </div>
+                `;
+                return;
+            }
+
+            needFollowUp.forEach(app => {
+                const daysSince = getDaysSinceApplication(app.applicationDate || app.data);
+                const item = createConversationItem(
+                    `Follow-up - ${app.position || app.stanowisko}`,
+                    app.company || app.firma,
+                    `Aplikacja wysłana ${daysSince} dni temu - rozważ follow-up`,
+                    `${daysSince} dni temu`,
+                    ['Follow-up', app.company || app.firma, daysSince > 14 ? 'Pilne' : 'Zaplanowane'],
+                    app
+                );
+                followupsList.appendChild(item);
+            });
+        }
+
+        // Filter applications for Interviews tab
+        function updateInterviewsTab() {
+            console.log("Updating Interviews tab...");
+            const interviewApplications = applicationsData.filter(app => 
+                app.status && app.status.toLowerCase().includes('rozmowa')
+            );
+            
+            console.log(`Found ${interviewApplications.length} applications with "rozmowa" status:`, interviewApplications);
+            
+            const interviewsList = document.getElementById('interviews-list');
+            
+            // Add stats header
+            let statsHtml = `
+                <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 14px; color: #92400e;">
+                    <i class="fas fa-video"></i> 
+                    <strong>Rozmowy:</strong> ${interviewApplications.length} zaplanowanych
+                </div>
+            `;
+            
+            interviewsList.innerHTML = statsHtml;
+            
+            if (interviewApplications.length === 0) {
+                interviewsList.innerHTML += `
+                    <div class="empty-state">
+                        <i class="fas fa-video"></i>
+                        <h3>Brak rozmów</h3>
+                        <p>Nie masz jeszcze zaplanowanych rozmów kwalifikacyjnych</p>
+                    </div>
+                `;
+                return;
+            }
+
+            interviewApplications.forEach(app => {
+                const item = createConversationItem(
+                    `${app.status} - ${app.position || app.stanowisko}`,
+                    app.company || app.firma,
+                    `Status: ${app.status}. Przygotuj się na rozmowę.`,
+                    app.applicationDate || app.data,
+                    [app.status, app.company || app.firma, 'Rozmowa'],
+                    app
+                );
+                interviewsList.appendChild(item);
+            });
+        }
+
+        // Filter applications for Notes tab (all applications with notes potential)
+        function updateNotesTab() {
+            const allApplications = applicationsData.filter(app => !app.archiwalna);
+            
+            const notesList = document.getElementById('notes-list');
+            notesList.innerHTML = '';
+            
+            if (allApplications.length === 0) {
+                notesList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-sticky-note"></i>
+                        <h3>Brak notatek</h3>
+                        <p>Dodaj swoje pierwsze aplikacje, aby móc tworzyć notatki</p>
+                    </div>
+                `;
+                return;
+            }
+
+            allApplications.forEach(app => {
+                const item = createConversationItem(
+                    `Notatka - ${app.position || app.stanowisko}`,
+                    app.company || app.firma,
+                    app.notes || app.notatki || 'Brak notatek - kliknij aby dodać',
+                    app.applicationDate || app.data,
+                    [app.status, app.company || app.firma, 'Notatka'],
+                    app
+                );
+                notesList.appendChild(item);
+            });
+        }
+
+        // Helper function to create conversation item
+        function createConversationItem(title, company, preview, date, tags, application) {
+            const item = document.createElement('div');
+            item.className = 'conversation-item';
+            item.style.cursor = 'pointer';
+            
+            const tagsHtml = tags.map(tag => 
+                `<span class="tag ${getTagClass(tag)}">${tag}</span>`
+            ).join('');
+            
+            item.innerHTML = `
+                <div class="conversation-header">
+                    <div class="conversation-title">${title}</div>
+                    <div class="conversation-date">${formatDate(date)}</div>
+                </div>
+                <div class="conversation-preview">${preview}</div>
+                <div class="conversation-tags">${tagsHtml}</div>
+            `;
+            
+            // Add click event to show details
+            item.addEventListener('click', function() {
+                console.log('Clicked on conversation:', title);
+                showConversationDetails(application);
+            });
+            
+            return item;
+        }
+
+        // Helper function to get tag class based on content
+        function getTagClass(tag) {
+            if (tag.includes('Pilne') || tag.includes('urgent')) return 'urgent';
+            if (tag.includes('completed') || tag.includes('Przeczytane')) return 'completed';
+            return '';
+        }
+
+        // Helper function to calculate days since application
+        function getDaysSinceApplication(applicationDate) {
+            const today = new Date();
+            const appDate = new Date(applicationDate);
+            const diffTime = Math.abs(today - appDate);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        // Helper function to format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            const diffDays = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) return 'Dzisiaj';
+            if (diffDays === 1) return 'Wczoraj';
+            if (diffDays < 7) return `${diffDays} dni temu`;
+            return date.toLocaleDateString('pl-PL');
+        }
+
+        // Tab switching functionality
+        function switchTab(tabName, buttonElement) {
+            console.log('Switching to tab:', tabName);
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+
+            // Show selected tab
+            const targetTab = document.getElementById(tabName + '-tab');
+            if (targetTab) {
+                targetTab.classList.add('active');
+                console.log('Tab activated:', tabName + '-tab');
+            } else {
+                console.error('Tab not found:', tabName + '-tab');
+            }
+
+            // Activate clicked button
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+                console.log('Button activated');
+            }
+
+            // Refresh data for the active tab
+            switch(tabName) {
+                case 'messages':
+                    updateMessagesTab();
+                    break;
+                case 'followups':
+                    updateFollowupsTab();
+                    break;
+                case 'interviews':
+                    updateInterviewsTab();
+                    break;
+                case 'notes':
+                    updateNotesTab();
+                    break;
+            }
+        }
+
+        // Initialize tabs when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing tabs');
+            
+            // Add click event listeners to all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    console.log('Tab button clicked:', tabName);
+                    switchTab(tabName, this);
+                });
+            });
+
+            // Make sure the first tab is active
+            const firstTab = document.getElementById('messages-tab');
+            const firstButton = document.querySelector('.tab-button[data-tab="messages"]');
+            
+            if (firstTab && firstButton) {
+                firstTab.classList.add('active');
+                firstButton.classList.add('active');
+                console.log('First tab initialized');
+            }
+        });
+
+        // Make logout function available globally
+        window.logout = async () => {
+            try {
+                await firebase.auth().signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+
+        // Export functionality
+        function exportMessages() {
+            console.log('Exporting messages...');
+            const messagesData = applicationsData.filter(app => 
+                app.status && app.status.toLowerCase().includes('wysłano cv')
+            );
+            exportToCSV(messagesData, 'messages_export');
+        }
+
+        function exportFollowups() {
+            console.log('Exporting follow-ups...');
+            const followupData = applicationsData.filter(app => {
+                const daysSince = getDaysSinceApplication(app.applicationDate || app.data);
+                return app.status && app.status.toLowerCase().includes('wysłano cv') && daysSince > 7;
+            });
+            exportToCSV(followupData, 'followups_export');
+        }
+
+        function exportToCSV(data, filename) {
+            if (!data || data.length === 0) {
+                alert('Brak danych do eksportu');
+                return;
+            }
+
+            // CSV headers
+            const headers = ['Firma', 'Stanowisko', 'Status', 'Data aplikacji', 'Źródło', 'Lokalizacja'];
+            
+            // Convert data to CSV format
+            const csvContent = [
+                headers.join(','),
+                ...data.map(app => [
+                    `"${app.company || app.firma || ''}"`,
+                    `"${app.position || app.stanowisko || ''}"`,
+                    `"${app.status || ''}"`,
+                    `"${app.applicationDate || app.data || ''}"`,
+                    `"${app.source || app.zrodlo || ''}"`,
+                    `"${app.location || app.lokalizacja || ''}"`
+                ].join(','))
+            ].join('\n');
+
+            // Create and download the file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                alert(`Eksport zakończony! Pobrano plik: ${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+            } else {
+                alert('Eksport nie jest obsługiwany w tej przeglądarce');
+            }
+        }
+
+        // Conversation details modal functionality
+        function showConversationDetails(application) {
+            const modal = document.getElementById('conversationModal');
+            if (!modal) {
+                createConversationModal();
+                return showConversationDetails(application);
+            }
+
+            // Populate modal with application data
+            document.getElementById('modalCompany').textContent = application.company || application.firma || 'Brak danych';
+            document.getElementById('modalPosition').textContent = application.position || application.stanowisko || 'Brak danych';
+            document.getElementById('modalStatus').textContent = application.status || 'Brak danych';
+            document.getElementById('modalDate').textContent = formatDate(application.applicationDate || application.data);
+            document.getElementById('modalSource').textContent = application.source || application.zrodlo || 'Brak danych';
+            document.getElementById('modalLocation').textContent = application.location || application.lokalizacja || 'Brak danych';
+            
+            // Show the modal
+            modal.style.display = 'block';
+        }
+
+        function createConversationModal() {
+            const modalHTML = `
+                <div id="conversationModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Szczegóły aplikacji</h2>
+                            <span class="close">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div class="detail-row">
+                                <strong>Firma:</strong>
+                                <span id="modalCompany"></span>
+                            </div>
+                            <div class="detail-row">
+                                <strong>Stanowisko:</strong>
+                                <span id="modalPosition"></span>
+                            </div>
+                            <div class="detail-row">
+                                <strong>Status:</strong>
+                                <span id="modalStatus"></span>
+                            </div>
+                            <div class="detail-row">
+                                <strong>Data aplikacji:</strong>
+                                <span id="modalDate"></span>
+                            </div>
+                            <div class="detail-row">
+                                <strong>Źródło:</strong>
+                                <span id="modalSource"></span>
+                            </div>
+                            <div class="detail-row">
+                                <strong>Lokalizacja:</strong>
+                                <span id="modalLocation"></span>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button onclick="closeConversationModal()" class="btn-secondary">Zamknij</button>
+                            <button onclick="editApplication()" class="btn-primary">Edytuj</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Add event listeners
+            document.querySelector('.close').addEventListener('click', closeConversationModal);
+            document.getElementById('conversationModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeConversationModal();
+                }
+            });
+        }
+
+        function closeConversationModal() {
+            const modal = document.getElementById('conversationModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function editApplication() {
+            alert('Funkcja edycji aplikacji będzie wkrótce dostępna!');
+        }
+
+        // Mark all follow-ups as done
+        function markAllFollowupsRead() {
+            if (confirm('Czy na pewno chcesz oznaczyć wszystkie follow-upy jako wykonane?')) {
+                console.log('Marking all follow-ups as done...');
+                // TODO: Implement Firebase update logic to mark follow-ups as done
+                // For now, just refresh the tab to show updated data
+                alert('Wszystkie follow-upy zostały oznaczone jako wykonane!');
+                updateFollowupsTab();
+            }
+        }
+
+        // Refresh functions for each tab
+        function refreshMessages() {
+            console.log('Refreshing messages...');
+            loadApplicationsData();
+        }
+
+        function refreshData() {
+            console.log('Refreshing all data...');
+            loadApplicationsData();
+        }
+
+        // Search filter functions
+        function filterMessages(searchTerm) {
+            const messagesList = document.getElementById('messages-list');
+            const items = messagesList.querySelectorAll('.conversation-item');
+            
+            items.forEach(item => {
+                const title = item.querySelector('.conversation-title').textContent.toLowerCase();
+                const preview = item.querySelector('.conversation-preview').textContent.toLowerCase();
+                const tags = item.querySelector('.conversation-tags').textContent.toLowerCase();
+                
+                const searchLower = searchTerm.toLowerCase();
+                const matches = title.includes(searchLower) || 
+                               preview.includes(searchLower) || 
+                               tags.includes(searchLower);
+                
+                item.style.display = matches ? 'block' : 'none';
+            });
+        }
+
+        function filterFollowups(searchTerm) {
+            const followupsList = document.getElementById('followups-list');
+            const items = followupsList.querySelectorAll('.conversation-item');
+            
+            items.forEach(item => {
+                const title = item.querySelector('.conversation-title').textContent.toLowerCase();
+                const preview = item.querySelector('.conversation-preview').textContent.toLowerCase();
+                const tags = item.querySelector('.conversation-tags').textContent.toLowerCase();
+                
+                const searchLower = searchTerm.toLowerCase();
+                const matches = title.includes(searchLower) || 
+                               preview.includes(searchLower) || 
+                               tags.includes(searchLower);
+                
+                item.style.display = matches ? 'block' : 'none';
+            });
+        }
+
+        function clearSearch(tabName) {
+            const searchInput = document.getElementById(tabName + 'Search');
+            if (searchInput) {
+                searchInput.value = '';
+                if (tabName === 'messages') {
+                    filterMessages('');
+                } else if (tabName === 'followups') {
+                    filterFollowups('');
+                }
+            }
+        }
+
+        function handleSearchKeydown(event, tabName) {
+            if (event.key === 'Escape') {
+                clearSearch(tabName);
+            }
+        }
+
+        // Placeholder functions for adding new items
+        function addNewMessage() {
+            alert('Funkcja dodawania nowej wiadomości będzie wkrótce dostępna!');
+        }
+
+        function addNewFollowup() {
+            alert('Funkcja planowania follow-up będzie wkrótce dostępna!');
+        }
+
+        function addNewInterview() {
+            alert('Funkcja planowania rozmowy będzie wkrótce dostępna!');
+        }
+
+        function addNewNote() {
+            alert('Funkcja dodawania notatki będzie wkrótce dostępna!');
+        }
+    </script>
+</body>
+
+</html>

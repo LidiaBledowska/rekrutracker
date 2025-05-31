@@ -9,7 +9,6 @@ function getStatusColors(status) {
         'rozmowa telefoniczna': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
         'rozmowa online': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
         'rozmowa stacjonarna': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
-        'assessment center': 'background-color: #fce7f3 !important; color: #be185d !important; border: 2px solid #ec4899 !important;',
         'oferta': 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;',
         'odrzucono': 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;'
     };
@@ -22,8 +21,6 @@ function getStatusColors(status) {
     // Fallback with partial matching
     if (normalizedStatus.includes('rozmowa')) {
         return 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;';
-    } else if (normalizedStatus.includes('assessment')) {
-        return 'background-color: #fce7f3 !important; color: #be185d !important; border: 2px solid #ec4899 !important;';
     } else if (normalizedStatus.includes('oferta')) {
         return 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;';
     } else if (normalizedStatus.includes('odrzucono')) {
@@ -217,7 +214,14 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             let match = true;
             for (const key in filters) {
                 if (filters[key]) {
-                    if (typeof app[key] === "string" && typeof filters[key] === "string") {
+                    // Special handling for "Rozmowy" status filter
+                    if (key === 'status' && filters[key] === 'Rozmowy') {
+                        const interviewStatuses = ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'];
+                        if (!interviewStatuses.includes(app.status)) {
+                            match = false;
+                            break;
+                        }
+                    } else if (typeof app[key] === "string" && typeof filters[key] === "string") {
                         if (!app[key]?.toLowerCase().includes(filters[key].toLowerCase())) {
                             match = false;
                             break;
@@ -704,29 +708,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 bgColor: '#dbeafe',
                 label: 'Wysłano CV'
             },
-            'Rozmowa telefoniczna': {
-                icon: 'fas fa-phone',
+            'Rozmowy': {
+                icon: 'fas fa-comments',
                 color: '#f59e0b',
                 bgColor: '#fef3c7',
-                label: 'Rozmowy telefoniczne'
-            },
-            'Rozmowa online': {
-                icon: 'fas fa-video',
-                color: '#8b5cf6',
-                bgColor: '#ede9fe',
-                label: 'Rozmowy online'
-            },
-            'Rozmowa stacjonarna': {
-                icon: 'fas fa-handshake',
-                color: '#06b6d4',
-                bgColor: '#cffafe',
-                label: 'Rozmowy stacjonarne'
-            },
-            'Assessment Center': {
-                icon: 'fas fa-tasks',
-                color: '#ec4899',
-                bgColor: '#fce7f3',
-                label: 'Assessment Center'
+                label: 'Rozmowy',
+                isComposite: true,
+                subStatuses: ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'],
+                subConfig: {
+                    'Rozmowa telefoniczna': {
+                        icon: 'fas fa-phone',
+                        label: 'Telefoniczna'
+                    },
+                    'Rozmowa online': {
+                        icon: 'fas fa-video',
+                        label: 'Online'
+                    },
+                    'Rozmowa stacjonarna': {
+                        icon: 'fas fa-handshake',
+                        label: 'Stacjonarna'
+                    }
+                }
             },
             'Oferta': {
                 icon: 'fas fa-trophy',
@@ -744,12 +746,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function generateStatusSummaryCards(applications) {
+        console.log('generateStatusSummaryCards called with:', applications?.length, 'applications');
+        
         const statusCards = document.getElementById('statusCards');
-        if (!statusCards) return;
+        if (!statusCards) {
+            console.error('statusCards element not found!');
+            return;
+        }
 
         const statusConfig = getStatusCardConfig();
         const statusCounts = {};
         const totalApplications = applications.filter(app => !app.archiwalna).length;
+
+        console.log('totalApplications:', totalApplications);
 
         // Count applications by status
         applications.forEach(app => {
@@ -757,6 +766,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const status = app.status || 'Brak statusu';
             statusCounts[status] = (statusCounts[status] || 0) + 1;
         });
+
+        console.log('statusCounts:', statusCounts);
 
         // Generate cards HTML
         let cardsHTML = '';
@@ -779,29 +790,121 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Add status-specific cards
         Object.entries(statusConfig).forEach(([status, config]) => {
-            const count = statusCounts[status] || 0;
-            const percentage = totalApplications > 0 ? (count / totalApplications) * 100 : 0;
-            
-            if (count > 0 || ['Wysłano CV', 'Oferta'].includes(status)) { // Always show key statuses
+            if (config.isComposite) {
+                // Handle composite card (Rozmowy)
+                const subCounts = {};
+                let totalSubCount = 0;
+                
+                config.subStatuses.forEach(subStatus => {
+                    const count = statusCounts[subStatus] || 0;
+                    subCounts[subStatus] = count;
+                    totalSubCount += count;
+                });
+                
+                const percentage = totalApplications > 0 ? (totalSubCount / totalApplications) * 100 : 0;
+                const isActive = config.subStatuses.includes(currentStatusFilter) || currentStatusFilter === 'Rozmowy';
+                
                 cardsHTML += `
-                    <div class="status-card ${currentStatusFilter === status ? 'active' : ''}" onclick="filterByStatus('${status}')">
-                        <div class="status-card-header">
+                    <div class="status-card composite-card ${isActive ? 'active' : ''}" data-status="${status}">
+                        <div class="status-card-header" data-filter="Rozmowy">
                             <div class="status-card-icon" style="background: ${config.color};">
                                 <i class="${config.icon}"></i>
                             </div>
+                            <div class="dropdown-indicator" data-toggle-composite>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
                         </div>
-                        <div class="status-card-count">${count}</div>
-                        <div class="status-card-label">${config.label}</div>
-                        <div class="status-card-progress">
+                        <div class="status-card-count" data-filter="Rozmowy">${totalSubCount}</div>
+                        <div class="status-card-label" data-filter="Rozmowy">${config.label}</div>
+                        <div class="status-card-progress" data-filter="Rozmowy">
                             <div class="status-card-progress-fill" style="width: ${percentage}%; background: ${config.color};"></div>
+                        </div>
+                        <div class="status-card-dropdown" style="display: none;">
+                            ${config.subStatuses.map(subStatus => {
+                                const subCount = subCounts[subStatus];
+                                const subConfig = config.subConfig[subStatus];
+                                const isSubActive = currentStatusFilter === subStatus;
+                                return `
+                                    <div class="status-sub-option ${isSubActive ? 'active' : ''}" data-filter="${subStatus}">
+                                        <i class="${subConfig.icon}"></i>
+                                        <span>${subConfig.label}</span>
+                                        <span class="sub-count">${subCount}</span>
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
+            } else {
+                // Handle regular cards
+                const count = statusCounts[status] || 0;
+                const percentage = totalApplications > 0 ? (count / totalApplications) * 100 : 0;
+                
+                if (count > 0 || ['Wysłano CV', 'Oferta'].includes(status)) { // Always show key statuses
+                    cardsHTML += `
+                        <div class="status-card ${currentStatusFilter === status ? 'active' : ''}" data-filter="${status}">
+                            <div class="status-card-header">
+                                <div class="status-card-icon" style="background: ${config.color};">
+                                    <i class="${config.icon}"></i>
+                                </div>
+                            </div>
+                            <div class="status-card-count">${count}</div>
+                            <div class="status-card-label">${config.label}</div>
+                            <div class="status-card-progress">
+                                <div class="status-card-progress-fill" style="width: ${percentage}%; background: ${config.color};"></div>
+                            </div>
+                        </div>
+                    `;
+                }
             }
         });
 
         statusCards.innerHTML = cardsHTML;
+        
+        // Add event listeners after HTML is generated
+        attachStatusCardEventListeners();
+        
         updateActiveStatusFilter();
+    }
+
+    function attachStatusCardEventListeners() {
+        console.log('Attaching event listeners to status cards');
+        
+        // Add listeners for regular status cards
+        document.querySelectorAll('.status-card[data-filter]:not(.composite-card)').forEach(card => {
+            const filter = card.getAttribute('data-filter');
+            card.addEventListener('click', () => {
+                console.log('Regular card clicked:', filter);
+                filterByStatus(filter);
+            });
+        });
+        
+        // Add listeners for composite card main elements
+        document.querySelectorAll('.composite-card [data-filter="Rozmowy"]').forEach(element => {
+            element.addEventListener('click', () => {
+                console.log('Composite card main clicked');
+                filterByStatus('Rozmowy');
+            });
+        });
+        
+        // Add listeners for dropdown toggles
+        document.querySelectorAll('[data-toggle-composite]').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('Dropdown toggle clicked');
+                toggleCompositeCard(toggle.closest('.composite-card'));
+            });
+        });
+        
+        // Add listeners for sub-options
+        document.querySelectorAll('.status-sub-option[data-filter]').forEach(option => {
+            const filter = option.getAttribute('data-filter');
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('Sub-option clicked:', filter);
+                filterByStatus(filter);
+            });
+        });
     }
 
     function filterByStatus(status) {
@@ -812,18 +915,41 @@ document.addEventListener('DOMContentLoaded', function () {
             card.classList.remove('active');
         });
         
-        // Find and activate the clicked card
+        // Update sub-options active state
+        document.querySelectorAll('.status-sub-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        
+        // Find and activate the clicked card or sub-option
         if (status === null) {
             document.querySelector('.status-card[onclick="filterByStatus(null)"]')?.classList.add('active');
         } else {
-            document.querySelector(`.status-card[onclick="filterByStatus('${status}')"]`)?.classList.add('active');
+            // Check if it's a composite status (interview type)
+            const compositeCard = document.querySelector('.composite-card');
+            const statusConfig = getStatusCardConfig();
+            const rozmowy = statusConfig['Rozmowy'];
+            
+            if (rozmowy && rozmowy.subStatuses.includes(status)) {
+                // Activate composite card and specific sub-option
+                compositeCard?.classList.add('active');
+                document.querySelector(`.status-sub-option[onclick*="'${status}'"]`)?.classList.add('active');
+            } else if (status === 'Rozmowy') {
+                // Main "Rozmowy" card clicked - activate composite card only
+                compositeCard?.classList.add('active');
+            } else {
+                // Regular status card
+                document.querySelector(`.status-card[onclick="filterByStatus('${status}')"]`)?.classList.add('active');
+            }
         }
         
         updateActiveStatusFilter();
         
         // Apply filter to applications
         const filters = getFilters();
-        if (status) {
+        if (status === 'Rozmowy') {
+            // Special handling for "Rozmowy" - no specific status filter, we'll handle this in loadApplications
+            filters.status = 'Rozmowy';
+        } else if (status) {
             filters.status = status;
         }
         
@@ -840,8 +966,25 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (currentStatusFilter) {
             const statusConfig = getStatusCardConfig();
-            const config = statusConfig[currentStatusFilter];
-            activeFilterStatus.textContent = config ? config.label : currentStatusFilter;
+            let config = statusConfig[currentStatusFilter];
+            let label = currentStatusFilter;
+            
+            if (currentStatusFilter === 'Rozmowy') {
+                // Special handling for main "Rozmowy" filter
+                config = statusConfig['Rozmowy'];
+                label = 'Wszystkie rozmowy';
+            } else if (!config) {
+                // Check if it's a sub-status (interview type)
+                const rozmowy = statusConfig['Rozmowy'];
+                if (rozmowy && rozmowy.subStatuses.includes(currentStatusFilter)) {
+                    config = rozmowy.subConfig[currentStatusFilter];
+                    label = `Rozmowy - ${config.label}`;
+                }
+            } else {
+                label = config.label;
+            }
+            
+            activeFilterStatus.textContent = label;
             activeStatusFilter.style.display = 'block';
         } else {
             activeStatusFilter.style.display = 'none';
@@ -851,6 +994,50 @@ document.addEventListener('DOMContentLoaded', function () {
     function clearStatusFilter() {
         filterByStatus(null);
     }
+
+    function toggleCompositeCard(cardElement) {
+        const dropdown = cardElement.querySelector('.status-card-dropdown');
+        const chevron = cardElement.querySelector('.dropdown-indicator i');
+        
+        if (!dropdown || !chevron) return;
+        
+        // Close other dropdowns
+        document.querySelectorAll('.status-card-dropdown').forEach(otherDropdown => {
+            if (otherDropdown !== dropdown) {
+                otherDropdown.style.display = 'none';
+                const otherChevron = otherDropdown.parentElement.querySelector('.dropdown-indicator i');
+                if (otherChevron) {
+                    otherChevron.classList.remove('fa-chevron-up');
+                    otherChevron.classList.add('fa-chevron-down');
+                }
+            }
+        });
+        
+        // Toggle current dropdown
+        if (dropdown.style.display === 'none' || !dropdown.style.display) {
+            dropdown.style.display = 'block';
+            chevron.classList.remove('fa-chevron-down');
+            chevron.classList.add('fa-chevron-up');
+        } else {
+            dropdown.style.display = 'none';
+            chevron.classList.remove('fa-chevron-up');
+            chevron.classList.add('fa-chevron-down');
+        }
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.composite-card')) {
+            document.querySelectorAll('.status-card-dropdown').forEach(dropdown => {
+                dropdown.style.display = 'none';
+                const chevron = dropdown.parentElement.querySelector('.dropdown-indicator i');
+                if (chevron) {
+                    chevron.classList.remove('fa-chevron-up');
+                    chevron.classList.add('fa-chevron-down');
+                }
+            });
+        }
+    });
 
     // Enhanced visual status indicators for table rows
     function enhanceTableRowVisuals() {
@@ -862,14 +1049,22 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!statusButton) return;
             
             const statusText = statusButton.textContent.trim().split('(')[0].trim(); // Remove date part
-            const config = statusConfig[statusText];
+            let config = statusConfig[statusText];
+            
+            // Check if it's a sub-status (interview type)
+            if (!config) {
+                const rozmowy = statusConfig['Rozmowy'];
+                if (rozmowy && rozmowy.subStatuses.includes(statusText)) {
+                    config = { color: rozmowy.color }; // Use parent color for interview types
+                }
+            }
             
             if (config) {
                 // Add subtle left border to row based on status
                 row.style.borderLeft = `4px solid ${config.color}`;
                 
                 // Add priority indicator for important statuses
-                if (['Oferta', 'Assessment Center', 'Rozmowa online', 'Rozmowa stacjonarna'].includes(statusText)) {
+                if (['Oferta', 'Rozmowa online', 'Rozmowa stacjonarna', 'Rozmowa telefoniczna'].includes(statusText)) {
                     const priorityIndicator = document.createElement('div');
                     priorityIndicator.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 0.8rem; margin-left: 0.5rem;"></i>';
                     priorityIndicator.title = 'Wymaga uwagi';
@@ -899,6 +1094,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // Export functions to global scope for onclick handlers
+    window.filterByStatus = filterByStatus;
+    window.toggleCompositeCard = toggleCompositeCard;
+    window.clearStatusFilter = clearStatusFilter;
+    window.generateStatusSummaryCards = generateStatusSummaryCards;
+    window.getStatusCardConfig = getStatusCardConfig;
 
     // Initial load
     loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);

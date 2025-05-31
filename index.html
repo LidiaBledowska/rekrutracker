@@ -161,6 +161,115 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Composite card dropdown styles */
+        .dropdown-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-indicator i {
+            font-size: 0.8rem;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .composite-card:hover .dropdown-indicator {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-card-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .status-sub-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .status-sub-option:last-child {
+            border-bottom: none;
+        }
+
+        .status-sub-option:hover {
+            background: #f8fafc;
+        }
+
+        .status-sub-option.active {
+            background: #f0f9ff;
+            border-color: #3b82f6;
+        }
+
+        .status-sub-option i {
+            font-size: 1rem;
+            color: #f59e0b;
+            width: 1.2rem;
+            text-align: center;
+        }
+
+        .status-sub-option span:first-of-type {
+            flex: 1;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .sub-count {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            min-width: 1.5rem;
+            text-align: center;
+        }
+
+        .status-sub-option.active .sub-count {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .composite-card {
+            position: relative;
+        }
+
+        /* Close dropdowns when clicking outside */
+        .composite-card .status-card-dropdown {
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -492,7 +601,6 @@
                                             <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
                                             <option value="Rozmowa online">Rozmowa online</option>
                                             <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
-                                            <option value="Assessment Center">Assessment Center</option>
                                             <option value="Oferta">Oferta</option>
                                             <option value="Odrzucono">Odrzucono</option>
                                         </select>
@@ -697,7 +805,6 @@
                             <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
                             <option value="Rozmowa online">Rozmowa online</option>
                             <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
-                            <option value="Assessment Center">Assessment Center</option>
                             <option value="Oferta">Oferta</option>
                             <option value="Odrzucono">Odrzucono</option>
                         </select>

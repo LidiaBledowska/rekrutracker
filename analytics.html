@@ -363,7 +363,7 @@
         function calculateStats() {
             const total = applicationsData.length;
             const interviews = applicationsData.filter(app =>
-                ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna', 'Assessment Center', 'Oferta'].includes(app.status)
+                ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna', 'Oferta'].includes(app.status)
             ).length;
             const offers = applicationsData.filter(app => app.status === 'Oferta').length;
 

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Rozmowy Integration Test</title>
+    <script src="https://kit.fontawesome.com/5b8f4bb78b.js" crossorigin="anonymous"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f8f9fa; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        
+        /* Status Cards Styles - copied from main application */
+        .status-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .status-card.active {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+        }
+
+        .status-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .status-card-count {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #141414;
+            margin: 0.3rem 0;
+        }
+
+        .status-card-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .status-card-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #e5e7eb;
+        }
+
+        .status-card-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            transition: width 0.8s ease;
+        }
+
+        /* Composite card dropdown styles */
+        .dropdown-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-indicator i {
+            font-size: 0.8rem;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .composite-card:hover .dropdown-indicator {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-card-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .status-sub-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .status-sub-option:last-child {
+            border-bottom: none;
+        }
+
+        .status-sub-option:hover {
+            background: #f8fafc;
+        }
+
+        .status-sub-option.active {
+            background: #f0f9ff;
+            border-color: #3b82f6;
+        }
+
+        .status-sub-option i {
+            font-size: 1rem;
+            color: #f59e0b;
+            width: 1.2rem;
+            text-align: center;
+        }
+
+        .status-sub-option span:first-of-type {
+            flex: 1;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .sub-count {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            min-width: 1.5rem;
+            text-align: center;
+        }
+
+        .status-sub-option.active .sub-count {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .composite-card {
+            position: relative;
+        }
+
+        /* Demo specific styles */
+        .demo-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .demo-log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .active-filter {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .test-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .test-btn.primary { background: #3b82f6; color: white; }
+        .test-btn.secondary { background: #6b7280; color: white; }
+        .test-btn.success { background: #10b981; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Complete Rozmowy Integration Test</h1>
+        <p>This demo tests the complete Rozmowy composite card functionality with simulated data.</p>
+
+        <div class="demo-section">
+            <h3>📊 Status Cards (with Rozmowy Composite)</h3>
+            <div class="status-cards-grid" id="statusCards">
+                <!-- Cards will be generated here -->
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>🎛 Test Controls</h3>
+            <div class="test-buttons">
+                <button class="test-btn primary" onclick="filterDemo('Rozmowy')">Filter by All Rozmowy</button>
+                <button class="test-btn secondary" onclick="filterDemo('Rozmowa telefoniczna')">Filter by Telefoniczna</button>
+                <button class="test-btn secondary" onclick="filterDemo('Rozmowa online')">Filter by Online</button>
+                <button class="test-btn secondary" onclick="filterDemo('Rozmowa stacjonarna')">Filter by Stacjonarna</button>
+                <button class="test-btn success" onclick="filterDemo(null)">Clear Filter</button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>📋 Current Filter State</h3>
+            <div class="active-filter" id="currentFilter">No filter active</div>
+        </div>
+
+        <div class="demo-section">
+            <h3>📝 Action Log</h3>
+            <div id="actionLog"></div>
+        </div>
+
+        <div class="demo-section">
+            <h3>📊 Simulated Application Data</h3>
+            <div id="applicationsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated application data
+        const mockApplications = [
+            { id: 1, company: 'TechCorp', position: 'Frontend Developer', status: 'Rozmowa telefoniczna', date: '2025-05-30' },
+            { id: 2, company: 'DataSoft', position: 'React Developer', status: 'Rozmowa online', date: '2025-05-29' },
+            { id: 3, company: 'WebAgency', position: 'Full Stack Developer', status: 'Rozmowa stacjonarna', date: '2025-05-28' },
+            { id: 4, company: 'StartupX', position: 'JavaScript Developer', status: 'Rozmowa telefoniczna', date: '2025-05-27' },
+            { id: 5, company: 'FinTech Ltd', position: 'Senior Developer', status: 'Wysłano CV', date: '2025-05-26' },
+            { id: 6, company: 'E-commerce Co', position: 'Backend Developer', status: 'Oferta', date: '2025-05-25' },
+        ];
+
+        let currentStatusFilter = null;
+
+        // Status configuration (same as main app)
+        function getStatusCardConfig() {
+            return {
+                'Wysłano CV': {
+                    icon: 'fas fa-paper-plane',
+                    color: '#3b82f6',
+                    bgColor: '#dbeafe',
+                    label: 'Wysłano CV'
+                },
+                'Rozmowy': {
+                    icon: 'fas fa-comments',
+                    color: '#f59e0b',
+                    bgColor: '#fef3c7',
+                    label: 'Rozmowy',
+                    isComposite: true,
+                    subStatuses: ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'],
+                    subConfig: {
+                        'Rozmowa telefoniczna': {
+                            icon: 'fas fa-phone',
+                            label: 'Telefoniczna'
+                        },
+                        'Rozmowa online': {
+                            icon: 'fas fa-video',
+                            label: 'Online'
+                        },
+                        'Rozmowa stacjonarna': {
+                            icon: 'fas fa-handshake',
+                            label: 'Stacjonarna'
+                        }
+                    }
+                },
+                'Oferta': {
+                    icon: 'fas fa-trophy',
+                    color: '#10b981',
+                    bgColor: '#d1fae5',
+                    label: 'Oferty'
+                }
+            };
+        }
+
+        function logAction(message) {
+            const log = document.getElementById('actionLog');
+            const div = document.createElement('div');
+            div.className = 'demo-log';
+            div.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            log.insertBefore(div, log.firstChild);
+        }
+
+        function updateCurrentFilter() {
+            const filterDiv = document.getElementById('currentFilter');
+            if (currentStatusFilter === null) {
+                filterDiv.textContent = 'No filter active - showing all applications';
+            } else if (currentStatusFilter === 'Rozmowy') {
+                filterDiv.innerHTML = '<strong>Filter:</strong> All interview types (Rozmowy composite)';
+            } else {
+                filterDiv.innerHTML = `<strong>Filter:</strong> ${currentStatusFilter}`;
+            }
+        }
+
+        function updateApplicationsList() {
+            const listDiv = document.getElementById('applicationsList');
+            let filteredApps = mockApplications;
+
+            if (currentStatusFilter === 'Rozmowy') {
+                const interviewStatuses = ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'];
+                filteredApps = mockApplications.filter(app => interviewStatuses.includes(app.status));
+            } else if (currentStatusFilter) {
+                filteredApps = mockApplications.filter(app => app.status === currentStatusFilter);
+            }
+
+            listDiv.innerHTML = `
+                <p><strong>Showing ${filteredApps.length} of ${mockApplications.length} applications:</strong></p>
+                ${filteredApps.map(app => `
+                    <div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                        <strong>${app.company}</strong> - ${app.position} 
+                        <span style="color: #6b7280; margin-left: 10px;">(${app.status})</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function generateStatusSummaryCards() {
+            const statusConfig = getStatusCardConfig();
+            const statusCards = document.getElementById('statusCards');
+            const totalApplications = mockApplications.length;
+            
+            // Count applications by status
+            const statusCounts = {};
+            mockApplications.forEach(app => {
+                statusCounts[app.status] = (statusCounts[app.status] || 0) + 1;
+            });
+
+            let cardsHTML = '';
+
+            Object.entries(statusConfig).forEach(([status, config]) => {
+                if (config.isComposite) {
+                    // Handle composite card (Rozmowy)
+                    const subCounts = {};
+                    let totalSubCount = 0;
+                    
+                    config.subStatuses.forEach(subStatus => {
+                        const count = statusCounts[subStatus] || 0;
+                        subCounts[subStatus] = count;
+                        totalSubCount += count;
+                    });
+                    
+                    const percentage = totalApplications > 0 ? (totalSubCount / totalApplications) * 100 : 0;
+                    const isActive = config.subStatuses.includes(currentStatusFilter) || currentStatusFilter === 'Rozmowy';
+                    
+                    cardsHTML += `
+                        <div class="status-card composite-card ${isActive ? 'active' : ''}" data-status="${status}">
+                            <div class="status-card-header" onclick="filterDemo('Rozmowy')">
+                                <div class="status-card-icon" style="background: ${config.color};">
+                                    <i class="${config.icon}"></i>
+                                </div>
+                                <div class="dropdown-indicator" onclick="event.stopPropagation(); toggleCompositeCard(this.closest('.composite-card'))">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </div>
+                            <div class="status-card-count" onclick="filterDemo('Rozmowy')">${totalSubCount}</div>
+                            <div class="status-card-label" onclick="filterDemo('Rozmowy')">${config.label}</div>
+                            <div class="status-card-progress" onclick="filterDemo('Rozmowy')">
+                                <div class="status-card-progress-fill" style="width: ${percentage}%; background: ${config.color};"></div>
+                            </div>
+                            <div class="status-card-dropdown" style="display: none;">
+                                ${config.subStatuses.map(subStatus => {
+                                    const subCount = subCounts[subStatus];
+                                    const subConfig = config.subConfig[subStatus];
+                                    const isSubActive = currentStatusFilter === subStatus;
+                                    return `
+                                        <div class="status-sub-option ${isSubActive ? 'active' : ''}" onclick="event.stopPropagation(); filterDemo('${subStatus}')">
+                                            <i class="${subConfig.icon}"></i>
+                                            <span>${subConfig.label}</span>
+                                            <span class="sub-count">${subCount}</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Handle regular cards
+                    const count = statusCounts[status] || 0;
+                    const percentage = totalApplications > 0 ? (count / totalApplications) * 100 : 0;
+                    
+                    if (count > 0 || ['Wysłano CV', 'Oferta'].includes(status)) {
+                        cardsHTML += `
+                            <div class="status-card ${currentStatusFilter === status ? 'active' : ''}" onclick="filterDemo('${status}')">
+                                <div class="status-card-header">
+                                    <div class="status-card-icon" style="background: ${config.color};">
+                                        <i class="${config.icon}"></i>
+                                    </div>
+                                </div>
+                                <div class="status-card-count">${count}</div>
+                                <div class="status-card-label">${config.label}</div>
+                                <div class="status-card-progress">
+                                    <div class="status-card-progress-fill" style="width: ${percentage}%; background: ${config.color};"></div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            statusCards.innerHTML = cardsHTML;
+        }
+
+        function filterDemo(status) {
+            currentStatusFilter = status;
+            logAction(`Filter changed to: ${status || 'No filter'}`);
+            
+            // Update visual state of cards
+            document.querySelectorAll('.status-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Update sub-options active state
+            document.querySelectorAll('.status-sub-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            // Find and activate the appropriate card/option
+            if (status === null) {
+                // Clear filter
+            } else {
+                const compositeCard = document.querySelector('.composite-card');
+                const statusConfig = getStatusCardConfig();
+                const rozmowy = statusConfig['Rozmowy'];
+                
+                if (rozmowy && rozmowy.subStatuses.includes(status)) {
+                    // Sub-status selected
+                    compositeCard?.classList.add('active');
+                    document.querySelector(`.status-sub-option[onclick*="'${status}'"]`)?.classList.add('active');
+                } else if (status === 'Rozmowy') {
+                    // Main "Rozmowy" card clicked
+                    compositeCard?.classList.add('active');
+                } else {
+                    // Regular status card
+                    document.querySelector(`.status-card[onclick="filterDemo('${status}')"]`)?.classList.add('active');
+                }
+            }
+
+            updateCurrentFilter();
+            updateApplicationsList();
+        }
+
+        function toggleCompositeCard(cardElement) {
+            const dropdown = cardElement.querySelector('.status-card-dropdown');
+            const chevron = cardElement.querySelector('.dropdown-indicator i');
+            
+            if (!dropdown || !chevron) return;
+            
+            logAction('Toggling composite card dropdown');
+            
+            // Close other dropdowns
+            document.querySelectorAll('.status-card-dropdown').forEach(otherDropdown => {
+                if (otherDropdown !== dropdown) {
+                    otherDropdown.style.display = 'none';
+                    const otherChevron = otherDropdown.parentElement.querySelector('.dropdown-indicator i');
+                    if (otherChevron) {
+                        otherChevron.classList.remove('fa-chevron-up');
+                        otherChevron.classList.add('fa-chevron-down');
+                    }
+                }
+            });
+            
+            // Toggle current dropdown
+            if (dropdown.style.display === 'none' || !dropdown.style.display) {
+                dropdown.style.display = 'block';
+                chevron.classList.remove('fa-chevron-down');
+                chevron.classList.add('fa-chevron-up');
+                logAction('Dropdown opened');
+            } else {
+                dropdown.style.display = 'none';
+                chevron.classList.remove('fa-chevron-up');
+                chevron.classList.add('fa-chevron-down');
+                logAction('Dropdown closed');
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.composite-card')) {
+                document.querySelectorAll('.status-card-dropdown').forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                    const chevron = dropdown.parentElement.querySelector('.dropdown-indicator i');
+                    if (chevron) {
+                        chevron.classList.remove('fa-chevron-up');
+                        chevron.classList.add('fa-chevron-down');
+                    }
+                });
+            }
+        });
+
+        // Initialize the demo
+        window.addEventListener('load', function() {
+            logAction('Demo initialized with sample data');
+            generateStatusSummaryCards();
+            updateCurrentFilter();
+            updateApplicationsList();
+        });
+    </script>
+</body>
+</html>

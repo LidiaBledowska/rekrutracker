@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Conversations Sync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .status-filter {
+            background: #e3f2fd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .status-filter:hover {
+            background: #bbdefb;
+        }
+        .result {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #2196f3;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Conversations Synchronization</h1>
+    <p>Ten test sprawdza, czy filtrowanie aplikacji według statusu działa poprawnie.</p>
+
+    <div class="test-section">
+        <h2>Przykładowe dane testowe</h2>
+        <p>Kliknij poniższe statusy, aby zobaczyć filtrowanie:</p>
+        
+        <div class="status-filter" onclick="testFilter('wysłano cv')">
+            📧 Wysłano CV (Messages tab)
+        </div>
+        
+        <div class="status-filter" onclick="testFilter('rozmowa')">
+            🎥 Rozmowy (Interviews tab)
+        </div>
+        
+        <div class="status-filter" onclick="testFilter('oferta')">
+            🏆 Oferty
+        </div>
+        
+        <div class="status-filter" onclick="testFilter('follow-up')">
+            ⏰ Follow-up (aplikacje starsze niż 7 dni)
+        </div>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        // Test data - symuluje dane z Firebase
+        const testApplicationsData = [
+            {
+                id: 'test1',
+                stanowisko: 'Frontend Developer',
+                firma: 'Google',
+                data: '2025-05-20',
+                status: 'Wysłano CV'
+            },
+            {
+                id: 'test2',
+                stanowisko: 'React Developer',
+                firma: 'Meta',
+                data: '2025-05-15',
+                status: 'Rozmowa online'
+            },
+            {
+                id: 'test3',
+                stanowisko: 'Full Stack Developer',
+                firma: 'Microsoft',
+                data: '2025-05-10',
+                status: 'Wysłano CV'
+            },
+            {
+                id: 'test4',
+                stanowisko: 'Senior Developer',
+                firma: 'Apple',
+                data: '2025-05-05',
+                status: 'Oferta'
+            },
+            {
+                id: 'test5',
+                stanowisko: 'Backend Developer',
+                firma: 'Netflix',
+                data: '2025-04-20', // Old - needs follow-up
+                status: 'Wysłano CV'
+            }
+        ];
+
+        function testFilter(filterType) {
+            const resultsDiv = document.getElementById('results');
+            let filteredApps = [];
+            let description = '';
+
+            switch(filterType) {
+                case 'wysłano cv':
+                    filteredApps = testApplicationsData.filter(app => 
+                        app.status && app.status.toLowerCase().includes('wysłano cv')
+                    );
+                    description = 'Aplikacje ze statusem "Wysłano CV" (Messages tab)';
+                    break;
+                    
+                case 'rozmowa':
+                    filteredApps = testApplicationsData.filter(app => 
+                        app.status && app.status.toLowerCase().includes('rozmowa')
+                    );
+                    description = 'Aplikacje ze statusem zawierającym "rozmowa" (Interviews tab)';
+                    break;
+                    
+                case 'oferta':
+                    filteredApps = testApplicationsData.filter(app => 
+                        app.status && app.status.toLowerCase().includes('oferta')
+                    );
+                    description = 'Aplikacje ze statusem "Oferta"';
+                    break;
+                    
+                case 'follow-up':
+                    filteredApps = testApplicationsData.filter(app => {
+                        const daysSinceApplication = getDaysSinceApplication(app.data);
+                        return app.status && 
+                               app.status.toLowerCase().includes('wysłano cv') && 
+                               daysSinceApplication >= 7;
+                    });
+                    description = 'Aplikacje wymagające follow-up (Wysłano CV + starsze niż 7 dni)';
+                    break;
+            }
+
+            let html = `
+                <div class="test-section">
+                    <h3>${description}</h3>
+                    <p><strong>Znaleziono: ${filteredApps.length} aplikacji</strong></p>
+            `;
+
+            if (filteredApps.length === 0) {
+                html += '<div class="result">Brak pasujących aplikacji</div>';
+            } else {
+                filteredApps.forEach(app => {
+                    const daysSince = getDaysSinceApplication(app.data);
+                    html += `
+                        <div class="result">
+                            <strong>${app.stanowisko}</strong> - ${app.firma}<br>
+                            Status: ${app.status}<br>
+                            Data: ${app.data} (${daysSince} dni temu)
+                        </div>
+                    `;
+                });
+            }
+
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+
+        function getDaysSinceApplication(applicationDate) {
+            const today = new Date();
+            const appDate = new Date(applicationDate);
+            const diffTime = Math.abs(today - appDate);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        // Initial display
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('results').innerHTML = `
+                <div class="test-section">
+                    <h3>Wszystkie dane testowe (${testApplicationsData.length} aplikacji)</h3>
+                    ${testApplicationsData.map(app => `
+                        <div class="result">
+                            <strong>${app.stanowisko}</strong> - ${app.firma}<br>
+                            Status: ${app.status}<br>
+                            Data: ${app.data} (${getDaysSinceApplication(app.data)} dni temu)
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
