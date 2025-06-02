@@ -33,8 +33,8 @@ function getStatusColors(status) {
 
 
 
-function showImagesPreview(urls) {
-    console.log('showImagesPreview called with:', urls);
+function showImagesPreview(images) {
+    console.log('showImagesPreview called with:', images);
     const preview = document.getElementById('editImagesPreview');
     
     if (!preview) {
@@ -44,42 +44,98 @@ function showImagesPreview(urls) {
     
     preview.innerHTML = '';
     
-    if (!urls || !Array.isArray(urls) || urls.length === 0) {
+    if (!images || !Array.isArray(images) || images.length === 0) {
         console.log('No images to display');
         preview.innerHTML = '<p style="color: #6b7280; font-size: 0.8em; margin: 0.5em 0;">Brak zdjęć</p>';
         return;
     }
     
-    console.log(`Displaying ${urls.length} images`);
+    console.log(`Displaying ${images.length} images`);
     
-    urls.forEach((url, index) => {
-        console.log(`Processing image ${index + 1}: ${url}`);
+    images.forEach((imageItem, index) => {
+        console.log(`Processing image ${index + 1}:`, imageItem);
         
         const img = document.createElement('img');
-        img.src = url;
+        let imageUrl = '';
+        let imageName = `Zdjęcie ${index + 1}`;
+        
+        // Handle both old Firebase Storage URLs and new Base64 objects
+        if (typeof imageItem === 'string') {
+            // Old format: direct URL string
+            imageUrl = imageItem;
+            img.src = imageItem;
+        } else if (imageItem && imageItem.data) {
+            // New format: Base64 object with data property
+            imageUrl = imageItem.data;
+            img.src = imageItem.data;
+            if (imageItem.name) {
+                imageName = imageItem.name;
+            }
+        } else {
+            console.warn('Invalid image format:', imageItem);
+            return;
+        }
+        
         img.style.maxWidth = '80px';
         img.style.maxHeight = '80px';
         img.style.borderRadius = '6px';
         img.style.border = '1px solid #e5e7eb';
         img.style.marginRight = '0.5em';
         img.style.cursor = 'pointer';
-        img.title = `Zdjęcie ${index + 1} - kliknij aby powiększyć`;
+        img.title = `${imageName} - kliknij aby powiększyć`;
         
         // Add error handling for broken images
         img.onerror = function() {
-            console.error(`Failed to load image: ${url}`);
+            console.error(`Failed to load image: ${imageUrl}`);
             this.style.border = '2px solid #dc2626';
-            this.title = `Błąd ładowania: ${url}`;
+            this.title = `Błąd ładowania: ${imageName}`;
             this.alt = 'Błąd ładowania';
         };
         
         img.onload = function() {
-            console.log(`Successfully loaded image: ${url}`);
+            console.log(`Successfully loaded image: ${imageUrl}`);
         };
         
         // Add click to preview larger image
         img.onclick = function() {
-            window.open(url, '_blank');
+            // For Base64 data, create a new window with the image
+            if (imageUrl.startsWith('data:')) {
+                const newWindow = window.open('', '_blank');
+                if (newWindow) {
+                    newWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>${imageName}</title>
+                            <style>
+                                body { 
+                                    margin: 0; 
+                                    padding: 20px; 
+                                    background: #000; 
+                                    display: flex; 
+                                    justify-content: center; 
+                                    align-items: center; 
+                                    min-height: 100vh;
+                                }
+                                img { 
+                                    max-width: 100%; 
+                                    max-height: 100vh; 
+                                    object-fit: contain;
+                                    box-shadow: 0 4px 20px rgba(255,255,255,0.1);
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <img src="${imageUrl}" alt="${imageName}" />
+                        </body>
+                        </html>
+                    `);
+                    newWindow.document.close();
+                }
+            } else {
+                // For regular URLs, use the traditional method
+                window.open(imageUrl, '_blank');
+            }
         };
         
         preview.appendChild(img);
@@ -374,9 +430,6 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
         // Auto-fix colors after table is rendered
         autoFixColors();
         
-        // Update status summary cards with the loaded applications
-        generateStatusSummaryCards(applications);
-        
         // Enhance table row visuals
         setTimeout(() => {
             enhanceTableRowVisuals();
@@ -401,42 +454,27 @@ function autoFixColors() {
 // Enhanced visual status indicators for table rows
 function enhanceTableRowVisuals() {
     const rows = document.querySelectorAll('.applications-table tbody tr');
-    const statusConfig = getStatusCardConfig();
     
     rows.forEach(row => {
         const statusButton = row.querySelector('td[data-label="Status"] button');
         if (!statusButton) return;
         
         const statusText = statusButton.textContent.trim().split('(')[0].trim(); // Remove date part
-        let config = statusConfig[statusText];
         
-        // Check if it's a sub-status (interview type)
-        if (!config) {
-            const rozmowy = statusConfig['Rozmowy'];
-            if (rozmowy && rozmowy.subStatuses.includes(statusText)) {
-                config = { color: rozmowy.color }; // Use parent color for interview types
-            }
-        }
-        
-        if (config) {
-            // Add subtle left border to row based on status
-            row.style.borderLeft = `4px solid ${config.color}`;
+        // Add days since application indicator for stale applications
+        const dateCell = row.querySelector('td[data-label="Data"]');
+        if (dateCell) {
+            const dateText = dateCell.textContent.trim();
+            const applicationDate = new Date(dateText);
+            const now = new Date();
+            const daysDiff = Math.floor((now - applicationDate) / (1000 * 60 * 60 * 24));
             
-            // Add days since application indicator
-            const dateCell = row.querySelector('td[data-label="Data"]');
-            if (dateCell) {
-                const dateText = dateCell.textContent.trim();
-                const applicationDate = new Date(dateText);
-                const now = new Date();
-                const daysDiff = Math.floor((now - applicationDate) / (1000 * 60 * 60 * 24));
-                
-                if (daysDiff > 14 && statusText === 'Wysłano CV') {
-                    // Add indicator for applications older than 2 weeks without response
-                    const staleIndicator = document.createElement('div');
-                    staleIndicator.innerHTML = `<span style="color: #dc2626; font-size: 0.75rem; font-weight: 600;">(${daysDiff} dni)</span>`;
-                    staleIndicator.title = 'Długo bez odpowiedzi';
-                    dateCell.appendChild(staleIndicator);
-                }
+            if (daysDiff > 14 && statusText === 'Wysłano CV') {
+                // Add indicator for applications older than 2 weeks without response
+                const staleIndicator = document.createElement('div');
+                staleIndicator.innerHTML = `<span style="color: #dc2626; font-size: 0.75rem; font-weight: 600;">(${daysDiff} dni)</span>`;
+                staleIndicator.title = 'Długo bez odpowiedzi';
+                dateCell.appendChild(staleIndicator);
             }
         }
     });
@@ -476,14 +514,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Clear status filter button event listener
-    const clearStatusFilterBtn = document.getElementById('clearStatusFilter');
-    if (clearStatusFilterBtn) {
-        clearStatusFilterBtn.addEventListener('click', function () {
-            clearStatusFilter();
-        });
-    }
-
     function getFilters() {
         return {
             stanowisko: document.getElementById('filterStanowisko')?.value || "",
@@ -500,7 +530,17 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('editFormMessage').textContent = '';
     };
 
-    // Obsługa uploadu zdjęć
+    // Base64 image conversion utility
+    function convertFileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Obsługa uploadu zdjęć - Base64 version
     let uploadedImages = [];
     document.getElementById('editImages').addEventListener('change', async function (e) {
         debugImageUpload('Upload started', { fileCount: e.target.files.length });
@@ -531,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             
-            document.getElementById('editFormMessage').textContent = "Trwa przesyłanie zdjęć...";
+            document.getElementById('editFormMessage').textContent = "Trwa konwersja zdjęć...";
             document.getElementById('editFormMessage').style.color = "blue";
             
             uploadedImages = [];
@@ -548,64 +588,58 @@ document.addEventListener('DOMContentLoaded', function () {
                         continue;
                     }
                     
-                    // Check file size (max 5MB)
-                    if (file.size > 5 * 1024 * 1024) {
+                    // Check file size (max 1MB for Base64)
+                    if (file.size > 1024 * 1024) {
                         console.warn(`File too large: ${file.name}`);
-                        alert(`Plik ${file.name} jest za duży (maksymalnie 5MB).`);
+                        alert(`Plik ${file.name} jest za duży (maksymalnie 1MB dla Base64).`);
                         errorCount++;
                         continue;
                     }
                     
-                    // Create unique filename
-                    const timestamp = Date.now();
-                    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                    const uniqueFileName = `${timestamp}_${i}_${sanitizedName}`;
+                    debugImageUpload(`Converting file ${i + 1}/${files.length}`, { fileName: file.name, size: file.size });
+                    document.getElementById('editFormMessage').textContent = `Konwersja zdjęcia ${i + 1}/${files.length}...`;
                     
-                    // SECURE: Use user-specific storage path
-                    const storagePath = `users/${user.uid}/applications/${appId}/${uniqueFileName}`;
-                    debugImageUpload('Creating storage reference', { path: storagePath });
+                    const base64String = await convertFileToBase64(file);
+                    const imageData = {
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        data: base64String
+                    };
                     
-                    const storageRef = window.firebaseModules.ref(storage, storagePath);
-                    
-                    debugImageUpload(`Uploading file ${i + 1}/${files.length}`, { fileName: file.name, size: file.size });
-                    document.getElementById('editFormMessage').textContent = `Przesyłanie zdjęcia ${i + 1}/${files.length}...`;
-                    
-                    const snapshot = await window.firebaseModules.uploadBytes(storageRef, file);
-                    debugImageUpload('Upload completed, getting download URL');
-                    
-                    const url = await window.firebaseModules.getDownloadURL(snapshot.ref);
-                    uploadedImages.push(url);
+                    uploadedImages.push(imageData);
                     successCount++;
                     
-                    debugImageUpload(`Successfully uploaded file ${i + 1}`, { url: url });
+                    debugImageUpload(`Successfully converted file ${i + 1}`, { name: file.name });
                     
                 } catch (fileError) {
-                    console.error(`Error uploading file ${file.name}:`, fileError);
+                    console.error(`Error converting file ${file.name}:`, fileError);
                     errorCount++;
                 }
             }
             
-            // Dodaj do już istniejących
+            // Dodaj do już istniejących - dla Base64 używamy data URL do preview
             const prev = document.getElementById('editImagesPreview').querySelectorAll('img');
             const prevUrls = Array.from(prev).map(img => img.src);
-            const allUrls = prevUrls.concat(uploadedImages);
+            const newUrls = uploadedImages.map(img => img.data);
+            const allUrls = prevUrls.concat(newUrls);
             showImagesPreview(allUrls);
             
             // Show results
             if (successCount > 0 && errorCount === 0) {
-                document.getElementById('editFormMessage').textContent = `✅ Przesłano ${successCount} zdjęć (nie zapomnij zapisać zmian)!`;
+                document.getElementById('editFormMessage').textContent = `✅ Skonwertowano ${successCount} zdjęć (nie zapomnij zapisać zmian)!`;
                 document.getElementById('editFormMessage').style.color = "green";
             } else if (successCount > 0 && errorCount > 0) {
-                document.getElementById('editFormMessage').textContent = `⚠️ Przesłano ${successCount} zdjęć, ${errorCount} błędów (nie zapomnij zapisać zmian)!`;
+                document.getElementById('editFormMessage').textContent = `⚠️ Skonwertowano ${successCount} zdjęć, ${errorCount} błędów (nie zapomnij zapisać zmian)!`;
                 document.getElementById('editFormMessage').style.color = "orange";
             } else {
-                document.getElementById('editFormMessage').textContent = `❌ Nie udało się przesłać żadnego zdjęcia.`;
+                document.getElementById('editFormMessage').textContent = `❌ Nie udało się skonwertować żadnego zdjęcia.`;
                 document.getElementById('editFormMessage').style.color = "red";
             }
             
         } catch (error) {
             console.error('Upload error:', error);
-            document.getElementById('editFormMessage').textContent = `❌ Błąd podczas przesyłania: ${error.message}`;
+            document.getElementById('editFormMessage').textContent = `❌ Błąd podczas konwersji: ${error.message}`;
             document.getElementById('editFormMessage').style.color = "red";
         }
     });
@@ -677,8 +711,21 @@ document.addEventListener('DOMContentLoaded', function () {
             statusHistory.push({ status, date: today });
         }
 
-        // Pobierz wszystkie zdjęcia z podglądu
-        const images = Array.from(document.getElementById('editImagesPreview').querySelectorAll('img')).map(img => img.src);
+        // Pobierz wszystkie zdjęcia z podglądu - handle both URLs and Base64
+        const imageElements = Array.from(document.getElementById('editImagesPreview').querySelectorAll('img'));
+        const images = imageElements.map(img => {
+            const src = img.src;
+            // If it's a data URL (Base64), convert back to object format
+            if (src.startsWith('data:')) {
+                return {
+                    name: img.alt || 'image.jpg',
+                    type: src.split(';')[0].split(':')[1] || 'image/jpeg',
+                    data: src
+                };
+            }
+            // If it's a regular URL, keep as string for backward compatibility
+            return src;
+        });
 
         const updateData = {
             stanowisko,
@@ -934,332 +981,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Status Summary Cards functionality
-    let currentStatusFilter = null;
-
-    function getStatusCardConfig() {
-        return {
-            'Wysłano CV': {
-                icon: 'fas fa-paper-plane',
-                color: '#3b82f6',
-                bgColor: '#dbeafe',
-                label: 'Wysłano CV'
-            },
-            'Rozmowy': {
-                icon: 'fas fa-comments',
-                color: '#f59e0b',
-                bgColor: '#fef3c7',
-                label: 'Rozmowy',
-                isComposite: true,
-                subStatuses: ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'],
-                subConfig: {
-                    'Rozmowa telefoniczna': {
-                        icon: 'fas fa-phone',
-                        label: 'Telefoniczna'
-                    },
-                    'Rozmowa online': {
-                        icon: 'fas fa-video',
-                        label: 'Online'
-                    },
-                    'Rozmowa stacjonarna': {
-                        icon: 'fas fa-handshake',
-                        label: 'Stacjonarna'
-                    }
-                }
-            },
-            'Oferta': {
-                icon: 'fas fa-trophy',
-                color: '#10b981',
-                bgColor: '#d1fae5',
-                label: 'Oferty'
-            },
-            'Odrzucono': {
-                icon: 'fas fa-times-circle',
-                color: '#6b7280',
-                bgColor: '#f3f4f6',
-                label: 'Odrzucone'
-            }
-        };
-    }
-
-    function generateStatusSummaryCards(applications) {
-        console.log('generateStatusSummaryCards called with:', applications?.length, 'applications');
-        
-        const statusCards = document.getElementById('statusCards');
-        if (!statusCards) {
-            console.error('statusCards element not found!');
-            return;
-        }
-
-        const statusConfig = getStatusCardConfig();
-        const statusCounts = {};
-        const totalApplications = applications.filter(app => !app.archiwalna).length;
-
-        console.log('totalApplications:', totalApplications);
-
-        // Count applications by status
-        applications.forEach(app => {
-            if (app.archiwalna) return; // Skip archived applications
-            const status = app.status || 'Brak statusu';
-            statusCounts[status] = (statusCounts[status] || 0) + 1;
-        });
-
-        console.log('statusCounts:', statusCounts);
-
-        // Generate cards HTML
-        let cardsHTML = '';
-        
-        // Add "All Applications" card first
-        cardsHTML += `
-            <div class="status-card ${currentStatusFilter === null ? 'active' : ''}" data-filter="null">
-                <div class="status-card-header">
-                    <div class="status-card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <i class="fas fa-list"></i>
-                    </div>
-                </div>
-                <div class="status-card-count">${totalApplications}</div>
-                <div class="status-card-label">Wszystkie aplikacje</div>
-                <div class="status-card-progress">
-                    <div class="status-card-progress-fill" style="width: 100%; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
-                </div>
-            </div>
-        `;
-
-        // Add status-specific cards
-        Object.entries(statusConfig).forEach(([status, config]) => {
-            if (config.isComposite) {
-                // Handle composite card (Rozmowy)
-                const subCounts = {};
-                let totalSubCount = 0;
-                
-                config.subStatuses.forEach(subStatus => {
-                    const count = statusCounts[subStatus] || 0;
-                    subCounts[subStatus] = count;
-                    totalSubCount += count;
-                });
-                
-                const percentage = totalApplications > 0 ? (totalSubCount / totalApplications) * 100 : 0;
-                const isActive = config.subStatuses.includes(currentStatusFilter) || currentStatusFilter === 'Rozmowy';
-                
-                cardsHTML += `
-                    <div class="status-card composite-card ${isActive ? 'active' : ''}" data-status="${status}">
-                        <div class="status-card-header" data-filter="Rozmowy">
-                            <div class="status-card-icon" style="background: ${config.color};">
-                                <i class="${config.icon}"></i>
-                            </div>
-                            <div class="dropdown-indicator" data-toggle-composite>
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                        </div>
-                        <div class="status-card-count" data-filter="Rozmowy">${totalSubCount}</div>
-                        <div class="status-card-label" data-filter="Rozmowy">${config.label}</div>
-                        <div class="status-card-progress" data-filter="Rozmowy">
-                            <div class="status-card-progress-fill" style="width: ${percentage}%; background: ${config.color};"></div>
-                        </div>
-                        <div class="status-card-dropdown" style="display: none;">
-                            ${config.subStatuses.map(subStatus => {
-                                const subCount = subCounts[subStatus];
-                                const subConfig = config.subConfig[subStatus];
-                                const isSubActive = currentStatusFilter === subStatus;
-                                return `
-                                    <div class="status-sub-option ${isSubActive ? 'active' : ''}" data-filter="${subStatus}">
-                                        <i class="${subConfig.icon}"></i>
-                                        <span>${subConfig.label}</span>
-                                        <span class="sub-count">${subCount}</span>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-            } else {
-                // Handle regular cards
-                const count = statusCounts[status] || 0;
-                const percentage = totalApplications > 0 ? (count / totalApplications) * 100 : 0;
-                
-                if (count > 0 || ['Wysłano CV', 'Oferta'].includes(status)) { // Always show key statuses
-                    cardsHTML += `
-                        <div class="status-card ${currentStatusFilter === status ? 'active' : ''}" data-filter="${status}">
-                            <div class="status-card-header">
-                                <div class="status-card-icon" style="background: ${config.color};">
-                                    <i class="${config.icon}"></i>
-                                </div>
-                            </div>
-                            <div class="status-card-count">${count}</div>
-                            <div class="status-card-label">${config.label}</div>
-                            <div class="status-card-progress">
-                                <div class="status-card-progress-fill" style="width: ${percentage}%; background: ${config.color};"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-        });
-
-        statusCards.innerHTML = cardsHTML;
-        
-        // Add event listeners after HTML is generated
-        attachStatusCardEventListeners();
-        
-        updateActiveStatusFilter();
-    }
-
-    function attachStatusCardEventListeners() {
-        // Add listeners for regular status cards
-        document.querySelectorAll('.status-card[data-filter]:not(.composite-card)').forEach(card => {
-            const filter = card.getAttribute('data-filter');
-            card.addEventListener('click', () => {
-                // Convert string "null" to actual null
-                const actualFilter = filter === 'null' ? null : filter;
-                filterByStatus(actualFilter);
-            });
-        });
-        
-        // Add listeners for composite card main elements
-        document.querySelectorAll('.composite-card [data-filter="Rozmowy"]').forEach(element => {
-            element.addEventListener('click', () => {
-                filterByStatus('Rozmowy');
-            });
-        });
-        
-        // Add listeners for dropdown toggles
-        document.querySelectorAll('[data-toggle-composite]').forEach(toggle => {
-            toggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleCompositeCard(toggle.closest('.composite-card'));
-            });
-        });
-        
-        // Add listeners for sub-options
-        document.querySelectorAll('.status-sub-option[data-filter]').forEach(option => {
-            const filter = option.getAttribute('data-filter');
-            option.addEventListener('click', (e) => {
-                e.stopPropagation();
-                filterByStatus(filter);
-            });
-        });
-    }
-
-    function filterByStatus(status) {
-        currentStatusFilter = status;
-        
-        // Update visual state of cards
-        document.querySelectorAll('.status-card').forEach(card => {
-            card.classList.remove('active');
-        });
-        
-        // Update sub-options active state
-        document.querySelectorAll('.status-sub-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        
-        // Find and activate the clicked card or sub-option
-        if (status === null) {
-            document.querySelector('.status-card[data-filter="null"]')?.classList.add('active');
-        } else {
-            // Check if it's a composite status (interview type)
-            const compositeCard = document.querySelector('.composite-card');
-            const statusConfig = getStatusCardConfig();
-            const rozmowy = statusConfig['Rozmowy'];
-            
-            if (rozmowy && rozmowy.subStatuses.includes(status)) {
-                // Activate composite card and specific sub-option
-                compositeCard?.classList.add('active');
-                document.querySelector(`.status-sub-option[data-filter="${status}"]`)?.classList.add('active');
-            } else if (status === 'Rozmowy') {
-                // Main "Rozmowy" card clicked - activate composite card only
-                compositeCard?.classList.add('active');
-            } else {
-                // Regular status card
-                document.querySelector(`.status-card[data-filter="${status}"]`)?.classList.add('active');
-            }
-        }
-        
-        updateActiveStatusFilter();
-        
-        // Apply filter to applications
-        const filters = getFilters();
-        if (status === 'Rozmowy') {
-            // Special handling for "Rozmowy" - no specific status filter, we'll handle this in loadApplications
-            filters.status = 'Rozmowy';
-        } else if (status) {
-            filters.status = status;
-        }
-        
-        const showArchived = document.getElementById('showArchived')?.checked || false;
-        const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
-        loadApplications(filters, showArchived, sortOrder);
-    }
-
-    function updateActiveStatusFilter() {
-        const activeStatusFilter = document.getElementById('activeStatusFilter');
-        const activeFilterStatus = document.getElementById('activeFilterStatus');
-        
-        if (!activeStatusFilter || !activeFilterStatus) return;
-        
-        // Hide the status filter notification for all status filters
-        // Users can see which applications are displayed directly in the table
-        activeStatusFilter.style.display = 'none';
-    }
-
-    function clearStatusFilter() {
-        currentStatusFilter = null;
-        filterByStatus(null);
-    }
-
-    function toggleCompositeCard(cardElement) {
-        const dropdown = cardElement.querySelector('.status-card-dropdown');
-        const chevron = cardElement.querySelector('.dropdown-indicator i');
-        
-        if (!dropdown || !chevron) return;
-        
-        // Close other dropdowns
-        document.querySelectorAll('.status-card-dropdown').forEach(otherDropdown => {
-            if (otherDropdown !== dropdown) {
-                otherDropdown.style.display = 'none';
-                const otherChevron = otherDropdown.parentElement.querySelector('.dropdown-indicator i');
-                if (otherChevron) {
-                    otherChevron.classList.remove('fa-chevron-up');
-                    otherChevron.classList.add('fa-chevron-down');
-                }
-            }
-        });
-        
-        // Toggle current dropdown
-        if (dropdown.style.display === 'none' || !dropdown.style.display) {
-            dropdown.style.display = 'block';
-            chevron.classList.remove('fa-chevron-down');
-            chevron.classList.add('fa-chevron-up');
-        } else {
-            dropdown.style.display = 'none';
-            chevron.classList.remove('fa-chevron-up');
-            chevron.classList.add('fa-chevron-down');
-        }
-    }
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.composite-card')) {
-            document.querySelectorAll('.status-card-dropdown').forEach(dropdown => {
-                dropdown.style.display = 'none';
-                const chevron = dropdown.parentElement.querySelector('.dropdown-indicator i');
-                if (chevron) {
-                    chevron.classList.remove('fa-chevron-up');
-                    chevron.classList.add('fa-chevron-down');
-                }
-            });
-        }
-    });
-
-
-
-    // Export functions to global scope for onclick handlers
-    window.filterByStatus = filterByStatus;
-    window.toggleCompositeCard = toggleCompositeCard;
-    window.clearStatusFilter = clearStatusFilter;
-    window.generateStatusSummaryCards = generateStatusSummaryCards;
-    window.getStatusCardConfig = getStatusCardConfig;
-
     // Debug function for image upload issues
     window.debugImageUpload = function(message, data = null) {
         const timestamp = new Date().toLocaleTimeString();
@@ -1276,7 +997,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initial load
     loadApplications(getFilters(), document.getElementById('showArchived')?.checked, 'desc');
-    generateStatusSummaryCards([]);
 });
 
 //# sourceMappingURL=app.js.map

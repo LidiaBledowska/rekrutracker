@@ -12,265 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-    <!-- Emergency Status Colors CSS -->
-    <style>
-        /* Status colors with high specificity to override any conflicts */
-        table .status-wysłano-cv,
-        button.status-wysłano-cv,
-        .status-wysłano-cv {
-            background-color: #dbeafe !important;
-            color: #1e40af !important;
-            border: 1px solid #3b82f6 !important;
-        }
-
-        table .status-rozmowa,
-        button.status-rozmowa,
-        .status-rozmowa {
-            background-color: #dbeafe !important;
-            color: #1e40af !important;
-            border: 1px solid #3b82f6 !important;
-        }
-
-        table .status-assessment,
-        button.status-assessment,
-        .status-assessment {
-            background-color: #fce7f3 !important;
-            color: #be185d !important;
-            border: 1px solid #ec4899 !important;
-        }
-
-        table .status-oferta,
-        button.status-oferta,
-        .status-oferta {
-            background-color: #dcfce7 !important;
-            color: #166534 !important;
-            border: 1px solid #22c55e !important;
-        }
-
-        table .status-odrzucono,
-        button.status-odrzucono,
-        .status-odrzucono {
-            background-color: #f3f4f6 !important;
-            color: #374151 !important;
-            border: 1px solid #6b7280 !important;
-        }
-
-        /* Status Summary Cards Styles */
-        .status-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .status-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.2rem;
-            border: 2px solid #e5e7eb;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .status-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        }
-
-        .status-card.active {
-            border-color: #3b82f6;
-            background: #f0f9ff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
-        }
-
-        .status-card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .status-card-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: white;
-        }
-
-        .status-card-count {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #141414;
-            margin: 0.3rem 0;
-        }
-
-        .status-card-label {
-            font-size: 0.9rem;
-            color: #6b7280;
-            font-weight: 500;
-        }
-
-        .status-card-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: #e5e7eb;
-        }
-
-        .status-card-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
-            transition: width 0.8s ease;
-        }
-
-        /* Responsive adjustments for status cards */
-        @media (max-width: 768px) {
-            .status-cards-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.75rem;
-            }
-
-            .status-card {
-                padding: 1rem;
-            }
-
-            .status-card-count {
-                font-size: 1.5rem;
-            }
-
-            .status-card-icon {
-                width: 2rem;
-                height: 2rem;
-                font-size: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .status-cards-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Composite card dropdown styles */
-        .dropdown-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 1.5rem;
-            height: 1.5rem;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .dropdown-indicator i {
-            font-size: 0.8rem;
-            color: white;
-            transition: transform 0.3s ease;
-        }
-
-        .composite-card:hover .dropdown-indicator {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .status-card-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-
-        .status-sub-option {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .status-sub-option:last-child {
-            border-bottom: none;
-        }
-
-        .status-sub-option:hover {
-            background: #f8fafc;
-        }
-
-        .status-sub-option.active {
-            background: #f0f9ff;
-            border-color: #3b82f6;
-        }
-
-        .status-sub-option i {
-            font-size: 1rem;
-            color: #f59e0b;
-            width: 1.2rem;
-            text-align: center;
-        }
-
-        .status-sub-option span:first-of-type {
-            flex: 1;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        .sub-count {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #6b7280;
-            background: #f3f4f6;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            min-width: 1.5rem;
-            text-align: center;
-        }
-
-        .status-sub-option.active .sub-count {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .composite-card {
-            position: relative;
-        }
-
-        /* Close dropdowns when clicking outside */
-        .composite-card .status-card-dropdown {
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -529,47 +270,6 @@
                                         <i class="fas fa-plus mr-2"></i>
                                         <span class="truncate">Dodaj aplikację</span>
                                     </a>
-                                    <button onclick="openDebugTools()"
-                                        class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-orange-500 text-white text-sm font-bold leading-normal shadow-lg hover:bg-orange-600 transition-all duration-200"
-                                        title="Narzędzia debugowania zdjęć">
-                                        <i class="fas fa-tools mr-2"></i>
-                                        <span class="truncate">Debug</span>
-                                    </button>
-                                    <a href="upload-status-dashboard.html"
-                                        class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-blue-500 text-white text-sm font-bold leading-normal shadow-lg hover:bg-blue-600 transition-all duration-200"
-                                        title="Status funkcji uploadowania zdjęć">
-                                        <i class="fas fa-chart-line mr-2"></i>
-                                        <span class="truncate">Status</span>
-                                    </a>
-                                    <a href="final-upload-report.html"
-                                        class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-green-500 text-white text-sm font-bold leading-normal shadow-lg hover:bg-green-600 transition-all duration-200"
-                                        title="Raport końcowy - funkcje upload">
-                                        <i class="fas fa-clipboard-check mr-2"></i>
-                                        <span class="truncate">Raport</span>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- Status Summary Cards -->
-                            <div id="statusSummarySection" style="margin-bottom: 1.5rem;">
-                                <div id="statusCards" class="status-cards-grid"
-                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-                                    <!-- Status cards will be dynamically generated here -->
-                                </div>
-
-                                <!-- Quick filters from status cards -->
-                                <div id="activeStatusFilter"
-                                    style="display: none; background: #f0f9ff; border: 1px solid #3b82f6; border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem;">
-                                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                                        <span style="color: #1e40af; font-weight: 600;">
-                                            <i class="fas fa-filter" style="margin-right: 0.5rem;"></i>
-                                            Filtrowanie według statusu: <span id="activeFilterStatus"></span>
-                                        </span>
-                                        <button id="clearStatusFilter"
-                                            style="background: none; border: none; color: #1e40af; cursor: pointer; font-weight: 600;">
-                                            <i class="fas fa-times"></i> Wyczyść filtr
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
 
@@ -993,7 +693,6 @@
             import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
             import { getFirestore, collection, query, where, orderBy, getDocs, doc, getDoc, updateDoc, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
             import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-            import { getStorage, ref, deleteObject, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
             // Firebase configuration
             const firebaseConfig = {
@@ -1010,12 +709,10 @@
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
             const auth = getAuth(app);
-            const storage = getStorage(app);
 
             // Make Firebase services available globally
             window.db = db;
             window.auth = auth;
-            window.storage = storage;
             window.firebaseModules = {
                 collection,
                 query,
@@ -1027,10 +724,6 @@
                 updateDoc,
                 deleteDoc,
                 onSnapshot,
-                ref,
-                deleteObject,
-                uploadBytes,
-                getDownloadURL,
                 onAuthStateChanged,
                 GoogleAuthProvider,
                 signInWithPopup,
@@ -1093,30 +786,6 @@
                     });
                 }
             });
-
-            // Debug tools function
-            function openDebugTools() {
-                const debugOptions = [
-                    { name: 'Test uploadu zdjęć', url: 'simple-upload-test.html' },
-                    { name: 'Narzędzie naprawy zdjęć', url: 'image-repair-tool.html' },
-                    { name: 'Sprawdzenie istniejących zdjęć', url: 'check-images.html' },
-                    { name: 'Pełna diagnostyka', url: 'test-upload-debug.html' }
-                ];
-
-                let optionsText = 'Wybierz narzędzie debugowania:\\n\\n';
-                debugOptions.forEach((option, index) => {
-                    optionsText += `${index + 1}. ${option.name}\\n`;
-                });
-
-                const choice = prompt(optionsText + '\\nWprowadź numer (1-4):');
-                
-                if (choice && choice >= 1 && choice <= 4) {
-                    const selectedTool = debugOptions[choice - 1];
-                    window.open(selectedTool.url, '_blank');
-                } else if (choice) {
-                    alert('Nieprawidłowy wybór!');
-                }
-            }
         </script>
 </body>
 

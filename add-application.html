@@ -428,8 +428,6 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
         import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
-
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
@@ -445,21 +443,26 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const storage = getStorage(app);
 
         // Make Firebase services available globally
         window.db = db;
         window.auth = auth;
-        window.storage = storage;
         window.firebaseModules = {
             collection,
             addDoc,
             serverTimestamp,
-            ref,
-            uploadBytes,
-            getDownloadURL,
             onAuthStateChanged
         };
+
+        // Base64 image conversion utility
+        function convertFileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
 
         console.log('Firebase v10 initialized successfully');
         console.log('Storage bucket:', firebaseConfig.storageBucket);
@@ -536,6 +539,45 @@
                 img.src = url;
                 img.className = 'image-preview';
                 img.alt = `Preview ${index + 1}`;
+                img.title = `Zdjęcie ${index + 1} - kliknij aby powiększyć`;
+                img.style.cursor = 'pointer';
+                
+                // Add click to preview larger image
+                img.onclick = function() {
+                    // Create a new window with the image for full screen preview
+                    const newWindow = window.open('', '_blank');
+                    if (newWindow) {
+                        newWindow.document.write(`
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <title>Podgląd zdjęcia ${index + 1}</title>
+                                <style>
+                                    body { 
+                                        margin: 0; 
+                                        padding: 20px; 
+                                        background: #000; 
+                                        display: flex; 
+                                        justify-content: center; 
+                                        align-items: center; 
+                                        min-height: 100vh;
+                                    }
+                                    img { 
+                                        max-width: 100%; 
+                                        max-height: 100vh; 
+                                        object-fit: contain;
+                                        box-shadow: 0 4px 20px rgba(255,255,255,0.1);
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <img src="${url}" alt="Podgląd zdjęcia ${index + 1}" />
+                            </body>
+                            </html>
+                        `);
+                        newWindow.document.close();
+                    }
+                };
                 
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'image-remove-btn';
@@ -591,19 +633,17 @@
             validateLettersOnly(this);
         });
 
-        // Funkcja do przesyłania zdjęć
+        // Upload images using Base64 encoding
         async function uploadImages() {
             if (selectedFiles.length === 0) {
                 console.log('No images to upload');
                 return [];
             }
             
-            console.log(`Starting upload of ${selectedFiles.length} images...`);
-            console.log('Storage available:', !!storage);
-            console.log('Auth current user:', !!auth.currentUser);
+            console.log(`Starting conversion of ${selectedFiles.length} images to Base64...`);
             
             try {
-                const uploadPromises = selectedFiles.map(async (file, index) => {
+                const base64Promises = selectedFiles.map(async (file, index) => {
                     console.log(`Processing file ${index + 1}/${selectedFiles.length}: ${file.name}`);
                     
                     // Validate file
@@ -612,53 +652,42 @@
                         return null;
                     }
                     
-                    // Check file size (max 5MB)
-                    if (file.size > 5 * 1024 * 1024) {
+                    // Check file size (max 1MB for Base64 to avoid Firestore limits)
+                    if (file.size > 1024 * 1024) {
                         console.warn(`File too large (${(file.size / 1024 / 1024).toFixed(2)}MB): ${file.name}`);
-                        alert(`Plik ${file.name} jest za duży. Maksymalny rozmiar to 5MB.`);
+                        alert(`Plik ${file.name} jest za duży. Maksymalny rozmiar to 1MB dla Base64.`);
                         return null;
                     }
                     
                     try {
-                        const timestamp = Date.now();
-                        const fileName = `${timestamp}_${index}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+                        console.log(`Converting ${file.name} to Base64...`);
+                        const base64String = await convertFileToBase64(file);
                         
-                        // SECURE: Use user-specific storage path
-                        console.log(`Creating storage reference for: users/${auth.currentUser.uid}/applications/${fileName}`);
-                        const storageRef = window.firebaseModules.ref(storage, `users/${auth.currentUser.uid}/applications/${fileName}`);
-                        console.log('Storage reference created successfully');
-                        
-                        console.log(`Starting upload to: users/${auth.currentUser.uid}/applications/${fileName}`);
-                        
-                        // Upload file using Firebase v10 syntax
-                        console.log('Uploading file...');
-                        const snapshot = await window.firebaseModules.uploadBytes(storageRef, file);
-                        console.log('Upload completed, getting download URL...');
-                        
-                        const downloadURL = await window.firebaseModules.getDownloadURL(snapshot.ref);
-                        
-                        console.log(`File uploaded successfully: ${downloadURL}`);
-                        return downloadURL;
+                        console.log(`File ${file.name} converted successfully`);
+                        return {
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            data: base64String
+                        };
                         
                     } catch (fileError) {
-                        console.error(`Error uploading file ${file.name}:`, fileError);
-                        console.error(`Error code: ${fileError.code}`);
-                        console.error(`Error message: ${fileError.message}`);
-                        alert(`Błąd podczas przesyłania pliku ${file.name}: ${fileError.message}`);
+                        console.error(`Error converting file ${file.name}:`, fileError);
+                        alert(`Błąd podczas konwersji pliku ${file.name}: ${fileError.message}`);
                         return null;
                     }
                 });
 
-                console.log('Waiting for all uploads to complete...');
-                const urls = await Promise.all(uploadPromises);
-                const validUrls = urls.filter(url => url !== null);
+                console.log('Waiting for all conversions to complete...');
+                const base64Files = await Promise.all(base64Promises);
+                const validFiles = base64Files.filter(file => file !== null);
                 
-                console.log(`Upload completed. ${validUrls.length}/${selectedFiles.length} files uploaded successfully`);
-                return validUrls;
+                console.log(`Conversion completed. ${validFiles.length}/${selectedFiles.length} files converted successfully`);
+                return validFiles;
                 
             } catch (error) {
-                console.error('General upload error:', error);
-                throw new Error(`Błąd podczas przesyłania zdjęć: ${error.message}`);
+                console.error('General conversion error:', error);
+                throw new Error(`Błąd podczas konwersji zdjęć: ${error.message}`);
             }
         }
 
@@ -697,15 +726,15 @@
                 console.log('Starting form submission...');
                 console.log('User:', user.uid, user.email);
                 
-                // Prześlij zdjęcia jeśli są
-                let imageUrls = [];
+                // Konwertuj zdjęcia do Base64 jeśli są
+                let base64Images = [];
                 if (selectedFiles.length > 0) {
-                    console.log('Uploading', selectedFiles.length, 'images...');
-                    document.getElementById('form-message').textContent = `Przesyłanie ${selectedFiles.length} zdjęć...`;
+                    console.log('Converting', selectedFiles.length, 'images to Base64...');
+                    document.getElementById('form-message').textContent = `Konwersja ${selectedFiles.length} zdjęć...`;
                     document.getElementById('form-message').style.color = "blue";
                     
-                    imageUrls = await uploadImages();
-                    console.log('Images uploaded:', imageUrls);
+                    base64Images = await uploadImages();
+                    console.log('Images converted:', base64Images);
                     
                     document.getElementById('form-message').textContent = "Zapisywanie aplikacji...";
                 }
@@ -736,7 +765,7 @@
                 if (kontakt) applicationData.kontakt = kontakt;
                 if (link) applicationData.link = link;
                 if (notatki) applicationData.notatki = notatki;
-                if (imageUrls.length > 0) applicationData.images = imageUrls;
+                if (base64Images.length > 0) applicationData.images = base64Images;
 
                 console.log('Saving application data:', applicationData);
                 
