@@ -422,28 +422,59 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-    <script src="firebase-init.js"></script>
-    <script>
-        // Firebase services are now available globally from firebase-init.js
-        // storage, db, and auth are declared there
+    <!-- Firebase v10 SDK -->
+    <script type="module">
+        // Firebase v10 imports
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
-        // Add console logging for Firebase initialization
-        console.log('Firebase initialized:', !!firebase);
-        console.log('Firestore available:', !!db);
-        console.log('Storage available:', !!storage);
-        console.log('Auth available:', !!auth);
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
+            authDomain: "rekrutracker-app.firebaseapp.com",
+            projectId: "rekrutracker-app",
+            storageBucket: "rekrutracker-app.firebasestorage.app",
+            messagingSenderId: "758407291898",
+            appId: "1:758407291898:web:a573e2cd3b416596d37a43",
+            measurementId: "G-HQW1YLG9Q1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        // Make Firebase services available globally
+        window.db = db;
+        window.auth = auth;
+        window.storage = storage;
+        window.firebaseModules = {
+            collection,
+            addDoc,
+            serverTimestamp,
+            ref,
+            uploadBytes,
+            getDownloadURL,
+            onAuthStateChanged
+        };
+
+        console.log('Firebase v10 initialized successfully');
+        console.log('Storage bucket:', firebaseConfig.storageBucket);
+        console.log('Services available:', {
+            firestore: !!db,
+            storage: !!storage,
+            auth: !!auth
+        });
 
         // Check authentication status on page load
-        auth.onAuthStateChanged(function(user) {
+        window.firebaseModules.onAuthStateChanged(auth, function(user) {
             const authStatus = document.getElementById('auth-status');
             if (user) {
                 console.log('User authenticated:', user);
-                authStatus.innerHTML = `✅ Zalogowany jako: ${user.email || user.uid}<br>UID: ${user.uid}`;
+                authStatus.innerHTML = `✅ Zalogowany jako: ${user.email || user.displayName || user.uid}<br>UID: ${user.uid}`;
             } else {
                 console.log('User not authenticated');
                 authStatus.innerHTML = '❌ Nie zalogowany - przekierowywanie...';
@@ -594,33 +625,17 @@
                         
                         // SECURE: Use user-specific storage path
                         console.log(`Creating storage reference for: users/${auth.currentUser.uid}/applications/${fileName}`);
-                        const storageRef = storage.ref(`users/${auth.currentUser.uid}/applications/${fileName}`);
+                        const storageRef = window.firebaseModules.ref(storage, `users/${auth.currentUser.uid}/applications/${fileName}`);
                         console.log('Storage reference created successfully');
                         
                         console.log(`Starting upload to: users/${auth.currentUser.uid}/applications/${fileName}`);
                         
-                        // Upload with timeout and detailed progress
-                        const uploadPromise = storageRef.put(file);
-                        const timeoutPromise = new Promise((_, reject) => 
-                            setTimeout(() => reject(new Error('Upload timeout after 30 seconds')), 30000)
-                        );
-                        
-                        // Add progress monitoring
-                        uploadPromise.on('state_changed', 
-                            (snapshot) => {
-                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                console.log(`Upload progress for ${fileName}: ${progress.toFixed(1)}%`);
-                            },
-                            (error) => {
-                                console.error(`Upload error for ${fileName}:`, error);
-                            }
-                        );
-                        
-                        console.log('Waiting for upload to complete...');
-                        const snapshot = await Promise.race([uploadPromise, timeoutPromise]);
+                        // Upload file using Firebase v10 syntax
+                        console.log('Uploading file...');
+                        const snapshot = await window.firebaseModules.uploadBytes(storageRef, file);
                         console.log('Upload completed, getting download URL...');
                         
-                        const downloadURL = await snapshot.ref.getDownloadURL();
+                        const downloadURL = await window.firebaseModules.getDownloadURL(snapshot.ref);
                         
                         console.log(`File uploaded successfully: ${downloadURL}`);
                         return downloadURL;
@@ -713,7 +728,7 @@
                     archiwalna: false,
                     favorite: favorite,
                     userId: user.uid, // Add user ID for security
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: window.firebaseModules.serverTimestamp()
                 };
 
                 // Dodaj opcjonalne pola tylko jeśli są wypełnione
@@ -725,7 +740,7 @@
 
                 console.log('Saving application data:', applicationData);
                 
-                await db.collection("applications").add(applicationData);
+                await window.firebaseModules.addDoc(window.firebaseModules.collection(db, "applications"), applicationData);
                 console.log('Application saved successfully!');
                 
                 document.getElementById('form-message').textContent = "Aplikacja została dodana pomyślnie!";

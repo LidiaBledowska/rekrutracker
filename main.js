@@ -34,48 +34,87 @@ function getStatusColors(status) {
 
 
 function showImagesPreview(urls) {
+    console.log('showImagesPreview called with:', urls);
     const preview = document.getElementById('editImagesPreview');
-    preview.innerHTML = '';
-    if (urls && urls.length) {
-        urls.forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.style.maxWidth = '80px';
-            img.style.maxHeight = '80px';
-            img.style.borderRadius = '6px';
-            img.style.border = '1px solid #e5e7eb';
-            preview.appendChild(img);
-        });
+    
+    if (!preview) {
+        console.error('editImagesPreview element not found!');
+        return;
     }
+    
+    preview.innerHTML = '';
+    
+    if (!urls || !Array.isArray(urls) || urls.length === 0) {
+        console.log('No images to display');
+        preview.innerHTML = '<p style="color: #6b7280; font-size: 0.8em; margin: 0.5em 0;">Brak zdjęć</p>';
+        return;
+    }
+    
+    console.log(`Displaying ${urls.length} images`);
+    
+    urls.forEach((url, index) => {
+        console.log(`Processing image ${index + 1}: ${url}`);
+        
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.maxWidth = '80px';
+        img.style.maxHeight = '80px';
+        img.style.borderRadius = '6px';
+        img.style.border = '1px solid #e5e7eb';
+        img.style.marginRight = '0.5em';
+        img.style.cursor = 'pointer';
+        img.title = `Zdjęcie ${index + 1} - kliknij aby powiększyć`;
+        
+        // Add error handling for broken images
+        img.onerror = function() {
+            console.error(`Failed to load image: ${url}`);
+            this.style.border = '2px solid #dc2626';
+            this.title = `Błąd ładowania: ${url}`;
+            this.alt = 'Błąd ładowania';
+        };
+        
+        img.onload = function() {
+            console.log(`Successfully loaded image: ${url}`);
+        };
+        
+        // Add click to preview larger image
+        img.onclick = function() {
+            window.open(url, '_blank');
+        };
+        
+        preview.appendChild(img);
+    });
 }
 
 function loadFavorites() {
     const favoritesContent = document.getElementById('favoritesContent');
     if (!favoritesContent) return;
 
-    const user = firebase.auth().currentUser;
+    const user = auth.currentUser;
     if (!user) {
         favoritesContent.innerHTML = '<p class="text-gray-500">Musisz się zalogować, aby zobaczyć ulubione.</p>';
         return;
     }
 
-    db.collection("applications")
-        .where("userId", "==", user.uid)
-        .where("favorite", "==", true)
-        .where("archiwalna", "==", false)
-        .orderBy("data", "desc")
-        .get()
-        .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-                favoritesContent.innerHTML = '<p class="text-gray-500">Brak ulubionych aplikacji.</p>';
-                return;
-            }
+    const q = window.firebaseModules.query(
+        window.firebaseModules.collection(db, "applications"),
+        window.firebaseModules.where("userId", "==", user.uid),
+        window.firebaseModules.where("favorite", "==", true),
+        window.firebaseModules.where("archiwalna", "==", false),
+        window.firebaseModules.orderBy("data", "desc")
+    );
+    
+    window.firebaseModules.getDocs(q).then((querySnapshot) => {
+        if (querySnapshot.empty) {
+            favoritesContent.innerHTML = '<p class="text-gray-500">Brak ulubionych aplikacji.</p>';
+            return;
+        }
 
-            let html = '<div class="grid gap-4">';
-            querySnapshot.forEach((doc) => {
-                const app = doc.data();
-                let wynagrodzenieText = "";
-                if (app.wynagrodzenie) {
+        let html = '<div class="grid gap-4">';
+        querySnapshot.forEach((doc) => {
+            const app = doc.data();
+            let wynagrodzenieText = "";
+            if (app.wynagrodzenie) {
                     wynagrodzenieText = `${app.wynagrodzenie} ${app.waluta || "PLN"}`;
                     if (app.wynRodzaj) {
                         wynagrodzenieText += ` ${app.wynRodzaj}`;
@@ -118,14 +157,15 @@ function loadFavorites() {
 }
 
 async function openEditModal(appId) {
-    const user = firebase.auth().currentUser;
+    const user = auth.currentUser;
     if (!user) {
         alert("Musisz być zalogowany!");
         return;
     }
     
-    const docSnap = await db.collection("applications").doc(appId).get();
-    if (!docSnap.exists) {
+    const docRef = window.firebaseModules.doc(db, "applications", appId);
+    const docSnap = await window.firebaseModules.getDoc(docRef);
+    if (!docSnap.exists()) {
         alert("Aplikacja nie istnieje!");
         return;
     }
@@ -154,6 +194,10 @@ async function openEditModal(appId) {
     document.getElementById('editNotatki').value = app.notatki || "";
     document.getElementById('editFavorite').checked = app.favorite || false;
 
+    // Debug: Log application data
+    console.log('Application data:', app);
+    console.log('Application images:', app.images);
+
     // Pokaz podgląd zdjęć
     showImagesPreview(app.images || []);
     document.getElementById('editImages').value = "";
@@ -179,14 +223,18 @@ async function openEditModal(appId) {
 }
 
 function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {
-    const user = firebase.auth().currentUser;
+    const user = auth.currentUser;
     if (!user) {
         console.log("No user logged in, cannot load applications");
         return;
     }
     
-    let query = db.collection("applications").where("userId", "==", user.uid);
-    query.get().then((querySnapshot) => {
+    let q = window.firebaseModules.query(
+        window.firebaseModules.collection(db, "applications"),
+        window.firebaseModules.where("userId", "==", user.uid)
+    );
+    
+    window.firebaseModules.getDocs(q).then((querySnapshot) => {
         const tbody = document.querySelector('.applications-table tbody');
         tbody.innerHTML = '';
         let count = 0;
@@ -283,11 +331,17 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             if (app.archiwalna === true) {
                 tr.classList.add('archived');
             }
+            // Add image indicator 
+            const imageIndicator = (app.images && app.images.length > 0) 
+                ? `<i class="fas fa-camera text-blue-500" style="font-size: 0.7em; margin-left: 4px;" title="${app.images.length} zdjęć"></i>` 
+                : '';
+
             tr.innerHTML = `
     <td class="px-4 py-2 text-[#141414] text-sm font-normal leading-normal min-w-[150px]" data-label="Stanowisko">
         <div class="flex items-center gap-2">
             ${app.favorite ? '<i class="fas fa-star text-yellow-400" style="font-size: 0.8em;"></i>' : ''}
             <span>${app.stanowisko}</span>
+            ${imageIndicator}
         </div>
     </td>
     <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[120px]" data-label="Firma">${app.firma}</td>
@@ -344,6 +398,50 @@ function autoFixColors() {
     }, 500);
 }
 
+// Enhanced visual status indicators for table rows
+function enhanceTableRowVisuals() {
+    const rows = document.querySelectorAll('.applications-table tbody tr');
+    const statusConfig = getStatusCardConfig();
+    
+    rows.forEach(row => {
+        const statusButton = row.querySelector('td[data-label="Status"] button');
+        if (!statusButton) return;
+        
+        const statusText = statusButton.textContent.trim().split('(')[0].trim(); // Remove date part
+        let config = statusConfig[statusText];
+        
+        // Check if it's a sub-status (interview type)
+        if (!config) {
+            const rozmowy = statusConfig['Rozmowy'];
+            if (rozmowy && rozmowy.subStatuses.includes(statusText)) {
+                config = { color: rozmowy.color }; // Use parent color for interview types
+            }
+        }
+        
+        if (config) {
+            // Add subtle left border to row based on status
+            row.style.borderLeft = `4px solid ${config.color}`;
+            
+            // Add days since application indicator
+            const dateCell = row.querySelector('td[data-label="Data"]');
+            if (dateCell) {
+                const dateText = dateCell.textContent.trim();
+                const applicationDate = new Date(dateText);
+                const now = new Date();
+                const daysDiff = Math.floor((now - applicationDate) / (1000 * 60 * 60 * 24));
+                
+                if (daysDiff > 14 && statusText === 'Wysłano CV') {
+                    // Add indicator for applications older than 2 weeks without response
+                    const staleIndicator = document.createElement('div');
+                    staleIndicator.innerHTML = `<span style="color: #dc2626; font-size: 0.75rem; font-weight: 600;">(${daysDiff} dni)</span>`;
+                    staleIndicator.title = 'Długo bez odpowiedzi';
+                    dateCell.appendChild(staleIndicator);
+                }
+            }
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Login/Logout functionality
     const loginBtn = document.getElementById('loginBtn');
@@ -358,8 +456,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function () {
-            if (firebase.auth) {
-                firebase.auth().signOut().then(() => {
+            if (window.firebaseModules && window.firebaseModules.signOut && window.firebaseModules.auth) {
+                window.firebaseModules.signOut(window.firebaseModules.auth).then(() => {
                     window.location.reload();
                 });
             }
@@ -405,39 +503,111 @@ document.addEventListener('DOMContentLoaded', function () {
     // Obsługa uploadu zdjęć
     let uploadedImages = [];
     document.getElementById('editImages').addEventListener('change', async function (e) {
-        const files = Array.from(e.target.files);
-        if (!files.length) return;
+        debugImageUpload('Upload started', { fileCount: e.target.files.length });
         
-        const user = firebase.auth().currentUser;
+        const files = Array.from(e.target.files);
+        if (!files.length) {
+            debugImageUpload('No files selected');
+            return;
+        }
+        
+        const user = auth.currentUser;
         if (!user) {
+            debugImageUpload('ERROR: User not logged in');
             alert("Musisz być zalogowany!");
             return;
         }
         
         const appId = document.getElementById('editAppId').value;
+        debugImageUpload('Upload attempt', { userId: user.uid, appId: appId, fileCount: files.length });
         
-        // SECURITY CHECK: Verify user owns this application before uploading
-        const docSnap = await db.collection("applications").doc(appId).get();
-        if (!docSnap.exists || docSnap.data().userId !== user.uid) {
-            alert("Nie masz uprawnień do dodawania zdjęć do tej aplikacji!");
-            return;
+        try {
+            // SECURITY CHECK: Verify user owns this application before uploading
+            const docRef = window.firebaseModules.doc(db, "applications", appId);
+            const docSnap = await window.firebaseModules.getDoc(docRef);
+            if (!docSnap.exists() || docSnap.data().userId !== user.uid) {
+                debugImageUpload('ERROR: User does not own application');
+                alert("Nie masz uprawnień do dodawania zdjęć do tej aplikacji!");
+                return;
+            }
+            
+            document.getElementById('editFormMessage').textContent = "Trwa przesyłanie zdjęć...";
+            document.getElementById('editFormMessage').style.color = "blue";
+            
+            uploadedImages = [];
+            let successCount = 0;
+            let errorCount = 0;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        console.warn(`Skipping non-image file: ${file.name}`);
+                        errorCount++;
+                        continue;
+                    }
+                    
+                    // Check file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        console.warn(`File too large: ${file.name}`);
+                        alert(`Plik ${file.name} jest za duży (maksymalnie 5MB).`);
+                        errorCount++;
+                        continue;
+                    }
+                    
+                    // Create unique filename
+                    const timestamp = Date.now();
+                    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+                    const uniqueFileName = `${timestamp}_${i}_${sanitizedName}`;
+                    
+                    // SECURE: Use user-specific storage path
+                    const storagePath = `users/${user.uid}/applications/${appId}/${uniqueFileName}`;
+                    debugImageUpload('Creating storage reference', { path: storagePath });
+                    
+                    const storageRef = window.firebaseModules.ref(storage, storagePath);
+                    
+                    debugImageUpload(`Uploading file ${i + 1}/${files.length}`, { fileName: file.name, size: file.size });
+                    document.getElementById('editFormMessage').textContent = `Przesyłanie zdjęcia ${i + 1}/${files.length}...`;
+                    
+                    const snapshot = await window.firebaseModules.uploadBytes(storageRef, file);
+                    debugImageUpload('Upload completed, getting download URL');
+                    
+                    const url = await window.firebaseModules.getDownloadURL(snapshot.ref);
+                    uploadedImages.push(url);
+                    successCount++;
+                    
+                    debugImageUpload(`Successfully uploaded file ${i + 1}`, { url: url });
+                    
+                } catch (fileError) {
+                    console.error(`Error uploading file ${file.name}:`, fileError);
+                    errorCount++;
+                }
+            }
+            
+            // Dodaj do już istniejących
+            const prev = document.getElementById('editImagesPreview').querySelectorAll('img');
+            const prevUrls = Array.from(prev).map(img => img.src);
+            const allUrls = prevUrls.concat(uploadedImages);
+            showImagesPreview(allUrls);
+            
+            // Show results
+            if (successCount > 0 && errorCount === 0) {
+                document.getElementById('editFormMessage').textContent = `✅ Przesłano ${successCount} zdjęć (nie zapomnij zapisać zmian)!`;
+                document.getElementById('editFormMessage').style.color = "green";
+            } else if (successCount > 0 && errorCount > 0) {
+                document.getElementById('editFormMessage').textContent = `⚠️ Przesłano ${successCount} zdjęć, ${errorCount} błędów (nie zapomnij zapisać zmian)!`;
+                document.getElementById('editFormMessage').style.color = "orange";
+            } else {
+                document.getElementById('editFormMessage').textContent = `❌ Nie udało się przesłać żadnego zdjęcia.`;
+                document.getElementById('editFormMessage').style.color = "red";
+            }
+            
+        } catch (error) {
+            console.error('Upload error:', error);
+            document.getElementById('editFormMessage').textContent = `❌ Błąd podczas przesyłania: ${error.message}`;
+            document.getElementById('editFormMessage').style.color = "red";
         }
-        
-        document.getElementById('editFormMessage').textContent = "Trwa przesyłanie zdjęć...";
-        uploadedImages = [];
-        for (const file of files) {
-            // SECURE: Use user-specific storage path
-            const storageRef = firebase.storage().ref().child(`users/${user.uid}/applications/${appId}/${file.name}`);
-            await storageRef.put(file);
-            const url = await storageRef.getDownloadURL();
-            uploadedImages.push(url);
-        }
-        // Dodaj do już istniejących
-        const prev = document.getElementById('editImagesPreview').querySelectorAll('img');
-        const prevUrls = Array.from(prev).map(img => img.src);
-        const allUrls = prevUrls.concat(uploadedImages);
-        showImagesPreview(allUrls);
-        document.getElementById('editFormMessage').textContent = "Zdjęcia dodane (nie zapomnij zapisać zmian)!";
     });
 
     // Walidacja pól Stanowisko i Firma w formularzu edycji - tylko litery
@@ -464,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('editApplicationForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         
-        const user = firebase.auth().currentUser;
+        const user = auth.currentUser;
         if (!user) {
             alert("Musisz być zalogowany!");
             return;
@@ -473,8 +643,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const appId = document.getElementById('editAppId').value;
         
         // SECURITY CHECK: Verify user owns this application before updating
-        const docSnap = await db.collection("applications").doc(appId).get();
-        if (!docSnap.exists || docSnap.data().userId !== user.uid) {
+        const docRef = window.firebaseModules.doc(db, "applications", appId);
+        const docSnap = await window.firebaseModules.getDoc(docRef);
+        if (!docSnap.exists() || docSnap.data().userId !== user.uid) {
             alert("Nie masz uprawnień do edycji tej aplikacji!");
             return;
         }
@@ -528,7 +699,7 @@ document.addEventListener('DOMContentLoaded', function () {
             favorite
         };
 
-        db.collection("applications").doc(appId).update(updateData).then(() => {
+        window.firebaseModules.updateDoc(window.firebaseModules.doc(db, "applications", appId), updateData).then(() => {
             document.getElementById('editFormMessage').textContent = "Zapisano zmiany!";
             loadApplications(getFilters(), document.getElementById('showArchived')?.checked);
             setTimeout(() => {
@@ -543,7 +714,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (document.getElementById('archiveAppBtn')) {
         document.getElementById('archiveAppBtn').onclick = async function () {
-            const user = firebase.auth().currentUser;
+            const user = auth.currentUser;
             if (!user) {
                 alert("Musisz być zalogowany!");
                 return;
@@ -552,13 +723,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const appId = document.getElementById('editAppId').value;
             
             // SECURITY CHECK: Verify user owns this application before archiving
-            const docSnap = await db.collection("applications").doc(appId).get();
-            if (!docSnap.exists || docSnap.data().userId !== user.uid) {
+            const docRef = window.firebaseModules.doc(db, "applications", appId);
+            const docSnap = await window.firebaseModules.getDoc(docRef);
+            if (!docSnap.exists() || docSnap.data().userId !== user.uid) {
                 alert("Nie masz uprawnień do archiwizacji tej aplikacji!");
                 return;
             }
             
-            db.collection("applications").doc(appId).update({
+            window.firebaseModules.updateDoc(docRef, {
                 archiwalna: true
             }).then(() => {
                 document.getElementById('editModal').classList.remove('active');
@@ -568,7 +740,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.getElementById('deleteAppBtn').onclick = async function () {
-        const user = firebase.auth().currentUser;
+        const user = auth.currentUser;
         if (!user) {
             alert("Musisz być zalogowany!");
             return;
@@ -577,14 +749,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const appId = document.getElementById('editAppId').value;
         
         // SECURITY CHECK: Verify user owns this application before deleting
-        const docSnap = await db.collection("applications").doc(appId).get();
-        if (!docSnap.exists || docSnap.data().userId !== user.uid) {
+        const docRef = window.firebaseModules.doc(db, "applications", appId);
+        const docSnap = await window.firebaseModules.getDoc(docRef);
+        if (!docSnap.exists() || docSnap.data().userId !== user.uid) {
             alert("Nie masz uprawnień do usunięcia tej aplikacji!");
             return;
         }
         
         if (confirm("Czy na pewno chcesz usunąć tę aplikację?")) {
-            db.collection("applications").doc(appId).delete().then(() => {
+            window.firebaseModules.deleteDoc(docRef).then(() => {
                 document.getElementById('editModal').classList.remove('active');
                 loadApplications(getFilters(), document.getElementById('showArchived')?.checked);
             });
@@ -665,8 +838,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Firebase auth state change handler
-    if (firebase.auth) {
-        firebase.auth().onAuthStateChanged(function (user) {
+    if (window.firebaseModules && window.firebaseModules.onAuthStateChanged) {
+        window.firebaseModules.onAuthStateChanged(auth, function (user) {
             const landingPage = document.getElementById('landingPage');
             const mainContent = document.getElementById('mainContent');
             const googleSigninButtonMain = document.getElementById('google-signin-button-main');
@@ -705,6 +878,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (logoutBtn) logoutBtn.style.display = 'inline';
 
                 // Load applications for logged in user
+                const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
                 loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
             } else {
                 // User is logged out - hide main menu link
@@ -1077,61 +1251,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Enhanced visual status indicators for table rows
-    function enhanceTableRowVisuals() {
-        const rows = document.querySelectorAll('.applications-table tbody tr');
-        const statusConfig = getStatusCardConfig();
-        
-        rows.forEach(row => {
-            const statusButton = row.querySelector('td[data-label="Status"] button');
-            if (!statusButton) return;
-            
-            const statusText = statusButton.textContent.trim().split('(')[0].trim(); // Remove date part
-            let config = statusConfig[statusText];
-            
-            // Check if it's a sub-status (interview type)
-            if (!config) {
-                const rozmowy = statusConfig['Rozmowy'];
-                if (rozmowy && rozmowy.subStatuses.includes(statusText)) {
-                    config = { color: rozmowy.color }; // Use parent color for interview types
-                }
-            }
-            
-            if (config) {
-                // Add subtle left border to row based on status
-                row.style.borderLeft = `4px solid ${config.color}`;
-                
-                // Add priority indicator for important statuses
-                if (['Oferta', 'Rozmowa online', 'Rozmowa stacjonarna', 'Rozmowa telefoniczna'].includes(statusText)) {
-                    const priorityIndicator = document.createElement('div');
-                    priorityIndicator.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 0.8rem; margin-left: 0.5rem;"></i>';
-                    priorityIndicator.title = 'Wymaga uwagi';
-                    
-                    const firstCell = row.querySelector('td');
-                    if (firstCell && !firstCell.querySelector('.fas.fa-exclamation-triangle')) {
-                        firstCell.appendChild(priorityIndicator);
-                    }
-                }
-                
-                // Add days since application indicator
-                const dateCell = row.querySelector('td[data-label="Data"]');
-                if (dateCell) {
-                    const dateText = dateCell.textContent.trim();
-                    const applicationDate = new Date(dateText);
-                    const now = new Date();
-                    const daysDiff = Math.floor((now - applicationDate) / (1000 * 60 * 60 * 24));
-                    
-                    if (daysDiff > 14 && statusText === 'Wysłano CV') {
-                        // Add indicator for applications older than 2 weeks without response
-                        const staleIndicator = document.createElement('div');
-                        staleIndicator.innerHTML = `<span style="color: #dc2626; font-size: 0.75rem; font-weight: 600;">(${daysDiff} dni)</span>`;
-                        staleIndicator.title = 'Długo bez odpowiedzi';
-                        dateCell.appendChild(staleIndicator);
-                    }
-                }
-            }
-        });
-    }
+
 
     // Export functions to global scope for onclick handlers
     window.filterByStatus = filterByStatus;
@@ -1140,8 +1260,22 @@ document.addEventListener('DOMContentLoaded', function () {
     window.generateStatusSummaryCards = generateStatusSummaryCards;
     window.getStatusCardConfig = getStatusCardConfig;
 
+    // Debug function for image upload issues
+    window.debugImageUpload = function(message, data = null) {
+        const timestamp = new Date().toLocaleTimeString();
+        const logMessage = `[IMG-DEBUG ${timestamp}] ${message}`;
+        console.log(logMessage, data || '');
+        
+        // Also show in edit modal if available
+        const editMessage = document.getElementById('editFormMessage');
+        if (editMessage && message.includes('ERROR')) {
+            editMessage.textContent = `🐛 ${message}`;
+            editMessage.style.color = 'red';
+        }
+    };
+
     // Initial load
-    loadApplications(getFilters(), document.getElementById('showArchived')?.checked, sortOrder);
+    loadApplications(getFilters(), document.getElementById('showArchived')?.checked, 'desc');
     generateStatusSummaryCards([]);
 });
 

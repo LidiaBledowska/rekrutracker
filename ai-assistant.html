@@ -390,25 +390,51 @@
     </div>
 
     <!-- Firebase -->
-    <script type="module" src="firebase-init.js"></script>
     <script type="module">
-        import { auth, db } from './firebase-init.js';
-        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // Firebase v10 imports
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getFirestore, collection, getDocs, query, orderBy, where } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
+            authDomain: "rekrutracker-app.firebaseapp.com",
+            projectId: "rekrutracker-app",
+            storageBucket: "rekrutracker-app.firebasestorage.app",
+            messagingSenderId: "758407291898",
+            appId: "1:758407291898:web:a573e2cd3b416596d37a43",
+            measurementId: "G-HQW1YLG9Q1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
         let applicationsData = [];
         let userProfile = {};
 
         // Check authentication
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
+                console.log("User authenticated:", user.email);
                 userProfile = {
                     name: user.displayName || 'Użytkowniku',
                     email: user.email
                 };
-                loadUserData();
+                await loadUserData();
                 initChat();
+                
+                // Welcome message with user info
+                setTimeout(() => {
+                    addMessage(`Witaj ${userProfile.name}! 👋 
+                    <br><br>Załadowałem Twoje dane i ${applicationsData.length} aplikacji. 
+                    <br>Zalogowany jako: ${user.email}
+                    <br><br>Czym mogę Ci pomóc?`, 'ai');
+                }, 500);
             } else {
+                console.log("User not authenticated, redirecting...");
                 window.location.href = 'index.html';
             }
         });
@@ -418,22 +444,90 @@
                 const user = auth.currentUser;
                 if (!user) {
                     console.log("No user logged in");
+                    addMessage("❌ Brak zalogowanego użytkownika. Przekierowuję do strony głównej...", 'ai');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
                     return;
                 }
+                
+                console.log("Loading applications for user:", user.uid);
+                console.log("User email:", user.email);
+                console.log("User token:", await user.getIdToken());
+                
+                // Test simple query first
+                console.log("Testing database connection...");
+                const testCollection = collection(db, "applications");
+                console.log("Collection reference created:", testCollection);
                 
                 const q = query(
                     collection(db, "applications"), 
                     where("userId", "==", user.uid),
                     orderBy("data", "desc")
                 );
+                console.log("Query created:", q);
+                
+                console.log("Executing query...");
                 const querySnapshot = await getDocs(q);
+                console.log("Query executed successfully");
 
                 applicationsData = [];
                 querySnapshot.forEach((doc) => {
+                    console.log("Document found:", doc.id, doc.data());
                     applicationsData.push({ id: doc.id, ...doc.data() });
                 });
+                
+                console.log("Loaded applications:", applicationsData.length, "applications");
+                console.log("Applications data:", applicationsData);
+                
+                // Add a debug message to chat
+                if (applicationsData.length === 0) {
+                    setTimeout(() => {
+                        addMessage(`🔍 <strong>Status połączenia:</strong> ✅ Połączono z bazą danych
+                        <br><br>📊 <strong>Wyniki:</strong> Znaleziono 0 aplikacji dla Twojego konta
+                        <br><br>🔍 <strong>Szczegóły:</strong>
+                        <br>• Email: ${user.email}
+                        <br>• User ID: <code>${user.uid}</code>
+                        <br>• Zapytanie wykonane pomyślnie
+                        <br><br>💡 <strong>Możliwe przyczyny:</strong>
+                        <br>• Nie masz jeszcze zapisanych aplikacji
+                        <br>• Aplikacje zostały zapisane na innym koncie
+                        <br>• Problem z regułami bezpieczeństwa bazy danych`, 'ai');
+                    }, 1000);
+                } else {
+                    setTimeout(() => {
+                        addMessage(`✅ <strong>Dane załadowane!</strong> 
+                        <br><br>📊 Znaleziono ${applicationsData.length} aplikacji w systemie
+                        <br>🔑 Zalogowany jako: ${user.email}
+                        <br><br>Możesz teraz zadać pytania o swoje aplikacje!`, 'ai');
+                    }, 1000);
+                }
             } catch (error) {
-                console.error("Error loading user data:", error);
+                console.error("Detailed error loading user data:", error);
+                console.error("Error code:", error.code);
+                console.error("Error message:", error.message);
+                
+                // Add detailed error message to chat
+                setTimeout(() => {
+                    let errorMsg = `❌ <strong>Błąd podczas ładowania danych:</strong>
+                    <br><br>🔍 <strong>Kod błędu:</strong> ${error.code || 'unknown'}
+                    <br>📝 <strong>Opis:</strong> ${error.message}`;
+                    
+                    if (error.code === 'permission-denied') {
+                        errorMsg += `
+                        <br><br>🔒 <strong>Problem z uprawnieniami!</strong>
+                        <br><br>💡 <strong>Możliwe rozwiązania:</strong>
+                        <br>• Sprawdź reguły bezpieczeństwa w Firebase Console
+                        <br>• Upewnij się, że jesteś zalogowany
+                        <br>• Spróbuj wylogować się i zalogować ponownie
+                        <br>• Skontaktuj się z administratorem systemu
+                        
+                        <br><br>📋 <strong>Instrukcje naprawy:</strong>
+                        <br>1. Otwórz Firebase Console
+                        <br>2. Przejdź do Firestore Database → Rules
+                        <br>3. Sprawdź czy reguły pozwalają na dostęp dla zalogowanych użytkowników`;
+                    }
+                    
+                    addMessage(errorMsg, 'ai');
+                }, 1000);
             }
         }
 

@@ -523,11 +523,31 @@
                                 <p class="text-[#141414] tracking-light text-[32px] font-bold leading-tight min-w-72">
                                     Twoje
                                     aplikacje</p>
-                                <a href="add-application.html"
-                                    class="flex min-w-[140px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#141414] text-white text-base font-bold leading-normal shadow-lg hover:bg-[#2d2d2d] transition-all duration-200">
-                                    <i class="fas fa-plus mr-2"></i>
-                                    <span class="truncate">Dodaj aplikację</span>
-                                </a>
+                                <div style="display: flex; gap: 10px;">
+                                    <a href="add-application.html"
+                                        class="flex min-w-[140px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#141414] text-white text-base font-bold leading-normal shadow-lg hover:bg-[#2d2d2d] transition-all duration-200">
+                                        <i class="fas fa-plus mr-2"></i>
+                                        <span class="truncate">Dodaj aplikację</span>
+                                    </a>
+                                    <button onclick="openDebugTools()"
+                                        class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-orange-500 text-white text-sm font-bold leading-normal shadow-lg hover:bg-orange-600 transition-all duration-200"
+                                        title="Narzędzia debugowania zdjęć">
+                                        <i class="fas fa-tools mr-2"></i>
+                                        <span class="truncate">Debug</span>
+                                    </button>
+                                    <a href="upload-status-dashboard.html"
+                                        class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-blue-500 text-white text-sm font-bold leading-normal shadow-lg hover:bg-blue-600 transition-all duration-200"
+                                        title="Status funkcji uploadowania zdjęć">
+                                        <i class="fas fa-chart-line mr-2"></i>
+                                        <span class="truncate">Status</span>
+                                    </a>
+                                    <a href="final-upload-report.html"
+                                        class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-green-500 text-white text-sm font-bold leading-normal shadow-lg hover:bg-green-600 transition-all duration-200"
+                                        title="Raport końcowy - funkcje upload">
+                                        <i class="fas fa-clipboard-check mr-2"></i>
+                                        <span class="truncate">Raport</span>
+                                    </a>
+                                </div>
                             </div>
 
                             <!-- Status Summary Cards -->
@@ -967,12 +987,58 @@
             }
         </style>
 
-        <!-- Firebase SDK i Twoje skrypty -->
-        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-        <script src="firebase-init.js"></script>
+        <!-- Firebase v10 SDK -->
+        <script type="module">
+            // Firebase v10 imports
+            import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+            import { getFirestore, collection, query, where, orderBy, getDocs, doc, getDoc, updateDoc, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+            import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+            import { getStorage, ref, deleteObject, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
+                authDomain: "rekrutracker-app.firebaseapp.com",
+                projectId: "rekrutracker-app",
+                storageBucket: "rekrutracker-app.firebasestorage.app",
+                messagingSenderId: "758407291898",
+                appId: "1:758407291898:web:a573e2cd3b416596d37a43",
+                measurementId: "G-HQW1YLG9Q1"
+            };
+
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const auth = getAuth(app);
+            const storage = getStorage(app);
+
+            // Make Firebase services available globally
+            window.db = db;
+            window.auth = auth;
+            window.storage = storage;
+            window.firebaseModules = {
+                collection,
+                query,
+                where,
+                orderBy,
+                getDocs,
+                doc,
+                getDoc,
+                updateDoc,
+                deleteDoc,
+                onSnapshot,
+                ref,
+                deleteObject,
+                uploadBytes,
+                getDownloadURL,
+                onAuthStateChanged,
+                GoogleAuthProvider,
+                signInWithPopup,
+                signOut
+            };
+
+            console.log('Firebase v10 initialized successfully');
+        </script>
         <script src="main.js"></script>
 
         <script>
@@ -1027,6 +1093,30 @@
                     });
                 }
             });
+
+            // Debug tools function
+            function openDebugTools() {
+                const debugOptions = [
+                    { name: 'Test uploadu zdjęć', url: 'simple-upload-test.html' },
+                    { name: 'Narzędzie naprawy zdjęć', url: 'image-repair-tool.html' },
+                    { name: 'Sprawdzenie istniejących zdjęć', url: 'check-images.html' },
+                    { name: 'Pełna diagnostyka', url: 'test-upload-debug.html' }
+                ];
+
+                let optionsText = 'Wybierz narzędzie debugowania:\\n\\n';
+                debugOptions.forEach((option, index) => {
+                    optionsText += `${index + 1}. ${option.name}\\n`;
+                });
+
+                const choice = prompt(optionsText + '\\nWprowadź numer (1-4):');
+                
+                if (choice && choice >= 1 && choice <= 4) {
+                    const selectedTool = debugOptions[choice - 1];
+                    window.open(selectedTool.url, '_blank');
+                } else if (choice) {
+                    alert('Nieprawidłowy wybór!');
+                }
+            }
         </script>
 </body>
 
