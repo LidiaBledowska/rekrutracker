@@ -481,26 +481,44 @@ function enhanceTableRowVisuals() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Login/Logout functionality
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const userInfo = document.getElementById('userInfo');
-
-    if (loginBtn) {
-        loginBtn.addEventListener('click', function () {
-            window.location.href = 'login.html';
-        });
+    // Wait for Firebase to be ready
+    function waitForFirebase(callback) {
+        if (window.firebaseModules && window.auth) {
+            callback();
+        } else {
+            setTimeout(() => waitForFirebase(callback), 100);
+        }
     }
 
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function () {
-            if (window.firebaseModules && window.firebaseModules.signOut && window.auth) {
-                window.firebaseModules.signOut(window.auth).then(() => {
+    waitForFirebase(function() {
+        // Login/Logout functionality
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userInfo = document.getElementById('userInfo');
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', function () {
+                window.location.href = 'login.html';
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function () {
+                if (window.firebaseModules && window.firebaseModules.signOut && window.auth) {
+                    window.firebaseModules.signOut(window.auth).then(() => {
+                        window.location.reload();
+                    }).catch((error) => {
+                        console.error('Logout error:', error);
+                        // Still reload the page to clear the session
+                        window.location.reload();
+                    });
+                } else {
+                    // Fallback: just reload the page to clear any cached state
                     window.location.reload();
-                });
-            }
-        });
-    }
+                }
+            });
+        }
+    });
 
     // Toggle filters functionality
     const toggleFiltersButton = document.getElementById('toggleFilters');
