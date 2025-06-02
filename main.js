@@ -146,7 +146,7 @@ function loadFavorites() {
     const favoritesContent = document.getElementById('favoritesContent');
     if (!favoritesContent) return;
 
-    const user = auth.currentUser;
+    const user = window.auth.currentUser;
     if (!user) {
         favoritesContent.innerHTML = '<p class="text-gray-500">Musisz się zalogować, aby zobaczyć ulubione.</p>';
         return;
@@ -213,7 +213,7 @@ function loadFavorites() {
 }
 
 async function openEditModal(appId) {
-    const user = auth.currentUser;
+    const user = window.auth.currentUser;
     if (!user) {
         alert("Musisz być zalogowany!");
         return;
@@ -279,7 +279,7 @@ async function openEditModal(appId) {
 }
 
 function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {
-    const user = auth.currentUser;
+    const user = window.auth.currentUser;
     if (!user) {
         console.log("No user logged in, cannot load applications");
         return;
@@ -494,8 +494,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function () {
-            if (window.firebaseModules && window.firebaseModules.signOut && window.firebaseModules.auth) {
-                window.firebaseModules.signOut(window.firebaseModules.auth).then(() => {
+            if (window.firebaseModules && window.firebaseModules.signOut && window.auth) {
+                window.firebaseModules.signOut(window.auth).then(() => {
                     window.location.reload();
                 });
             }
@@ -551,7 +551,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         
-        const user = auth.currentUser;
+        const user = window.auth.currentUser;
         if (!user) {
             debugImageUpload('ERROR: User not logged in');
             alert("Musisz być zalogowany!");
@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('editApplicationForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         
-        const user = auth.currentUser;
+        const user = window.auth.currentUser;
         if (!user) {
             alert("Musisz być zalogowany!");
             return;
@@ -761,7 +761,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (document.getElementById('archiveAppBtn')) {
         document.getElementById('archiveAppBtn').onclick = async function () {
-            const user = auth.currentUser;
+            const user = window.auth.currentUser;
             if (!user) {
                 alert("Musisz być zalogowany!");
                 return;
@@ -787,7 +787,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.getElementById('deleteAppBtn').onclick = async function () {
-        const user = auth.currentUser;
+        const user = window.auth.currentUser;
         if (!user) {
             alert("Musisz być zalogowany!");
             return;
@@ -885,8 +885,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Firebase auth state change handler
-    if (window.firebaseModules && window.firebaseModules.onAuthStateChanged) {
-        window.firebaseModules.onAuthStateChanged(auth, function (user) {
+    if (window.firebaseModules && window.firebaseModules.onAuthStateChanged && window.auth) {
+        window.firebaseModules.onAuthStateChanged(window.auth, function (user) {
             const landingPage = document.getElementById('landingPage');
             const mainContent = document.getElementById('mainContent');
             const googleSigninButtonMain = document.getElementById('google-signin-button-main');
