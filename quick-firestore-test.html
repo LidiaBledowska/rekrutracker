@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Firestore Rules Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 8px; font-weight: bold; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; margin: 5px; font-size: 16px; }
+        button:hover { background: #218838; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Szybki Test Firestore</h1>
+    
+    <p>Ten test sprawdzi czy problem z dodawaniem aplikacji rzeczywiście leży w regułach Firestore.</p>
+    
+    <div id="auth-status" class="status info">🔄 Sprawdzanie autoryzacji...</div>
+    
+    <div id="test-controls" style="display: none;">
+        <h2>Tests:</h2>
+        <button onclick="runQuickTest()">🧪 Test Dodawania Aplikacji</button>
+        <button onclick="testReadPermissions()">📖 Test Odczytu</button>
+        <button onclick="runFullDiagnosis()">🔍 Pełna Diagnoza</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <div style="margin-top: 30px;">
+        <h2>❓ Co robić jeśli test się nie powiedzie:</h2>
+        <ol>
+            <li><strong>Otwórz Firebase Console:</strong> <a href="https://console.firebase.google.com/" target="_blank">console.firebase.google.com</a></li>
+            <li><strong>Wybierz projekt:</strong> rekrutracker-5b851</li>
+            <li><strong>Idź do:</strong> Firestore Database → Rules</li>
+            <li><strong>Zastąp reguły tym kodem:</strong></li>
+        </ol>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 14px; margin: 10px 0;">
+rules_version = '2';<br>
+service cloud.firestore {<br>
+&nbsp;&nbsp;match /databases/{database}/documents {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;match /applications/{document} {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow read, write: if request.auth != null && <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resource.data.userId == request.auth.uid;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allow create: if request.auth != null && <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;request.resource.data.userId == request.auth.uid;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+        </div>
+        
+        <p><strong>5. Kliknij "Publish"</strong></p>
+        <p><strong>6. Odśwież tę stronę i spróbuj ponownie</strong></p>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <a href="add-application.html">🔗 Wróć do Dodawania Aplikacji</a> | 
+        <a href="debug-permissions.html">🔍 Szczegółowy Debug</a> |
+        <a href="FIRESTORE_RULES_FIX.md" target="_blank">📋 Instrukcje</a>
+    </div>
+
+    <script type="module">
+        const authStatus = document.getElementById('auth-status');
+        const testControls = document.getElementById('test-controls');
+        const result = document.getElementById('result');
+        
+        let db, auth, user;
+        
+        function showResult(message, type, details = '') {
+            result.innerHTML = `
+                <div class="status ${type}">
+                    <strong>${message}</strong>
+                    ${details ? `<br><small>${details}</small>` : ''}
+                </div>
+            `;
+        }
+        
+        // Firebase imports and setup
+        try {
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+            const { getFirestore, collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+            const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+            
+            const firebaseConfig = {
+                apiKey: "AIzaSyClkf-3vPOJzKajOOvWb-1KXO0wHMSHTg8",
+                authDomain: "rekrutracker-5b851.firebaseapp.com",
+                projectId: "rekrutracker-5b851",
+                storageBucket: "rekrutracker-5b851.firebasestorage.app",
+                messagingSenderId: "664550327870",
+                appId: "1:664550327870:web:7a1e6e22a7e8d30d7b3e61"
+            };
+            
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            onAuthStateChanged(auth, (currentUser) => {
+                user = currentUser;
+                if (user) {
+                    authStatus.innerHTML = `✅ Zalogowany jako: ${user.email}`;
+                    authStatus.className = 'status success';
+                    testControls.style.display = 'block';
+                } else {
+                    authStatus.innerHTML = '❌ Nie zalogowany - <a href="login.html">zaloguj się najpierw</a>';
+                    authStatus.className = 'status error';
+                    testControls.style.display = 'none';
+                }
+            });
+            
+        } catch (error) {
+            authStatus.innerHTML = `❌ Błąd inicjalizacji Firebase: ${error.message}`;
+            authStatus.className = 'status error';
+        }
+        
+        // Test functions
+        window.runQuickTest = async function() {
+            showResult('🔄 Testowanie...', 'info');
+            
+            try {
+                const testData = {
+                    stanowisko: "Test Position " + Date.now(),
+                    firma: "Test Company",
+                    data: "2024-01-01",
+                    status: "Wysłano CV",
+                    userId: user.uid,
+                    createdAt: serverTimestamp(),
+                    testDocument: true
+                };
+                
+                console.log('Attempting to save test document:', testData);
+                const docRef = await addDoc(collection(db, "applications"), testData);
+                
+                showResult(
+                    '✅ SUKCES! Aplikacja może być dodana', 
+                    'success', 
+                    `Test document created with ID: ${docRef.id}`
+                );
+                
+            } catch (error) {
+                console.error('Test failed:', error);
+                
+                if (error.code === 'permission-denied') {
+                    showResult(
+                        '❌ PROBLEM Z REGUŁAMI FIRESTORE', 
+                        'error', 
+                        'To jest ten sam błąd co w aplikacji. Musisz zaktualizować reguły Firestore zgodnie z instrukcjami poniżej.'
+                    );
+                } else {
+                    showResult(
+                        '❌ INNY BŁĄD', 
+                        'error', 
+                        `${error.code}: ${error.message}`
+                    );
+                }
+            }
+        };
+        
+        window.testReadPermissions = async function() {
+            showResult('🔄 Testowanie odczytu...', 'info');
+            
+            try {
+                const { getDocs, query, where } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+                
+                const q = query(collection(db, "applications"), where("userId", "==", user.uid));
+                const querySnapshot = await getDocs(q);
+                
+                showResult(
+                    `✅ Odczyt działa - znaleziono ${querySnapshot.size} aplikacji`, 
+                    'success'
+                );
+                
+            } catch (error) {
+                showResult(
+                    '❌ Błąd odczytu', 
+                    'error', 
+                    `${error.code}: ${error.message}`
+                );
+            }
+        };
+        
+        window.runFullDiagnosis = async function() {
+            showResult('🔄 Uruchamianie pełnej diagnozy...', 'info');
+            window.open('debug-permissions.html', '_blank');
+        };
+        
+    </script>
+</body>
+</html>

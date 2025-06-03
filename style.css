@@ -793,57 +793,123 @@ body #mainContent .applications-table {
     padding: 0.5rem 0;
 }
 
-/* Override main container restrictions for proper centering */
-.layout-container {
-    width: 100% !important;
-    max-width: none !important;
+/* Kolorowe karty statusów */
+.filter-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
 }
 
-.layout-container .flex.flex-1.justify-center.py-5 {
-    width: 100% !important;
-    max-width: none !important;
-    justify-content: center !important;
+.filter-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 10;
 }
 
-.layout-container .flex.flex-1.justify-center.py-5>div {
-    max-width: none !important;
-    width: 100% !important;
+.filter-card:active {
+    transform: translateY(-1px) scale(1.01);
 }
 
-/* Table centering - responsive approach */
-#mainContent {
-    max-width: 95%;
-    margin: 0 auto !important;
-    padding: 0 1rem !important;
-    width: 100% !important;
+.filter-card.active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border-width: 3px !important;
+    opacity: 1 !important;
+    filter: brightness(1.1) saturate(1.2);
 }
 
-/* Direct centering for table container */
-#applicationsCard {
-    width: 100% !important;
-    margin: 0 auto !important;
+.filter-card.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    pointer-events: none;
 }
 
-#applicationsCard .table-responsive {
-    width: 100% !important;
-    margin: 0 auto !important;
+/* Specific active state overrides for each status card */
+.filter-card.active[data-filter-value=""] {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%) !important;
+    border-color: #64748b !important;
 }
 
-/* Header section centering */
-#headerSection {
-    margin: 0 auto 1.5rem auto !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
+.filter-card.active[data-filter-value="Wysłano CV"] {
+    background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%) !important;
+    border-color: #2563eb !important;
 }
 
-/* Filter sections centering */
-#filterSortButtons {
-    margin: 0 auto 1rem auto !important;
-    display: flex !important;
-    gap: 1rem !important;
+.filter-card.active[data-filter-value="Rozmowy"] {
+    background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%) !important;
+    border-color: #d97706 !important;
 }
 
-.filters-container {
-    margin: 0 auto 1.5rem auto !important;
+.filter-card.active[data-filter-value="Oferta"] {
+    background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%) !important;
+    border-color: #059669 !important;
+}
+
+.filter-card.active[data-filter-value="Odrzucono"] {
+    background: linear-gradient(135deg, #fecaca 0%, #f87171 100%) !important;
+    border-color: #dc2626 !important;
+}
+
+/* Animacje dla ikon w kartach */
+.filter-card i {
+    transition: all 0.3s ease;
+}
+
+.filter-card:hover i {
+    transform: scale(1.1);
+}
+
+.filter-card.active i {
+    transform: scale(1.15);
+    filter: brightness(1.1);
+}
+
+/* Responsive design dla kart statusów */
+@media (max-width: 768px) {
+    .filter-cards-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+    
+    .filter-card {
+        min-height: 80px !important;
+        padding: 1rem !important;
+    }
+    
+    .filter-card i {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.4rem !important;
+    }
+    
+    .filter-card span {
+        font-size: 0.9rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-cards-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.5rem !important;
+    }
+    
+    .filter-card {
+        min-height: 70px !important;
+        padding: 0.75rem !important;
+    }
+    
+    .filter-card i {
+        font-size: 1.25rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    .filter-card span {
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+    }
 }

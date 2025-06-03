@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Firestore Permissions</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        #logs { background: #f8f9fa; padding: 10px; border: 1px solid #dee2e6; border-radius: 5px; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Firestore Permissions</h1>
+    
+    <div id="auth-status" class="status info">🔄 Sprawdzanie autoryzacji...</div>
+    
+    <div id="controls" style="display: none;">
+        <button onclick="testRead()">🔍 Test Read</button>
+        <button onclick="testWrite()">✏️ Test Write</button>
+        <button onclick="checkPermissions()">🔒 Check Permissions</button>
+        <button onclick="testAppStructure()">📊 Test App Structure</button>
+    </div>
+    
+    <h2>Console Logs:</h2>
+    <pre id="logs"></pre>
+    
+    <h2>Actions:</h2>
+    <a href="add-application.html">🔗 Go to Add Application</a>
+    <br><br>
+    <a href="login.html">🔑 Go to Login</a>
+
+    <script type="module">
+        const logs = document.getElementById('logs');
+        const authStatus = document.getElementById('auth-status');
+        const controls = document.getElementById('controls');
+        
+        let db, auth, user;
+        
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            logs.textContent += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+        
+        // Firebase imports
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+        const { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+        const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyClkf-3vPOJzKajOOvWb-1KXO0wHMSHTg8",
+            authDomain: "rekrutracker-5b851.firebaseapp.com",
+            projectId: "rekrutracker-5b851",
+            storageBucket: "rekrutracker-5b851.firebasestorage.app",
+            messagingSenderId: "664550327870",
+            appId: "1:664550327870:web:7a1e6e22a7e8d30d7b3e61"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+        
+        addLog('Firebase initialized');
+        
+        // Check authentication
+        onAuthStateChanged(auth, (currentUser) => {
+            user = currentUser;
+            if (user) {
+                addLog(`User authenticated: ${user.email} (UID: ${user.uid})`);
+                authStatus.innerHTML = `✅ Zalogowany jako: ${user.email}<br>UID: ${user.uid}`;
+                authStatus.className = 'status success';
+                controls.style.display = 'block';
+                
+                // Automatically run basic checks
+                setTimeout(checkPermissions, 1000);
+            } else {
+                addLog('User not authenticated');
+                authStatus.innerHTML = '❌ Nie zalogowany - <a href="login.html">zaloguj się</a>';
+                authStatus.className = 'status error';
+                controls.style.display = 'none';
+            }
+        });
+        
+        // Test functions
+        window.testRead = async function() {
+            addLog('=== TESTING READ PERMISSIONS ===');
+            try {
+                addLog('Attempting to read applications collection...');
+                
+                // Try to read user's applications
+                const q = query(collection(db, "applications"), where("userId", "==", user.uid));
+                const querySnapshot = await getDocs(q);
+                
+                addLog(`✅ READ SUCCESS: Found ${querySnapshot.size} applications for user`);
+                
+                querySnapshot.forEach((doc) => {
+                    addLog(`  Document ID: ${doc.id}`);
+                    addLog(`  Data: ${JSON.stringify(doc.data(), null, 2)}`);
+                });
+                
+            } catch (error) {
+                addLog(`❌ READ FAILED: ${error.code} - ${error.message}`);
+            }
+        };
+        
+        window.testWrite = async function() {
+            addLog('=== TESTING WRITE PERMISSIONS ===');
+            try {
+                addLog('Attempting to write test document...');
+                
+                const testData = {
+                    stanowisko: "Test Position",
+                    firma: "Test Company", 
+                    data: "2024-01-01",
+                    status: "Wysłano CV",
+                    userId: user.uid,
+                    createdAt: serverTimestamp(),
+                    testDocument: true
+                };
+                
+                addLog('Test data prepared:');
+                addLog(JSON.stringify(testData, null, 2));
+                
+                const docRef = await addDoc(collection(db, "applications"), testData);
+                addLog(`✅ WRITE SUCCESS: Document created with ID: ${docRef.id}`);
+                
+                // Try to read it back
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    addLog(`✅ READ BACK SUCCESS: Document verified`);
+                    addLog(`Data: ${JSON.stringify(docSnap.data(), null, 2)}`);
+                } else {
+                    addLog(`⚠️ READ BACK FAILED: Document not found`);
+                }
+                
+            } catch (error) {
+                addLog(`❌ WRITE FAILED: ${error.code} - ${error.message}`);
+                
+                if (error.code === 'permission-denied') {
+                    addLog(`🚨 PERMISSION DENIED - This is the same error you're getting!`);
+                    addLog(`Possible causes:`);
+                    addLog(`  1. Firestore security rules don't allow writes`);
+                    addLog(`  2. User authentication token is invalid`);
+                    addLog(`  3. userId field is required but missing validation`);
+                }
+            }
+        };
+        
+        window.checkPermissions = async function() {
+            addLog('=== CHECKING USER PERMISSIONS ===');
+            
+            // Check user details
+            addLog(`User UID: ${user.uid}`);
+            addLog(`User Email: ${user.email}`);
+            addLog(`User Email Verified: ${user.emailVerified}`);
+            addLog(`Auth Provider: ${user.providerData[0]?.providerId || 'unknown'}`);
+            
+            // Check token claims
+            try {
+                const idToken = await user.getIdToken();
+                addLog(`ID Token obtained (length: ${idToken.length})`);
+                
+                const idTokenResult = await user.getIdTokenResult();
+                addLog(`Token Claims:`);
+                addLog(`  iss: ${idTokenResult.claims.iss}`);
+                addLog(`  aud: ${idTokenResult.claims.aud}`);
+                addLog(`  exp: ${new Date(idTokenResult.claims.exp * 1000)}`);
+                addLog(`  auth_time: ${new Date(idTokenResult.claims.auth_time * 1000)}`);
+                
+            } catch (error) {
+                addLog(`❌ Token check failed: ${error.message}`);
+            }
+        };
+        
+        window.testAppStructure = async function() {
+            addLog('=== TESTING APPLICATION STRUCTURE ===');
+            
+            // Test if we can access other collections
+            try {
+                addLog('Testing users collection access...');
+                const usersQuery = query(collection(db, "users"), where("uid", "==", user.uid));
+                const usersSnapshot = await getDocs(usersQuery);
+                addLog(`Users collection: ${usersSnapshot.size} documents found`);
+            } catch (error) {
+                addLog(`Users collection error: ${error.code} - ${error.message}`);
+            }
+            
+            // Test different collection names
+            const testCollections = ['applications', 'Applications', 'job_applications'];
+            for (const collName of testCollections) {
+                try {
+                    addLog(`Testing collection: ${collName}`);
+                    const testQuery = query(collection(db, collName), where("userId", "==", user.uid));
+                    const snapshot = await getDocs(testQuery);
+                    addLog(`  ✅ ${collName}: ${snapshot.size} documents`);
+                } catch (error) {
+                    addLog(`  ❌ ${collName}: ${error.code}`);
+                }
+            }
+        };
+        
+        addLog('Debug page loaded. Waiting for authentication...');
+    </script>
+</body>
+</html>

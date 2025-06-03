@@ -10,7 +10,7 @@ function getStatusColors(status) {
         'rozmowa online': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
         'rozmowa stacjonarna': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
         'oferta': 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;',
-        'odrzucono': 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;'
+        'odrzucono': 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;'
     };
     
     // Direct match first
@@ -24,7 +24,7 @@ function getStatusColors(status) {
     } else if (normalizedStatus.includes('oferta')) {
         return 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;';
     } else if (normalizedStatus.includes('odrzucono')) {
-        return 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;';
+        return 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;';
     }
     
     // Default fallback
@@ -302,6 +302,9 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             applications.push(app);
         });
 
+        // Update status counters before filtering
+        updateStatusCounters(applications);
+
         // Sort applications based on sortOrder
         applications.sort((a, b) => {
             // First sort by favorites
@@ -333,9 +336,19 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                             break;
                         }
                     } else if (typeof app[key] === "string" && typeof filters[key] === "string") {
-                        if (!app[key]?.toLowerCase().includes(filters[key].toLowerCase())) {
-                            match = false;
-                            break;
+                        // For exact match fields like rodzaj, umowa, tryb - use strict equality
+                        const exactMatchFields = ['rodzaj', 'umowa', 'tryb'];
+                        if (exactMatchFields.includes(key)) {
+                            if (app[key] !== filters[key]) {
+                                match = false;
+                                break;
+                            }
+                        } else {
+                            // For text fields like stanowisko, firma - use includes
+                            if (!app[key]?.toLowerCase().includes(filters[key].toLowerCase())) {
+                                match = false;
+                                break;
+                            }
                         }
                     } else if (filters[key] && app[key] != filters[key]) {
                         match = false;
@@ -1015,7 +1028,151 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initial load
     loadApplications(getFilters(), document.getElementById('showArchived')?.checked, 'desc');
+    
+    // Inicjalizacja kolorowych kart filtrów
+    initializeQuickFilters();
 });
+
+// Funkcja do aktualizacji liczników w kartach statusów
+function updateStatusCounters(applications = []) {
+    // Safely get elements and provide fallbacks
+    const totalCountEl = document.getElementById('totalCount');
+    const sentCountEl = document.getElementById('sentCount');
+    const interviewCountEl = document.getElementById('interviewCount');
+    const offerCountEl = document.getElementById('offerCount');
+    const rejectedCountEl = document.getElementById('rejectedCount');
+
+    if (!applications || applications.length === 0) {
+        // Reset counters to 0
+        if (totalCountEl) totalCountEl.textContent = '0';
+        if (sentCountEl) sentCountEl.textContent = '0';
+        if (interviewCountEl) interviewCountEl.textContent = '0';
+        if (offerCountEl) offerCountEl.textContent = '0';
+        if (rejectedCountEl) rejectedCountEl.textContent = '0';
+        return;
+    }
+
+    // Filter out archived applications for counting
+    const activeApplications = applications.filter(app => !app.archiwalna);
+    
+    // Count total applications
+    const totalCount = activeApplications.length;
+    
+    // Count by status with exact matching logic (matches filtering logic)
+    const sentCount = activeApplications.filter(app => 
+        app.status && app.status.toLowerCase().includes('wysłano cv')
+    ).length;
+    
+    const interviewCount = activeApplications.filter(app => {
+        if (!app.status) return false;
+        // Match the exact logic used in filtering
+        const interviewStatuses = ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'];
+        return interviewStatuses.includes(app.status);
+    }).length;
+    
+    const offerCount = activeApplications.filter(app => 
+        app.status && app.status.toLowerCase().includes('oferta')
+    ).length;
+    
+    const rejectedCount = activeApplications.filter(app => 
+        app.status && app.status.toLowerCase().includes('odrzucono')
+    ).length;
+    
+    // Update counters in HTML with error handling
+    if (totalCountEl) totalCountEl.textContent = totalCount.toString();
+    if (sentCountEl) sentCountEl.textContent = sentCount.toString();
+    if (interviewCountEl) interviewCountEl.textContent = interviewCount.toString();
+    if (offerCountEl) offerCountEl.textContent = offerCount.toString();
+    if (rejectedCountEl) rejectedCountEl.textContent = rejectedCount.toString();
+    
+    console.log('Status counters updated:', {
+        total: totalCount,
+        sent: sentCount,
+        interviews: interviewCount,
+        offers: offerCount,
+        rejected: rejectedCount
+    });
+}
+
+// Funkcja do inicjalizacji kolorowych kart filtrów statusów
+function initializeQuickFilters() {
+    // Dodaj obsługę kliknięć do kart statusów
+    document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(card => {
+        card.addEventListener('click', function() {
+            const filterValue = this.dataset.filterValue;
+            
+            // Usuń aktywny stan z innych kart statusów
+            document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(otherCard => {
+                otherCard.classList.remove('active');
+            });
+            
+            // Dodaj aktywny stan do klikniętej karty
+            this.classList.add('active');
+            
+            // Ustaw filtr statusu
+            let filters = getFilters();
+            
+            // Set the status filter correctly
+            if (filterValue === "") {
+                // Clear status filter for "Wszystkie aplikacje"
+                filters.status = "";
+            } else {
+                filters.status = filterValue;
+            }
+            
+            // Zastosuj filtry
+            const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
+            const showArchived = document.getElementById('showArchived')?.checked || false;
+            loadApplications(filters, showArchived, sortOrder);
+            
+            // Dodaj efekt wizualny
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+    
+    // Funkcja do resetowania kart statusów
+    window.resetQuickFilters = function() {
+        document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(card => {
+            card.classList.remove('active');
+        });
+        
+        // Aktywuj kartę "Wszystkie aplikacje"
+        const allStatusCard = document.querySelector('.filter-card[data-filter-type="status"][data-filter-value=""]');
+        if (allStatusCard) {
+            allStatusCard.classList.add('active');
+        }
+    };
+    
+    // Funkcja do synchronizacji kart z filtrami z rozwiniętej sekcji
+    window.syncQuickFiltersWithAdvanced = function() {
+        const filters = getFilters();
+        
+        // Resetuj wszystkie karty statusów
+        document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(card => {
+            card.classList.remove('active');
+        });
+        
+        // Synchronizuj karty statusu
+        if (filters.status) {
+            const statusCard = document.querySelector(`.filter-card[data-filter-type="status"][data-filter-value="${filters.status}"]`);
+            if (statusCard) {
+                statusCard.classList.add('active');
+            }
+        } else {
+            // Aktywuj kartę "Wszystkie aplikacje"
+            const allStatusCard = document.querySelector('.filter-card[data-filter-type="status"][data-filter-value=""]');
+            if (allStatusCard) {
+                allStatusCard.classList.add('active');
+            }
+        }
+    };
+    
+    // Domyślnie aktywuj kartę "Wszystkie aplikacje"
+    resetQuickFilters();
+}
 
 //# sourceMappingURL=app.js.map
 

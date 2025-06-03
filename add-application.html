@@ -451,7 +451,10 @@
             collection,
             addDoc,
             serverTimestamp,
-            onAuthStateChanged
+            onAuthStateChanged,
+            app,
+            db,
+            auth
         };
 
         // Base64 image conversion utility
@@ -468,12 +471,11 @@
         console.log('Storage bucket:', firebaseConfig.storageBucket);
         console.log('Services available:', {
             firestore: !!db,
-            storage: !!storage,
             auth: !!auth
         });
 
         // Check authentication status on page load
-        window.firebaseModules.onAuthStateChanged(auth, function(user) {
+        onAuthStateChanged(auth, function(user) {
             const authStatus = document.getElementById('auth-status');
             if (user) {
                 console.log('User authenticated:', user);
@@ -724,7 +726,21 @@
 
             try {
                 console.log('Starting form submission...');
-                console.log('User:', user.uid, user.email);
+                console.log('User details:', {
+                    uid: user.uid,
+                    email: user.email,
+                    emailVerified: user.emailVerified,
+                    isAnonymous: user.isAnonymous
+                });
+                console.log('Auth state:', auth.currentUser ? 'authenticated' : 'not authenticated');
+                
+                // Test auth token
+                try {
+                    const token = await user.getIdToken();
+                    console.log('Auth token obtained successfully (length:', token.length, ')');
+                } catch (tokenError) {
+                    console.error('Failed to get auth token:', tokenError);
+                }
                 
                 // Konwertuj zdjęcia do Base64 jeśli są
                 let base64Images = [];
@@ -757,7 +773,7 @@
                     archiwalna: false,
                     favorite: favorite,
                     userId: user.uid, // Add user ID for security
-                    createdAt: window.firebaseModules.serverTimestamp()
+                    createdAt: serverTimestamp()
                 };
 
                 // Dodaj opcjonalne pola tylko jeśli są wypełnione
@@ -767,9 +783,14 @@
                 if (notatki) applicationData.notatki = notatki;
                 if (base64Images.length > 0) applicationData.images = base64Images;
 
-                console.log('Saving application data:', applicationData);
+                console.log('Saving application data:', {
+                    ...applicationData,
+                    images: base64Images.length > 0 ? `[${base64Images.length} images]` : 'no images'
+                });
+                console.log('Database reference:', db);
+                console.log('Collection reference:', collection(db, "applications"));
                 
-                await window.firebaseModules.addDoc(window.firebaseModules.collection(db, "applications"), applicationData);
+                await addDoc(collection(db, "applications"), applicationData);
                 console.log('Application saved successfully!');
                 
                 document.getElementById('form-message').textContent = "Aplikacja została dodana pomyślnie!";
@@ -782,7 +803,13 @@
                     window.location.href = "index.html";
                 }, 2000);
             } catch (error) {
-                console.error("Błąd:", error);
+                console.error("Błąd podczas dodawania aplikacji:", error);
+                console.error("Error details:", {
+                    code: error.code,
+                    message: error.message,
+                    stack: error.stack,
+                    customData: error.customData
+                });
                 
                 // Check if error is related to image upload
                 if (error.message && error.message.includes('zdjęć') && selectedFiles.length > 0) {
@@ -815,7 +842,7 @@
                                 archiwalna: false,
                                 favorite: favorite,
                                 userId: user.uid,
-                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                                createdAt: serverTimestamp()
                             };
                             
                             // Add optional fields
@@ -824,7 +851,7 @@
                             if (link) applicationData.link = link;
                             if (notatki) applicationData.notatki = notatki;
                             
-                            await db.collection("applications").add(applicationData);
+                            await addDoc(collection(db, "applications"), applicationData);
                             
                             document.getElementById('form-message').textContent = "Aplikacja zapisana (bez zdjęć)!";
                             document.getElementById('form-message').style.color = "green";

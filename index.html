@@ -273,6 +273,41 @@
                                 </div>
                             </div>
 
+                            <!-- Kolorowe karty statusów -->
+                            <div id="quickFilters" style="margin: 1.5rem 0;">
+                                <div class="filter-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                    <div class="filter-card status-card" data-filter-type="status" data-filter-value="" 
+                                         style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 2px solid #e2e8f0; padding: 1.25rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 90px; justify-content: center;">
+                                        <i class="fas fa-list" style="font-size: 1.75rem; color: #64748b; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #334155; font-size: 1rem;">Wszystkie (<span id="totalCount">0</span>)</span>
+                                    </div>
+                                    
+                                    <div class="filter-card status-card" data-filter-type="status" data-filter-value="Wysłano CV" 
+                                         style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #3b82f6; padding: 1.25rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 90px; justify-content: center;">
+                                        <i class="fas fa-paper-plane" style="font-size: 1.75rem; color: #2563eb; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #1e40af; font-size: 1rem;">Wysłano CV (<span id="sentCount">0</span>)</span>
+                                    </div>
+                                    
+                                    <div class="filter-card status-card" data-filter-type="status" data-filter-value="Rozmowy" 
+                                         style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; padding: 1.25rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 90px; justify-content: center;">
+                                        <i class="fas fa-comments" style="font-size: 1.75rem; color: #d97706; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #b45309; font-size: 1rem;">Rozmowy (<span id="interviewCount">0</span>)</span>
+                                    </div>
+                                    
+                                    <div class="filter-card status-card" data-filter-type="status" data-filter-value="Oferta" 
+                                         style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 2px solid #10b981; padding: 1.25rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 90px; justify-content: center;">
+                                        <i class="fas fa-handshake" style="font-size: 1.75rem; color: #059669; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #047857; font-size: 1rem;">Oferta (<span id="offerCount">0</span>)</span>
+                                    </div>
+                                    
+                                    <div class="filter-card status-card" data-filter-type="status" data-filter-value="Odrzucono" 
+                                         style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #ef4444; padding: 1.25rem; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 90px; justify-content: center;">
+                                        <i class="fas fa-times-circle" style="font-size: 1.75rem; color: #dc2626; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #b91c1c; font-size: 1rem;">Odrzucono (<span id="rejectedCount">0</span>)</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Toggle Filters and Sort Buttons -->
                             <div id="filterSortButtons" style="display: flex; gap: 1rem; margin: 1rem 0;">
                                 <button id="toggleFilters"
@@ -736,8 +771,9 @@
 
         <script>
             function showContactModal() {
-                // Hide main application content
+                // Hide both main content and landing page (depending on which is visible)
                 document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('landingPage').style.display = 'none';
 
                 // Show contact page
                 document.getElementById('contactPage').style.display = 'flex';
@@ -747,8 +783,26 @@
                 // Hide contact page
                 document.getElementById('contactPage').style.display = 'none';
 
-                // Show main application content
-                document.getElementById('mainContent').style.display = 'block';
+                // Check if user is authenticated to decide which content to show
+                const user = window.auth?.currentUser;
+                if (user) {
+                    // User is authenticated - show main application content
+                    document.getElementById('mainContent').style.display = 'block';
+                    const landingPage = document.getElementById('landingPage');
+                    if (landingPage) {
+                        landingPage.style.display = 'none';
+                    }
+                } else {
+                    // User is not authenticated - show landing page
+                    const landingPage = document.getElementById('landingPage');
+                    if (landingPage) {
+                        landingPage.style.display = 'block';
+                    }
+                    const mainContent = document.getElementById('mainContent');
+                    if (mainContent) {
+                        mainContent.style.display = 'none';
+                    }
+                }
             }
 
             // Event listener for the return button
@@ -765,13 +819,28 @@
                 if (mainMenuLink) {
                     mainMenuLink.addEventListener('click', function (e) {
                         e.preventDefault();
-                        // Hide contact page and show main content
+                        // Hide contact page
                         document.getElementById('contactPage').style.display = 'none';
-                        document.getElementById('mainContent').style.display = 'block';
-                        // Hide landing page if it's visible
-                        const landingPage = document.getElementById('landingPage');
-                        if (landingPage && landingPage.style.display !== 'none') {
-                            landingPage.style.display = 'none';
+                        
+                        // Check if user is authenticated to decide which content to show
+                        const user = window.auth?.currentUser;
+                        if (user) {
+                            // User is authenticated - show main application content
+                            document.getElementById('mainContent').style.display = 'block';
+                            const landingPage = document.getElementById('landingPage');
+                            if (landingPage && landingPage.style.display !== 'none') {
+                                landingPage.style.display = 'none';
+                            }
+                        } else {
+                            // User is not authenticated - show landing page
+                            const landingPage = document.getElementById('landingPage');
+                            if (landingPage) {
+                                landingPage.style.display = 'block';
+                            }
+                            const mainContent = document.getElementById('mainContent');
+                            if (mainContent) {
+                                mainContent.style.display = 'none';
+                            }
                         }
                     });
                 }

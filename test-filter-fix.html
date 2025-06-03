@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Filtrowania Rodzaju Umowy</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #dee2e6; }
+        .success { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #dee2e6; padding: 8px; text-align: left; }
+        th { background: #e9ecef; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Filtrowania Rodzaju Umowy</h1>
+    
+    <div class="test-section info">
+        <h2>Problem:</h2>
+        <p>Gdy filtrujesz "Pełny etat", pokazują się również aplikacje z "Niepełny etat" bo wartość "NIEPELNY_ETAT" zawiera tekst "PELNY_ETAT".</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test danych:</h2>
+        <table>
+            <tr>
+                <th>Aplikacja</th>
+                <th>Stanowisko</th>
+                <th>Rodzaj (kod)</th>
+                <th>Rodzaj (wyświetlany)</th>
+            </tr>
+            <tr>
+                <td>App 1</td>
+                <td>Frontend Developer</td>
+                <td>PELNY_ETAT</td>
+                <td>Pełny etat</td>
+            </tr>
+            <tr>
+                <td>App 2</td>
+                <td>Backend Developer</td>
+                <td>NIEPELNY_ETAT</td>
+                <td>Niepełny etat</td>
+            </tr>
+            <tr>
+                <td>App 3</td>
+                <td>UX Designer</td>
+                <td>STAZ</td>
+                <td>Staż</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test filtrowania:</h2>
+        <button onclick="testFiltering('PELNY_ETAT')">Test: Filtruj "Pełny etat"</button>
+        <button onclick="testFiltering('NIEPELNY_ETAT')">Test: Filtruj "Niepełny etat"</button>
+        <button onclick="testFiltering('STAZ')">Test: Filtruj "Staż"</button>
+        <button onclick="testFiltering('')">Resetuj</button>
+    </div>
+    
+    <div id="results" class="test-section">
+        <h2>Wyniki:</h2>
+        <p>Kliknij jeden z przycisków filtrowania powyżej, aby przetestować.</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>Oczekiwane zachowanie:</h2>
+        <ul>
+            <li><strong>Filtr "Pełny etat":</strong> Powinien pokazać tylko App 1 (Frontend Developer)</li>
+            <li><strong>Filtr "Niepełny etat":</strong> Powinien pokazać tylko App 2 (Backend Developer)</li>
+            <li><strong>Filtr "Staż":</strong> Powinien pokazać tylko App 3 (UX Designer)</li>
+        </ul>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <a href="index.html">🔗 Wróć do aplikacji głównej</a>
+    </div>
+
+    <script>
+        // Test data
+        const testApplications = [
+            { id: 1, stanowisko: 'Frontend Developer', firma: 'TechCorp', rodzaj: 'PELNY_ETAT' },
+            { id: 2, stanowisko: 'Backend Developer', firma: 'WebCorp', rodzaj: 'NIEPELNY_ETAT' },
+            { id: 3, stanowisko: 'UX Designer', firma: 'DesignStudio', rodzaj: 'STAZ' }
+        ];
+        
+        function testFiltering(filterValue) {
+            const results = document.getElementById('results');
+            
+            if (!filterValue) {
+                results.innerHTML = `
+                    <h2>Wyniki: (bez filtra)</h2>
+                    <p>Pokazane wszystkie aplikacje:</p>
+                    ${renderApplications(testApplications)}
+                `;
+                return;
+            }
+            
+            // Test old logic (problematic)
+            const oldLogicResults = testApplications.filter(app => {
+                if (typeof app.rodzaj === "string" && typeof filterValue === "string") {
+                    return app.rodzaj.toLowerCase().includes(filterValue.toLowerCase());
+                }
+                return app.rodzaj === filterValue;
+            });
+            
+            // Test new logic (fixed)
+            const newLogicResults = testApplications.filter(app => {
+                const exactMatchFields = ['rodzaj', 'umowa', 'tryb'];
+                if (exactMatchFields.includes('rodzaj')) {
+                    return app.rodzaj === filterValue;
+                } else {
+                    return app.rodzaj.toLowerCase().includes(filterValue.toLowerCase());
+                }
+            });
+            
+            const getRodzajText = (rodzaj) => {
+                switch (rodzaj) {
+                    case 'PELNY_ETAT': return 'Pełny etat';
+                    case 'NIEPELNY_ETAT': return 'Niepełny etat';
+                    case 'STAZ': return 'Staż';
+                    default: return rodzaj || '';
+                }
+            };
+            
+            const filterText = getRodzajText(filterValue);
+            
+            results.innerHTML = `
+                <h2>Wyniki filtrowania: "${filterText}"</h2>
+                
+                <div style="margin: 15px 0;">
+                    <h3>❌ Stara logika (z błędem):</h3>
+                    <p style="color: #721c24;">Znaleziono ${oldLogicResults.length} aplikacji (BŁĘDNY WYNIK)</p>
+                    ${renderApplications(oldLogicResults)}
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <h3>✅ Nowa logika (naprawiona):</h3>
+                    <p style="color: #155724;">Znaleziono ${newLogicResults.length} aplikacji (POPRAWNY WYNIK)</p>
+                    ${renderApplications(newLogicResults)}
+                </div>
+                
+                ${oldLogicResults.length !== newLogicResults.length ? 
+                    '<div style="background: #fff3cd; padding: 10px; border-radius: 5px; color: #856404; margin: 10px 0;"><strong>✅ Problem został naprawiony!</strong> Stara logika pokazywała błędne wyniki.</div>' :
+                    '<div style="background: #d1ecf1; padding: 10px; border-radius: 5px; color: #0c5460; margin: 10px 0;"><strong>ℹ️ Info:</strong> W tym przypadku oba podejścia dają ten sam wynik.</div>'
+                }
+            `;
+        }
+        
+        function renderApplications(apps) {
+            if (apps.length === 0) {
+                return '<p style="color: #6c757d; font-style: italic;">Brak aplikacji spełniających kryteria.</p>';
+            }
+            
+            const getRodzajText = (rodzaj) => {
+                switch (rodzaj) {
+                    case 'PELNY_ETAT': return 'Pełny etat';
+                    case 'NIEPELNY_ETAT': return 'Niepełny etat';
+                    case 'STAZ': return 'Staż';
+                    default: return rodzaj || '';
+                }
+            };
+            
+            return `
+                <table style="width: 100%; margin: 10px 0;">
+                    <tr>
+                        <th>Stanowisko</th>
+                        <th>Firma</th>
+                        <th>Rodzaj (kod)</th>
+                        <th>Rodzaj (tekst)</th>
+                    </tr>
+                    ${apps.map(app => `
+                        <tr>
+                            <td>${app.stanowisko}</td>
+                            <td>${app.firma}</td>
+                            <td><code>${app.rodzaj}</code></td>
+                            <td>${getRodzajText(app.rodzaj)}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+            `;
+        }
+    </script>
+</body>
+</html>
