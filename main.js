@@ -279,11 +279,34 @@ async function openEditModal(appId) {
 }
 
 function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {
+    console.log('🔧 loadApplications called with filters:', filters);
     const user = window.auth.currentUser;
     if (!user) {
-        console.log("No user logged in, cannot load applications");
+        console.log("❌ No user logged in, cannot load applications");
+        // Update counters to 0 when no user is logged in
+        updateStatusCounters([]);
+        
+        // Provide user feedback that filters require authentication
+        const tbody = document.querySelector('.applications-table tbody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                            <i class="fas fa-lock" style="font-size: 2rem; color: #f59e0b;"></i>
+                            <div>
+                                <h3 style="margin: 0; color: #374151;">Wymagana autoryzacja</h3>
+                                <p style="margin: 0.5rem 0 0 0;">Aby używać filtrów i przeglądać aplikacje, <a href="login.html" style="color: #3b82f6; text-decoration: underline;">zaloguj się</a>.</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
         return;
     }
+    
+    console.log('✅ User logged in:', user.email);
     
     let q = window.firebaseModules.query(
         window.firebaseModules.collection(db, "applications"),
@@ -291,6 +314,7 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
     );
     
     window.firebaseModules.getDocs(q).then((querySnapshot) => {
+        console.log('🔧 Firebase query completed. Documents found:', querySnapshot.size);
         const tbody = document.querySelector('.applications-table tbody');
         tbody.innerHTML = '';
         let count = 0;
@@ -302,6 +326,8 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             applications.push(app);
         });
 
+        console.log('📊 Total applications loaded:', applications.length);
+        
         // Update status counters before filtering
         updateStatusCounters(applications);
 
@@ -332,6 +358,22 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                     if (key === 'status' && filters[key] === 'Rozmowy') {
                         const interviewStatuses = ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'];
                         if (!interviewStatuses.includes(app.status)) {
+                            match = false;
+                            break;
+                        }
+                    } 
+                    // Special handling for "Odrzucono" status filter
+                    else if (key === 'status' && filters[key] === 'Odrzucono') {
+                        if (!app.status || !app.status.toLowerCase().includes('odrzucono')) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    // Special handling for other status filters that use includes logic
+                    else if (key === 'status' && (filters[key] === 'Wysłano CV' || filters[key] === 'Oferty')) {
+                        // For "Oferty" filter, we still search for "oferta" in the application status
+                        const searchTerm = filters[key] === 'Oferty' ? 'oferta' : filters[key].toLowerCase();
+                        if (!app.status || !app.status.toLowerCase().includes(searchTerm)) {
                             match = false;
                             break;
                         }
@@ -552,7 +594,8 @@ document.addEventListener('DOMContentLoaded', function () {
             data: document.getElementById('filterData')?.value || "",
             tryb: document.getElementById('filterTryb')?.value || "",
             rodzaj: document.getElementById('filterRodzaj')?.value || "",
-            umowa: document.getElementById('filterUmowa')?.value || ""
+            umowa: document.getElementById('filterUmowa')?.value || "",
+            status: window.filters?.status || ""
         };
     }
 
@@ -1029,8 +1072,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial load
     loadApplications(getFilters(), document.getElementById('showArchived')?.checked, 'desc');
     
-    // Inicjalizacja kolorowych kart filtrów
-    initializeQuickFilters();
+    // Inicjalizacja kolorowych kart filtrów - z opóźnieniem, żeby być pewnym że DOM jest gotowy
+    setTimeout(() => {
+        console.log('🔧 Initializing quick filters...');
+        initializeQuickFilters();
+        console.log('✅ Quick filters initialized');
+    }, 100);
 });
 
 // Funkcja do aktualizacji liczników w kartach statusów
@@ -1096,11 +1143,55 @@ function updateStatusCounters(applications = []) {
 
 // Funkcja do inicjalizacji kolorowych kart filtrów statusów
 function initializeQuickFilters() {
+    console.log('🔧 initializeQuickFilters started');
+    
+    // Initialize global filters object
+    if (!window.filters) {
+        window.filters = {};
+    }
+    
     // Dodaj obsługę kliknięć do kart statusów
-    document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(card => {
+    const statusCards = document.querySelectorAll('.filter-card[data-filter-type="status"]');
+    console.log('📋 Found status cards:', statusCards.length);
+    
+    statusCards.forEach((card, index) => {
+        const filterValue = card.dataset.filterValue;
+        console.log(`🃏 Setting up card ${index}: "${filterValue}"`);
+        
         card.addEventListener('click', function() {
             const filterValue = this.dataset.filterValue;
+            console.log('🖱️ Status card clicked:', filterValue);
             
+            // Check if user is authenticated - if not, show info but still allow filter functionality
+            const user = window.auth && window.auth.currentUser;
+            if (!user) {
+                console.log('ℹ️ User not authenticated - filters will work but no data will be loaded');
+                
+                // Show brief info message (non-blocking)
+                const infoMessage = document.createElement('div');
+                infoMessage.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; 
+                    background: #f59e0b; color: white; padding: 1rem; border-radius: 8px; 
+                    z-index: 10000; max-width: 300px; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                `;
+                infoMessage.innerHTML = `
+                    <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
+                    <strong>Filtry działają!</strong><br>
+                    Zaloguj się, aby zobaczyć dane.
+                `;
+                
+                document.body.appendChild(infoMessage);
+                
+                // Auto-remove after 3 seconds
+                setTimeout(() => {
+                    if (infoMessage.parentElement) {
+                        infoMessage.remove();
+                    }
+                }, 3000);
+                
+                // Continue with filter functionality even if not authenticated
+            }
+
             // Usuń aktywny stan z innych kart statusów
             document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(otherCard => {
                 otherCard.classList.remove('active');
@@ -1108,21 +1199,26 @@ function initializeQuickFilters() {
             
             // Dodaj aktywny stan do klikniętej karty
             this.classList.add('active');
+            console.log('✅ Active state added to card:', filterValue);
             
-            // Ustaw filtr statusu
-            let filters = getFilters();
-            
-            // Set the status filter correctly
+            // Set the status filter in global filters object
             if (filterValue === "") {
                 // Clear status filter for "Wszystkie aplikacje"
-                filters.status = "";
+                window.filters.status = "";
+                console.log('🔄 Filter cleared (Wszystkie)');
             } else {
-                filters.status = filterValue;
+                window.filters.status = filterValue;
+                console.log('🎯 Filter set to:', filterValue);
             }
+            
+            // Get all filters (including the status filter we just set)
+            let filters = getFilters();
+            console.log('📊 Current filters:', filters);
             
             // Zastosuj filtry
             const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
             const showArchived = document.getElementById('showArchived')?.checked || false;
+            console.log('🔄 Applying filters with sortOrder:', sortOrder, 'showArchived:', showArchived);
             loadApplications(filters, showArchived, sortOrder);
             
             // Dodaj efekt wizualny
@@ -1133,8 +1229,16 @@ function initializeQuickFilters() {
         });
     });
     
+    console.log('✅ Quick filters setup complete');
+    
     // Funkcja do resetowania kart statusów
     window.resetQuickFilters = function() {
+        // Clear status filter in global filters object
+        if (!window.filters) {
+            window.filters = {};
+        }
+        window.filters.status = "";
+        
         document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(card => {
             card.classList.remove('active');
         });
