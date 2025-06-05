@@ -546,6 +546,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     waitForFirebase(function() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
         // Login/Logout functionality
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -985,6 +986,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     mainContent.style.display = 'block';
                     mainContent.style.opacity = '1';
                 }
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
 
                 // Show main menu link for authenticated users
                 if (mainMenuLink) {
@@ -1030,6 +1032,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         mainContent.style.display = 'none';
                     }
                 }
+
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
 
                 if (userInfo) userInfo.style.display = 'none';
                 if (loginBtn) loginBtn.style.display = 'inline';
