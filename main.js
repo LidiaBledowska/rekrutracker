@@ -35,6 +35,18 @@ function getStatusColors(status) {
 }
 
 
+// Helper to normalize strings for reliable comparisons
+function normalizeText(str) {
+    return (str || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/ł/g, 'l')
+        .replace(/Ł/g, 'l')
+        .trim();
+}
+
+
 
 function showImagesPreview(images) {
     console.log('showImagesPreview called with:', images);
@@ -373,11 +385,15 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                             break;
                         }
                     }
-                    // Special handling for other status filters that use includes logic
-                    else if (key === 'status' && (filters[key] === 'Wysłano CV' || filters[key] === 'Oferty')) {
-                        // For "Oferty" filter, we still search for "oferta" in the application status
-                        const searchTerm = filters[key] === 'Oferty' ? 'oferta' : filters[key].toLowerCase();
-                        if (!app.status || !app.status.toLowerCase().includes(searchTerm)) {
+                    // Special handling for "Wysłano CV" and "Oferty" status filters
+                    else if (key === 'status' && filters[key] === 'Wysłano CV') {
+                        if (normalizeText(app.status) !== 'wyslano cv') {
+                            match = false;
+                            break;
+                        }
+                    }
+                    else if (key === 'status' && filters[key] === 'Oferty') {
+                        if (!app.status || !normalizeText(app.status).includes('oferta')) {
                             match = false;
                             break;
                         }
@@ -1114,8 +1130,8 @@ function updateStatusCounters(applications = []) {
     const totalCount = activeApplications.length;
     
     // Count by status with exact matching logic (matches filtering logic)
-    const sentCount = activeApplications.filter(app => 
-        app.status && app.status.toLowerCase().includes('wysłano cv')
+    const sentCount = activeApplications.filter(app =>
+        normalizeText(app.status) === 'wyslano cv'
     ).length;
     
     const interviewCount = activeApplications.filter(app => {
