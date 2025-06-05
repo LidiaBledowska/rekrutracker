@@ -196,6 +196,10 @@
             }
         }
 
+        // Make helpers available globally for inline handlers
+        window.clearAllImages = clearAllImages;
+        window.skipImages = skipImages;
+
         // Walidacja pól Stanowisko i Firma - tylko litery
         function validateLettersOnly(input) {
             const regex = /[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]/g;
