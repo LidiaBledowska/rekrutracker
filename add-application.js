@@ -17,10 +17,12 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Make Firebase services available globally
+        // Make Firebase services available globally without overwriting
+        // existing helpers registered on the main page
         window.db = db;
         window.auth = auth;
-        window.firebaseModules = {
+        window.firebaseModules = window.firebaseModules || {};
+        Object.assign(window.firebaseModules, {
             collection,
             addDoc,
             serverTimestamp,
@@ -28,7 +30,7 @@
             app,
             db,
             auth
-        };
+        });
 
         // Base64 image conversion utility
         function convertFileToBase64(file) {
