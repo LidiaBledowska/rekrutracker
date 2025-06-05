@@ -812,8 +812,9 @@ body #mainContent .applications-table {
 
 /* Default appearance for status filter cards */
 .status-card {
-    background: #f5f5f5;
-    border: 2px solid transparent;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     padding: 1.25rem;
     border-radius: 12px;
     cursor: pointer;
