@@ -269,7 +269,7 @@
                                     Twoje
                                     aplikacje</p>
                                 <div style="display: flex; gap: 10px;">
-                                    <button id="openAddAppModal" type="button" onclick="openAddAppModal()"
+                                    <button id="openAddAppModal" type="button"
                                         class="flex min-w-[140px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#141414] text-white text-base font-bold leading-normal shadow-lg hover:bg-[#2d2d2d] transition-all duration-200">
                                         <i class="fas fa-plus mr-2"></i>
                                         <span class="truncate">Dodaj aplikację</span>
@@ -1012,6 +1012,14 @@ $(cat /tmp/form_styles.txt)
                     registerButton.addEventListener('click', function () {
                         loginForm.style.display = 'block';
                         registerButton.style.display = 'none';
+                    });
+                }
+
+                // Hook Add Application button if present
+                const addAppBtn = document.getElementById('openAddAppModal');
+                if (addAppBtn) {
+                    addAppBtn.addEventListener('click', function () {
+                        openAddAppModal();
                     });
                 }
             });
