@@ -810,6 +810,42 @@ body #mainContent .applications-table {
     transform: translateY(-1px) scale(1.01);
 }
 
+/* Default appearance for status filter cards */
+.status-card {
+    background: #f5f5f5;
+    border: 2px solid transparent;
+    padding: 1.25rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 90px;
+    justify-content: center;
+}
+
+.status-card[data-filter-value=""] {
+    border-color: #e2e8f0;
+}
+
+.status-card[data-filter-value="Wysłano CV"] {
+    border-color: #3b82f6;
+}
+
+.status-card[data-filter-value="Rozmowy"] {
+    border-color: #f59e0b;
+}
+
+.status-card[data-filter-value="Oferty"] {
+    border-color: #10b981;
+}
+
+.status-card[data-filter-value="Odrzucono"] {
+    border-color: #ef4444;
+}
+
 .filter-card.active {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
