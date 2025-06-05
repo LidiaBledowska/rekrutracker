@@ -1166,6 +1166,16 @@ function updateStatusCounters(applications = []) {
     });
 }
 
+
+// Apply status filter and reload applications
+function applyStatusFilter(filterValue) {
+    if (!window.filters) { window.filters = {}; }
+    window.filters.status = filterValue || "";
+    const sortOrder = document.getElementById("sortOrder")?.value || "desc";
+    const showArchived = document.getElementById("showArchived")?.checked || false;
+    loadApplications(getFilters(), showArchived, sortOrder);
+}
+
 // Funkcja do inicjalizacji kolorowych kart filtrów statusów
 function initializeQuickFilters() {
     console.log('🔧 initializeQuickFilters started');
@@ -1226,25 +1236,7 @@ function initializeQuickFilters() {
             this.classList.add('active');
             console.log('✅ Active state added to card:', filterValue);
             
-            // Set the status filter in global filters object
-            if (filterValue === "") {
-                // Clear status filter for "Wszystkie aplikacje"
-                window.filters.status = "";
-                console.log('🔄 Filter cleared (Wszystkie)');
-            } else {
-                window.filters.status = filterValue;
-                console.log('🎯 Filter set to:', filterValue);
-            }
-            
-            // Get all filters (including the status filter we just set)
-            let filters = getFilters();
-            console.log('📊 Current filters:', filters);
-            
-            // Zastosuj filtry
-            const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
-            const showArchived = document.getElementById('showArchived')?.checked || false;
-            console.log('🔄 Applying filters with sortOrder:', sortOrder, 'showArchived:', showArchived);
-            loadApplications(filters, showArchived, sortOrder);
+            applyStatusFilter(filterValue);
             
             // Dodaj efekt wizualny
             this.style.transform = 'scale(0.95)';
