@@ -2,7 +2,7 @@
 function getStatusColors(status) {
     // Normalize the status string to handle any whitespace/encoding issues
     const normalizedStatus = (status || '').trim().toLowerCase();
-    
+
     // Return inline style strings with !important to override Tailwind CSS
     const colorMap = {
         'wysłano cv': 'background-color: #dbeafe !important; color: #1e40af !important; border: 2px solid #3b82f6 !important;',
@@ -15,12 +15,12 @@ function getStatusColors(status) {
         'odrzucony': 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;',
         'odrzucone': 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;'
     };
-    
+
     // Direct match first
     if (colorMap[normalizedStatus]) {
         return colorMap[normalizedStatus];
     }
-    
+
     // Fallback with partial matching
     if (normalizedStatus.includes('rozmowa')) {
         return 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;';
@@ -29,7 +29,7 @@ function getStatusColors(status) {
     } else if (normalizedStatus.includes('odrzucon')) {
         return 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;';
     }
-    
+
     // Default fallback
     return 'background-color: #f3f4f6 !important; color: #374151 !important; border: 2px solid #6b7280 !important;';
 }
@@ -51,29 +51,29 @@ function normalizeText(str) {
 function showImagesPreview(images) {
     console.log('showImagesPreview called with:', images);
     const preview = document.getElementById('editImagesPreview');
-    
+
     if (!preview) {
         console.error('editImagesPreview element not found!');
         return;
     }
-    
+
     preview.innerHTML = '';
-    
+
     if (!images || !Array.isArray(images) || images.length === 0) {
         console.log('No images to display');
         preview.innerHTML = '<p style="color: #6b7280; font-size: 0.8em; margin: 0.5em 0;">Brak zdjęć</p>';
         return;
     }
-    
+
     console.log(`Displaying ${images.length} images`);
-    
+
     images.forEach((imageItem, index) => {
         console.log(`Processing image ${index + 1}:`, imageItem);
-        
+
         const img = document.createElement('img');
         let imageUrl = '';
         let imageName = `Zdjęcie ${index + 1}`;
-        
+
         // Handle both old Firebase Storage URLs and new Base64 objects
         if (typeof imageItem === 'string') {
             // Old format: direct URL string
@@ -90,7 +90,7 @@ function showImagesPreview(images) {
             console.warn('Invalid image format:', imageItem);
             return;
         }
-        
+
         img.style.maxWidth = '80px';
         img.style.maxHeight = '80px';
         img.style.borderRadius = '6px';
@@ -98,21 +98,21 @@ function showImagesPreview(images) {
         img.style.marginRight = '0.5em';
         img.style.cursor = 'pointer';
         img.title = `${imageName} - kliknij aby powiększyć`;
-        
+
         // Add error handling for broken images
-        img.onerror = function() {
+        img.onerror = function () {
             console.error(`Failed to load image: ${imageUrl}`);
             this.style.border = '2px solid #dc2626';
             this.title = `Błąd ładowania: ${imageName}`;
             this.alt = 'Błąd ładowania';
         };
-        
-        img.onload = function() {
+
+        img.onload = function () {
             console.log(`Successfully loaded image: ${imageUrl}`);
         };
-        
+
         // Add click to preview larger image
-        img.onclick = function() {
+        img.onclick = function () {
             // For Base64 data, create a new window with the image
             if (imageUrl.startsWith('data:')) {
                 const newWindow = window.open('', '_blank');
@@ -152,7 +152,7 @@ function showImagesPreview(images) {
                 window.open(imageUrl, '_blank');
             }
         };
-        
+
         preview.appendChild(img);
     });
 }
@@ -174,7 +174,7 @@ function loadFavorites() {
         window.firebaseModules.where("archiwalna", "==", false),
         window.firebaseModules.orderBy("data", "desc")
     );
-    
+
     window.firebaseModules.getDocs(q).then((querySnapshot) => {
         if (querySnapshot.empty) {
             favoritesContent.innerHTML = '<p class="text-gray-500">Brak ulubionych aplikacji.</p>';
@@ -186,13 +186,13 @@ function loadFavorites() {
             const app = doc.data();
             let wynagrodzenieText = "";
             if (app.wynagrodzenie) {
-                    wynagrodzenieText = `${app.wynagrodzenie} ${app.waluta || "PLN"}`;
-                    if (app.wynRodzaj) {
-                        wynagrodzenieText += ` ${app.wynRodzaj}`;
-                    }
+                wynagrodzenieText = `${app.wynagrodzenie} ${app.waluta || "PLN"}`;
+                if (app.wynRodzaj) {
+                    wynagrodzenieText += ` ${app.wynRodzaj}`;
                 }
+            }
 
-                html += `
+            html += `
                     <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
@@ -213,18 +213,18 @@ function loadFavorites() {
                         </div>
                     </div>
                 `;
-            });
-            html += '</div>';
-            favoritesContent.innerHTML = html;
+        });
+        html += '</div>';
+        favoritesContent.innerHTML = html;
 
-            // Add event listeners for edit buttons in favorites
-            document.querySelectorAll('.edit-btn-fav').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const appId = this.getAttribute('data-id');
-                    openEditModal(appId);
-                });
+        // Add event listeners for edit buttons in favorites
+        document.querySelectorAll('.edit-btn-fav').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const appId = this.getAttribute('data-id');
+                openEditModal(appId);
             });
         });
+    });
 }
 
 async function openEditModal(appId) {
@@ -233,22 +233,22 @@ async function openEditModal(appId) {
         alert("Musisz być zalogowany!");
         return;
     }
-    
+
     const docRef = window.firebaseModules.doc(db, "applications", appId);
     const docSnap = await window.firebaseModules.getDoc(docRef);
     if (!docSnap.exists()) {
         alert("Aplikacja nie istnieje!");
         return;
     }
-    
+
     const app = docSnap.data();
-    
+
     // SECURITY CHECK: Verify user owns this application
     if (app.userId !== user.uid) {
         alert("Nie masz uprawnień do edycji tej aplikacji!");
         return;
     }
-    
+
     document.getElementById('editAppId').value = appId;
     document.getElementById('editStanowisko').value = app.stanowisko;
     document.getElementById('editFirma').value = app.firma;
@@ -300,7 +300,7 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
         console.log("❌ No user logged in, cannot load applications");
         // Update counters to 0 when no user is logged in
         updateStatusCounters([]);
-        
+
         // Provide user feedback that filters require authentication
         const tbody = document.querySelector('.applications-table tbody');
         if (tbody) {
@@ -320,14 +320,14 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
         }
         return;
     }
-    
+
     console.log('✅ User logged in:', user.email);
-    
+
     let q = window.firebaseModules.query(
         window.firebaseModules.collection(db, "applications"),
         window.firebaseModules.where("userId", "==", user.uid)
     );
-    
+
     window.firebaseModules.getDocs(q).then((querySnapshot) => {
         console.log('🔧 Firebase query completed. Documents found:', querySnapshot.size);
         const tbody = document.querySelector('.applications-table tbody');
@@ -342,7 +342,7 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
         });
 
         console.log('📊 Total applications loaded:', applications.length);
-        
+
         // Update status counters before filtering
         updateStatusCounters(applications);
 
@@ -376,7 +376,7 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                             match = false;
                             break;
                         }
-                    } 
+                    }
                     // Special handling for "Odrzucono" status filter
                     else if (key === 'status' && filters[key] === 'Odrzucono') {
                         const rejectedVariants = ['odrzucono', 'odrzucony', 'odrzucona', 'odrzucone'];
@@ -463,8 +463,8 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                 tr.classList.add('archived');
             }
             // Add image indicator 
-            const imageIndicator = (app.images && app.images.length > 0) 
-                ? `<i class="fas fa-camera text-blue-500" style="font-size: 0.7em; margin-left: 4px;" title="${app.images.length} zdjęć"></i>` 
+            const imageIndicator = (app.images && app.images.length > 0)
+                ? `<i class="fas fa-camera text-blue-500" style="font-size: 0.7em; margin-left: 4px;" title="${app.images.length} zdjęć"></i>`
                 : '';
 
             tr.innerHTML = `
@@ -501,10 +501,10 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                 openEditModal(appId);
             });
         });
-        
+
         // Auto-fix colors after table is rendered
         autoFixColors();
-        
+
         // Enhance table row visuals
         setTimeout(() => {
             enhanceTableRowVisuals();
@@ -529,13 +529,13 @@ function autoFixColors() {
 // Enhanced visual status indicators for table rows
 function enhanceTableRowVisuals() {
     const rows = document.querySelectorAll('.applications-table tbody tr');
-    
+
     rows.forEach(row => {
         const statusButton = row.querySelector('td[data-label="Status"] button');
         if (!statusButton) return;
-        
+
         const statusText = statusButton.textContent.trim().split('(')[0].trim(); // Remove date part
-        
+
         // Add days since application indicator for stale applications
         const dateCell = row.querySelector('td[data-label="Data"]');
         if (dateCell) {
@@ -543,7 +543,7 @@ function enhanceTableRowVisuals() {
             const applicationDate = new Date(dateText);
             const now = new Date();
             const daysDiff = Math.floor((now - applicationDate) / (1000 * 60 * 60 * 24));
-            
+
             if (daysDiff > 14 && statusText === 'Wysłano CV') {
                 // Add indicator for applications older than 2 weeks without response
                 const staleIndicator = document.createElement('div');
@@ -565,7 +565,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    waitForFirebase(function() {
+    waitForFirebase(function () {
         const loadingOverlay = document.getElementById('loadingOverlay');
         // Login/Logout functionality
         const loginBtn = document.getElementById('loginBtn');
@@ -639,23 +639,23 @@ document.addEventListener('DOMContentLoaded', function () {
     let uploadedImages = [];
     document.getElementById('editImages').addEventListener('change', async function (e) {
         debugImageUpload('Upload started', { fileCount: e.target.files.length });
-        
+
         const files = Array.from(e.target.files);
         if (!files.length) {
             debugImageUpload('No files selected');
             return;
         }
-        
+
         const user = window.auth.currentUser;
         if (!user) {
             debugImageUpload('ERROR: User not logged in');
             alert("Musisz być zalogowany!");
             return;
         }
-        
+
         const appId = document.getElementById('editAppId').value;
         debugImageUpload('Upload attempt', { userId: user.uid, appId: appId, fileCount: files.length });
-        
+
         try {
             // SECURITY CHECK: Verify user owns this application before uploading
             const docRef = window.firebaseModules.doc(db, "applications", appId);
@@ -665,14 +665,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert("Nie masz uprawnień do dodawania zdjęć do tej aplikacji!");
                 return;
             }
-            
+
             document.getElementById('editFormMessage').textContent = "Trwa konwersja zdjęć...";
             document.getElementById('editFormMessage').style.color = "blue";
-            
+
             uploadedImages = [];
             let successCount = 0;
             let errorCount = 0;
-            
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 try {
@@ -682,7 +682,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         errorCount++;
                         continue;
                     }
-                    
+
                     // Check file size (max 1MB for Base64)
                     if (file.size > 1024 * 1024) {
                         console.warn(`File too large: ${file.name}`);
@@ -690,10 +690,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         errorCount++;
                         continue;
                     }
-                    
+
                     debugImageUpload(`Converting file ${i + 1}/${files.length}`, { fileName: file.name, size: file.size });
                     document.getElementById('editFormMessage').textContent = `Konwersja zdjęcia ${i + 1}/${files.length}...`;
-                    
+
                     const base64String = await convertFileToBase64(file);
                     const imageData = {
                         name: file.name,
@@ -701,25 +701,25 @@ document.addEventListener('DOMContentLoaded', function () {
                         size: file.size,
                         data: base64String
                     };
-                    
+
                     uploadedImages.push(imageData);
                     successCount++;
-                    
+
                     debugImageUpload(`Successfully converted file ${i + 1}`, { name: file.name });
-                    
+
                 } catch (fileError) {
                     console.error(`Error converting file ${file.name}:`, fileError);
                     errorCount++;
                 }
             }
-            
+
             // Dodaj do już istniejących - dla Base64 używamy data URL do preview
             const prev = document.getElementById('editImagesPreview').querySelectorAll('img');
             const prevUrls = Array.from(prev).map(img => img.src);
             const newUrls = uploadedImages.map(img => img.data);
             const allUrls = prevUrls.concat(newUrls);
             showImagesPreview(allUrls);
-            
+
             // Show results
             if (successCount > 0 && errorCount === 0) {
                 document.getElementById('editFormMessage').textContent = `✅ Skonwertowano ${successCount} zdjęć (nie zapomnij zapisać zmian)!`;
@@ -731,7 +731,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('editFormMessage').textContent = `❌ Nie udało się skonwertować żadnego zdjęcia.`;
                 document.getElementById('editFormMessage').style.color = "red";
             }
-            
+
         } catch (error) {
             console.error('Upload error:', error);
             document.getElementById('editFormMessage').textContent = `❌ Błąd podczas konwersji: ${error.message}`;
@@ -747,30 +747,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const editStanowiskoField = document.getElementById('editStanowisko');
     const editFirmaField = document.getElementById('editFirma');
-    
+
     if (editStanowiskoField) {
-        editStanowiskoField.addEventListener('input', function() {
+        editStanowiskoField.addEventListener('input', function () {
             validateLettersOnly(this);
         });
     }
-    
+
     if (editFirmaField) {
-        editFirmaField.addEventListener('input', function() {
+        editFirmaField.addEventListener('input', function () {
             validateLettersOnly(this);
         });
     }
 
     document.getElementById('editApplicationForm').addEventListener('submit', async function (e) {
         e.preventDefault();
-        
+
         const user = window.auth.currentUser;
         if (!user) {
             alert("Musisz być zalogowany!");
             return;
         }
-        
+
         const appId = document.getElementById('editAppId').value;
-        
+
         // SECURITY CHECK: Verify user owns this application before updating
         const docRef = window.firebaseModules.doc(db, "applications", appId);
         const docSnap = await window.firebaseModules.getDoc(docRef);
@@ -778,7 +778,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alert("Nie masz uprawnień do edycji tej aplikacji!");
             return;
         }
-        
+
         const stanowisko = document.getElementById('editStanowisko').value;
         const firma = document.getElementById('editFirma').value;
         const data = document.getElementById('editData').value;
@@ -861,9 +861,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert("Musisz być zalogowany!");
                 return;
             }
-            
+
             const appId = document.getElementById('editAppId').value;
-            
+
             // SECURITY CHECK: Verify user owns this application before archiving
             const docRef = window.firebaseModules.doc(db, "applications", appId);
             const docSnap = await window.firebaseModules.getDoc(docRef);
@@ -871,7 +871,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert("Nie masz uprawnień do archiwizacji tej aplikacji!");
                 return;
             }
-            
+
             window.firebaseModules.updateDoc(docRef, {
                 archiwalna: true
             }).then(() => {
@@ -887,9 +887,9 @@ document.addEventListener('DOMContentLoaded', function () {
             alert("Musisz być zalogowany!");
             return;
         }
-        
+
         const appId = document.getElementById('editAppId').value;
-        
+
         // SECURITY CHECK: Verify user owns this application before deleting
         const docRef = window.firebaseModules.doc(db, "applications", appId);
         const docSnap = await window.firebaseModules.getDoc(docRef);
@@ -897,7 +897,7 @@ document.addEventListener('DOMContentLoaded', function () {
             alert("Nie masz uprawnień do usunięcia tej aplikacji!");
             return;
         }
-        
+
         if (confirm("Czy na pewno chcesz usunąć tę aplikację?")) {
             window.firebaseModules.deleteDoc(docRef).then(() => {
                 document.getElementById('editModal').classList.remove('active');
@@ -951,10 +951,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const landingPage = document.getElementById('landingPage');
     const mainContent = document.getElementById('mainContent');
     const mainMenuLink = document.getElementById('mainMenuLink');
-    
+
     // Check if we're in the authenticated state by checking localStorage persistence
     const isLikelyAuthenticated = localStorage.getItem('firebase:authUser:AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68:[DEFAULT]') !== null;
-    
+
     if (isLikelyAuthenticated) {
         // User likely authenticated, show main content immediately
         if (landingPage) landingPage.style.display = 'none';
@@ -1080,11 +1080,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Debug function for image upload issues
-    window.debugImageUpload = function(message, data = null) {
+    window.debugImageUpload = function (message, data = null) {
         const timestamp = new Date().toLocaleTimeString();
         const logMessage = `[IMG-DEBUG ${timestamp}] ${message}`;
         console.log(logMessage, data || '');
-        
+
         // Also show in edit modal if available
         const editMessage = document.getElementById('editFormMessage');
         if (editMessage && message.includes('ERROR')) {
@@ -1095,7 +1095,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initial load
     loadApplications(getFilters(), document.getElementById('showArchived')?.checked, 'desc');
-    
+
     // Inicjalizacja kolorowych kart filtrów - z opóźnieniem, żeby być pewnym że DOM jest gotowy
     setTimeout(() => {
         console.log('🔧 Initializing quick filters...');
@@ -1125,38 +1125,38 @@ function updateStatusCounters(applications = []) {
 
     // Filter out archived applications for counting
     const activeApplications = applications.filter(app => !app.archiwalna);
-    
+
     // Count total applications
     const totalCount = activeApplications.length;
-    
+
     // Count by status with exact matching logic (matches filtering logic)
     const sentCount = activeApplications.filter(app =>
         normalizeText(app.status) === 'wyslano cv'
     ).length;
-    
+
     const interviewCount = activeApplications.filter(app => {
         if (!app.status) return false;
         // Match the exact logic used in filtering
         const interviewStatuses = ['Rozmowa telefoniczna', 'Rozmowa online', 'Rozmowa stacjonarna'];
         return interviewStatuses.includes(app.status);
     }).length;
-    
-    const offerCount = activeApplications.filter(app => 
+
+    const offerCount = activeApplications.filter(app =>
         app.status && app.status.toLowerCase().includes('oferta')
     ).length;
-    
+
     const rejectedVariants = ['odrzucono', 'odrzucony', 'odrzucona', 'odrzucone'];
     const rejectedCount = activeApplications.filter(app =>
         app.status && rejectedVariants.some(v => app.status.toLowerCase().includes(v))
     ).length;
-    
+
     // Update counters in HTML with error handling
     if (totalCountEl) totalCountEl.textContent = totalCount.toString();
     if (sentCountEl) sentCountEl.textContent = sentCount.toString();
     if (interviewCountEl) interviewCountEl.textContent = interviewCount.toString();
     if (offerCountEl) offerCountEl.textContent = offerCount.toString();
     if (rejectedCountEl) rejectedCountEl.textContent = rejectedCount.toString();
-    
+
     console.log('Status counters updated:', {
         total: totalCount,
         sent: sentCount,
@@ -1179,29 +1179,29 @@ function applyStatusFilter(filterValue) {
 // Funkcja do inicjalizacji kolorowych kart filtrów statusów
 function initializeQuickFilters() {
     console.log('🔧 initializeQuickFilters started');
-    
+
     // Initialize global filters object
     if (!window.filters) {
         window.filters = {};
     }
-    
+
     // Dodaj obsługę kliknięć do kart statusów
     const statusCards = document.querySelectorAll('.filter-card[data-filter-type="status"]');
     console.log('📋 Found status cards:', statusCards.length);
-    
+
     statusCards.forEach((card, index) => {
         const filterValue = card.dataset.filterValue;
         console.log(`🃏 Setting up card ${index}: "${filterValue}"`);
-        
-        card.addEventListener('click', function() {
+
+        card.addEventListener('click', function () {
             const filterValue = this.dataset.filterValue;
             console.log('🖱️ Status card clicked:', filterValue);
-            
+
             // Check if user is authenticated - if not, show info but still allow filter functionality
             const user = window.auth && window.auth.currentUser;
             if (!user) {
                 console.log('ℹ️ User not authenticated - filters will work but no data will be loaded');
-                
+
                 // Show brief info message (non-blocking)
                 const infoMessage = document.createElement('div');
                 infoMessage.style.cssText = `
@@ -1214,16 +1214,16 @@ function initializeQuickFilters() {
                     <strong>Filtry działają!</strong><br>
                     Zaloguj się, aby zobaczyć dane.
                 `;
-                
+
                 document.body.appendChild(infoMessage);
-                
+
                 // Auto-remove after 3 seconds
                 setTimeout(() => {
                     if (infoMessage.parentElement) {
                         infoMessage.remove();
                     }
                 }, 3000);
-                
+
                 // Continue with filter functionality even if not authenticated
             }
 
@@ -1231,13 +1231,13 @@ function initializeQuickFilters() {
             document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(otherCard => {
                 otherCard.classList.remove('active');
             });
-            
+
             // Dodaj aktywny stan do klikniętej karty
             this.classList.add('active');
             console.log('✅ Active state added to card:', filterValue);
-            
+
             applyStatusFilter(filterValue);
-            
+
             // Dodaj efekt wizualny
             this.style.transform = 'scale(0.95)';
             setTimeout(() => {
@@ -1245,37 +1245,37 @@ function initializeQuickFilters() {
             }, 150);
         });
     });
-    
+
     console.log('✅ Quick filters setup complete');
-    
+
     // Funkcja do resetowania kart statusów
-    window.resetQuickFilters = function() {
+    window.resetQuickFilters = function () {
         // Clear status filter in global filters object
         if (!window.filters) {
             window.filters = {};
         }
         window.filters.status = "";
-        
+
         document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(card => {
             card.classList.remove('active');
         });
-        
+
         // Aktywuj kartę "Wszystkie aplikacje"
         const allStatusCard = document.querySelector('.filter-card[data-filter-type="status"][data-filter-value=""]');
         if (allStatusCard) {
             allStatusCard.classList.add('active');
         }
     };
-    
+
     // Funkcja do synchronizacji kart z filtrami z rozwiniętej sekcji
-    window.syncQuickFiltersWithAdvanced = function() {
+    window.syncQuickFiltersWithAdvanced = function () {
         const filters = getFilters();
-        
+
         // Resetuj wszystkie karty statusów
         document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(card => {
             card.classList.remove('active');
         });
-        
+
         // Synchronizuj karty statusu
         if (filters.status) {
             const statusCard = document.querySelector(`.filter-card[data-filter-type="status"][data-filter-value="${filters.status}"]`);
@@ -1290,10 +1290,20 @@ function initializeQuickFilters() {
             }
         }
     };
-    
+
     // Domyślnie aktywuj kartę "Wszystkie aplikacje"
     resetQuickFilters();
 }
-
+function getFilters() {
+    return {
+        stanowisko: document.getElementById('filterStanowisko')?.value || "",
+        firma: document.getElementById('filterFirma')?.value || "",
+        data: document.getElementById('filterData')?.value || "",
+        tryb: document.getElementById('filterTryb')?.value || "",
+        rodzaj: document.getElementById('filterRodzaj')?.value || "",
+        umowa: document.getElementById('filterUmowa')?.value || "",
+        status: window.filters?.status || ""
+    };
+}
 //# sourceMappingURL=app.js.map
 
