@@ -931,7 +931,7 @@ $(cat /tmp/form_styles.txt)
                 document.getElementById('contactPage').style.display = 'flex';
             }
 
-function closeContactModal() {
+            function closeContactModal() {
                 // Hide contact page
                 document.getElementById('contactPage').style.display = 'none';
 
@@ -943,15 +943,7 @@ function closeContactModal() {
                     const landingPage = document.getElementById('landingPage');
                     if (landingPage) {
                         landingPage.style.display = 'none';
-}
-
-            function openAddAppModal() {
-                document.getElementById('addAppModal').classList.add('active');
-            }
-
-            function closeAddAppModal() {
-                document.getElementById('addAppModal').classList.remove('active');
-            }
+                    }
                 } else {
                     // User is not authenticated - show landing page
                     const landingPage = document.getElementById('landingPage');
@@ -963,6 +955,14 @@ function closeContactModal() {
                         mainContent.style.display = 'none';
                     }
                 }
+            }
+
+            function openAddAppModal() {
+                document.getElementById('addAppModal').classList.add('active');
+            }
+
+            function closeAddAppModal() {
+                document.getElementById('addAppModal').classList.remove('active');
             }
 
             // Event listener for the return button
