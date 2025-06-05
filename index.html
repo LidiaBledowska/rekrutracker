@@ -269,11 +269,11 @@
                                     Twoje
                                     aplikacje</p>
                                 <div style="display: flex; gap: 10px;">
-                                    <a href="add-application.html"
+                                    <button id="openAddAppModal" type="button" onclick="openAddAppModal()"
                                         class="flex min-w-[140px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#141414] text-white text-base font-bold leading-normal shadow-lg hover:bg-[#2d2d2d] transition-all duration-200">
                                         <i class="fas fa-plus mr-2"></i>
                                         <span class="truncate">Dodaj aplikację</span>
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
 
@@ -523,6 +523,149 @@
             </div>
         </div>
 
+        <!-- Add Application Modal -->
+        <div id="addAppModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeAddAppModal()">&times;</button>
+                
+                <div class="form-container">
+                    <a href="#" onclick="closeAddAppModal(); return false;" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Powrót do menu głównego
+                    </a>
+                    <h2><i class="fas fa-plus-circle"></i> Dodaj aplikację</h2>
+                    <form id="addApplicationForm">
+                        <div class="form-group">
+                            <label for="stanowisko"><i class="fas fa-briefcase"></i> Stanowisko</label>
+                            <input type="text" id="stanowisko" name="stanowisko" required placeholder="Np. Frontend Developer" pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+" title="Dozwolone są tylko litery i spacje">
+                        </div>
+                        <div class="form-group">
+                            <label for="firma"><i class="fas fa-building"></i> Firma</label>
+                            <input type="text" id="firma" name="firma" required placeholder="Np. Tech Innovations" pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+" title="Dozwolone są tylko litery i spacje">
+                        </div>
+                        <div class="form-group">
+                            <label for="data"><i class="fas fa-calendar-alt"></i> Data aplikowania</label>
+                            <input type="date" id="data" name="data" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status"><i class="fas fa-tasks"></i> Status</label>
+                            <select id="status" name="status" required>
+                                <option value="">Wybierz status...</option>
+                                <option value="Wysłano CV">Wysłano CV</option>
+                                <option value="Rozmowa telefoniczna">Rozmowa telefoniczna</option>
+                                <option value="Rozmowa online">Rozmowa online</option>
+                                <option value="Rozmowa stacjonarna">Rozmowa stacjonarna</option>
+                                <option value="Oferta">Oferta</option>
+                                <option value="Odrzucono">Odrzucono</option>
+                            </select>
+                        </div>
+                        <div class="salary-group">
+                            <div class="salary-main">
+                                <div class="form-group">
+                                    <label for="wynagrodzenie"><i class="fas fa-money-bill-wave"></i> Wynagrodzenie</label>
+                                    <input type="number" id="wynagrodzenie" name="wynagrodzenie" min="0" step="any" placeholder="np. 8000" style="padding-left: 2.5rem;">
+                                </div>
+                            </div>
+                            <div class="salary-currency">
+                                <div class="form-group no-icon">
+                                    <label for="waluta">Waluta</label>
+                                    <select id="waluta" name="waluta">
+                                        <option value="PLN">PLN</option>
+                                        <option value="EUR">EUR</option>
+                                        <option value="USD">USD</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="salary-type">
+                                <div class="form-group no-icon">
+                                    <label for="wynRodzaj">Rodzaj</label>
+                                    <select id="wynRodzaj" name="wynRodzaj">
+                                        <option value="BRUTTO">BRUTTO</option>
+                                        <option value="NETTO">NETTO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tryb"><i class="fas fa-laptop-house"></i> Tryb pracy</label>
+                            <select id="tryb" name="tryb" required>
+                                <option value="">Wybierz tryb...</option>
+                                <option value="STACJONARNY">Stacjonarny</option>
+                                <option value="HYBRYDOWY">Hybrydowy</option>
+                                <option value="ZDALNY">Zdalny</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rodzaj"><i class="fas fa-clock"></i> Rodzaj</label>
+                            <select id="rodzaj" name="rodzaj" required>
+                                <option value="">Wybierz rodzaj...</option>
+                                <option value="PELNY_ETAT">Pełny etat</option>
+                                <option value="NIEPELNY_ETAT">Niepełny etat</option>
+                                <option value="STAZ">Staż</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="umowa"><i class="fas fa-file-contract"></i> Umowa</label>
+                            <select id="umowa" name="umowa" required>
+                                <option value="">Wybierz umowę...</option>
+                                <option value="UMOWA_O_PRACE">Umowa o pracę</option>
+                                <option value="UMOWA_B2B">Umowa B2B</option>
+                                <option value="UMOWA_ZLECENIE">Umowa zlecenie</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="kontakt"><i class="fas fa-address-book"></i> Kontakt</label>
+                            <input type="text" id="kontakt" name="kontakt" placeholder="np. imię, email, telefon">
+                        </div>
+                        <div class="form-group">
+                            <label for="link"><i class="fas fa-link"></i> Link do oferty</label>
+                            <input type="url" id="link" name="link" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label for="notatki" style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
+                                <i class="fas fa-sticky-note" style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Notatki
+                            </label>
+                            <textarea id="notatki" name="notatki" rows="3" placeholder="Dodaj własne notatki do tej aplikacji..." style="padding-left: 0.7rem;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="images" style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
+                                <i class="fas fa-image" style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Załącz
+                                zdjęcia/screeny
+                            </label>
+                            <input type="file" id="images" name="images" accept="image/*" multiple
+                                style="width:100%;padding:0.7rem;border:1px solid #e5e7eb;border-radius:12px;background:white;font-size:1em;color:#141414;box-sizing:border-box;cursor:pointer;transition:all 0.2s ease;border:2px dashed #e5e7eb;"
+                                onmouseover="this.style.borderColor='#4f8cff'; this.style.backgroundColor='#f8faff';"
+                                onmouseout="this.style.borderColor='#e5e7eb'; this.style.backgroundColor='white';"
+                                onfocus="this.style.borderColor='#4f8cff'; this.style.boxShadow='0 0 0 3px rgba(79, 140, 255, 0.1)';"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
+                            <div id="imagesPreview" class="images-preview"></div>
+                            <div id="imageCount" style="margin-top: 0.5rem; font-size: 0.9em; color: #666; text-align: center; display: none;">
+                                <i class="fas fa-info-circle"></i> Wybrano <span id="imageCountNumber">0</span> zdjęć
+                            </div>
+                            <div style="margin-top: 0.5rem; text-align: center;">
+                                <button type="button" onclick="clearAllImages()" style="background: #dc3545; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.9em; cursor: pointer;" title="Usuń wszystkie zdjęcia">
+                                    <i class="fas fa-trash"></i> Usuń wszystkie
+                                </button>
+                                <button type="button" onclick="skipImages()" style="background: #6c757d; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.9em; cursor: pointer; margin-left: 0.5rem;" title="Zapisz bez zdjęć">
+                                    <i class="fas fa-forward"></i> Pomiń zdjęcia
+                                </button>
+                            </div>
+                        </div>
+                        <div class="favorite-checkbox">
+                            <input type="checkbox" id="favorite" name="favorite">
+                            <span>Dodaj do ulubionych</span>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Dodaj aplikację</button>
+                    </form>
+                    <p id="form-message" style="text-align:center; margin-top:1em; color:green;"></p>
+                    <div id="auth-debug" style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 8px; font-size: 0.9em; color: #666;">
+                        <strong>Status uwierzytelnienia:</strong>
+                        <div id="auth-status">Sprawdzanie...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal edycji aplikacji -->
         <div id="editModal">
             <div class="edit-tile">
@@ -725,6 +868,10 @@
             }
         </style>
 
+        <style>
+$(cat /tmp/form_styles.txt)
+        </style>
+
         <!-- Firebase v10 SDK -->
         <script type="module">
             // Firebase v10 imports
@@ -771,6 +918,8 @@
             console.log('Firebase v10 initialized successfully');
         </script>
         <script src="main.js"></script>
+        <script type="module" src="add-application.js"></script>
+
 
         <script>
             function showContactModal() {
@@ -782,7 +931,7 @@
                 document.getElementById('contactPage').style.display = 'flex';
             }
 
-            function closeContactModal() {
+function closeContactModal() {
                 // Hide contact page
                 document.getElementById('contactPage').style.display = 'none';
 
@@ -794,7 +943,15 @@
                     const landingPage = document.getElementById('landingPage');
                     if (landingPage) {
                         landingPage.style.display = 'none';
-                    }
+}
+
+            function openAddAppModal() {
+                document.getElementById('addAppModal').classList.add('active');
+            }
+
+            function closeAddAppModal() {
+                document.getElementById('addAppModal').classList.remove('active');
+            }
                 } else {
                     // User is not authenticated - show landing page
                     const landingPage = document.getElementById('landingPage');
