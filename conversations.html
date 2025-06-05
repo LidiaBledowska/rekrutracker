@@ -467,7 +467,7 @@
     <script type="module">
         // Import Firebase v10 modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         // Firebase configuration
@@ -499,7 +499,9 @@
             onAuthStateChanged,
             signOut,
             GoogleAuthProvider,
-            signInWithPopup
+            signInWithPopup,
+            doc,
+            updateDoc
         };
 
     </script>
@@ -609,9 +611,9 @@
             ).length;
 
             const needFollowUp = applicationsData.filter(app => {
-                const daysSinceApplication = getDaysSinceApplication(app.data);
-                return app.status && 
-                       app.status.toLowerCase().includes('wysłano cv') && 
+                const daysSinceApplication = getDaysSinceApplication(app.applicationDate || app.data);
+                return app.status &&
+                       app.status.toLowerCase().includes('wysłano cv') &&
                        daysSinceApplication >= 7;
             }).length;
 
@@ -685,9 +687,9 @@
         // Filter applications for Follow-ups tab (applications that need follow-up)
         function updateFollowupsTab() {
             const needFollowUp = applicationsData.filter(app => {
-                const daysSinceApplication = getDaysSinceApplication(app.data);
-                return app.status && 
-                       app.status.toLowerCase().includes('wysłano cv') && 
+                const daysSinceApplication = getDaysSinceApplication(app.applicationDate || app.data);
+                return app.status &&
+                       app.status.toLowerCase().includes('wysłano cv') &&
                        daysSinceApplication >= 7; // Need follow-up after 7 days
             });
             
@@ -1074,13 +1076,41 @@
         }
 
         // Mark all follow-ups as done
-        function markAllFollowupsRead() {
-            if (confirm('Czy na pewno chcesz oznaczyć wszystkie follow-upy jako wykonane?')) {
-                console.log('Marking all follow-ups as done...');
-                // TODO: Implement Firebase update logic to mark follow-ups as done
-                // For now, just refresh the tab to show updated data
+        async function markAllFollowupsRead() {
+            if (!confirm('Czy na pewno chcesz oznaczyć wszystkie follow-upy jako wykonane?')) {
+                return;
+            }
+
+            const { db, auth, doc, updateDoc } = window.firebaseModules;
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Musisz być zalogowany!');
+                return;
+            }
+
+            console.log('Marking all follow-ups as done...');
+
+            const followupApps = applicationsData.filter(app => {
+                const daysSinceApplication = getDaysSinceApplication(app.applicationDate || app.data);
+                return app.status &&
+                       app.status.toLowerCase().includes('wysłano cv') &&
+                       daysSinceApplication >= 7;
+            });
+
+            const now = new Date().toISOString();
+            const updates = followupApps.map(app =>
+                updateDoc(doc(db, 'applications', app.id), { lastFollowup: now })
+            );
+
+            try {
+                await Promise.allSettled(updates);
+                followupApps.forEach(app => { app.lastFollowup = now; });
                 alert('Wszystkie follow-upy zostały oznaczone jako wykonane!');
+                await loadApplicationsData();
                 updateFollowupsTab();
+            } catch (error) {
+                console.error('Error updating follow-ups:', error);
+                alert('Błąd podczas aktualizacji follow-upów.');
             }
         }
 
