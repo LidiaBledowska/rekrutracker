@@ -1106,6 +1106,7 @@
                 await Promise.allSettled(updates);
                 followupApps.forEach(app => { app.lastFollowup = now; });
                 alert('Wszystkie follow-upy zostały oznaczone jako wykonane!');
+                await loadApplicationsData();
                 updateFollowupsTab();
             } catch (error) {
                 console.error('Error updating follow-ups:', error);
