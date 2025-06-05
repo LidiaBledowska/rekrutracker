@@ -10,7 +10,10 @@ function getStatusColors(status) {
         'rozmowa online': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
         'rozmowa stacjonarna': 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;',
         'oferta': 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;',
-        'odrzucono': 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;'
+        'odrzucono': 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;',
+        'odrzucona': 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;',
+        'odrzucony': 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;',
+        'odrzucone': 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;'
     };
     
     // Direct match first
@@ -23,7 +26,7 @@ function getStatusColors(status) {
         return 'background-color: #fef3c7 !important; color: #92400e !important; border: 2px solid #f59e0b !important;';
     } else if (normalizedStatus.includes('oferta')) {
         return 'background-color: #dcfce7 !important; color: #166534 !important; border: 2px solid #22c55e !important;';
-    } else if (normalizedStatus.includes('odrzucono')) {
+    } else if (normalizedStatus.includes('odrzucon')) {
         return 'background-color: #fee2e2 !important; color: #dc2626 !important; border: 2px solid #ef4444 !important;';
     }
     
@@ -364,7 +367,8 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                     } 
                     // Special handling for "Odrzucono" status filter
                     else if (key === 'status' && filters[key] === 'Odrzucono') {
-                        if (!app.status || !app.status.toLowerCase().includes('odrzucono')) {
+                        const rejectedVariants = ['odrzucono', 'odrzucony', 'odrzucona', 'odrzucone'];
+                        if (!app.status || !rejectedVariants.some(v => app.status.toLowerCase().includes(v))) {
                             match = false;
                             break;
                         }
@@ -1125,8 +1129,9 @@ function updateStatusCounters(applications = []) {
         app.status && app.status.toLowerCase().includes('oferta')
     ).length;
     
-    const rejectedCount = activeApplications.filter(app => 
-        app.status && app.status.toLowerCase().includes('odrzucono')
+    const rejectedVariants = ['odrzucono', 'odrzucony', 'odrzucona', 'odrzucone'];
+    const rejectedCount = activeApplications.filter(app =>
+        app.status && rejectedVariants.some(v => app.status.toLowerCase().includes(v))
     ).length;
     
     // Update counters in HTML with error handling
