@@ -945,6 +945,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Clear all filters functionality
+    const clearAllButton = document.getElementById('clearAllFilters');
+    if (clearAllButton) {
+        clearAllButton.addEventListener('click', function () {
+            clearAllFilters();
+        });
+    }
+
     const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
 
     // Initialize page state immediately and prevent page flashing
@@ -1174,11 +1182,6 @@ function applyStatusFilter(filterValue) {
     const sortOrder = document.getElementById("sortOrder")?.value || "desc";
     const showArchived = document.getElementById("showArchived")?.checked || false;
     loadApplications(getFilters(), showArchived, sortOrder);
-
-    const clearContainer = document.getElementById('clearStatusFilterContainer');
-    if (clearContainer) {
-        clearContainer.style.display = filterValue ? 'block' : 'none';
-    }
 }
 
 // Funkcja do inicjalizacji kolorowych kart filtrów statusów
@@ -1251,13 +1254,6 @@ function initializeQuickFilters() {
         });
     });
 
-    const clearBtn = document.getElementById('clearStatusFilter');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            resetQuickFilters();
-            applyStatusFilter('');
-        });
-    }
 
     console.log('✅ Quick filters setup complete');
 
@@ -1269,10 +1265,6 @@ function initializeQuickFilters() {
         }
         window.filters.status = "";
 
-        const clearContainer = document.getElementById('clearStatusFilterContainer');
-        if (clearContainer) {
-            clearContainer.style.display = 'none';
-        }
 
         document.querySelectorAll('.filter-card[data-filter-type="status"]').forEach(card => {
             card.classList.remove('active');
@@ -1300,16 +1292,12 @@ function initializeQuickFilters() {
             if (statusCard) {
                 statusCard.classList.add('active');
             }
-            const clearContainer = document.getElementById('clearStatusFilterContainer');
-            if (clearContainer) clearContainer.style.display = 'block';
         } else {
             // Aktywuj kartę "Wszystkie aplikacje"
             const allStatusCard = document.querySelector('.filter-card[data-filter-type="status"][data-filter-value=""]');
             if (allStatusCard) {
                 allStatusCard.classList.add('active');
             }
-            const clearContainer = document.getElementById('clearStatusFilterContainer');
-            if (clearContainer) clearContainer.style.display = 'none';
         }
     };
 
@@ -1326,6 +1314,25 @@ function getFilters() {
         umowa: document.getElementById('filterUmowa')?.value || "",
         status: window.filters?.status || ""
     };
+}
+
+function clearAllFilters() {
+    ['filterStanowisko', 'filterFirma', 'filterData', 'filterTryb', 'filterRodzaj', 'filterUmowa'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    const showArchived = document.getElementById('showArchived');
+    if (showArchived) showArchived.checked = false;
+
+    if (typeof resetQuickFilters === 'function') {
+        resetQuickFilters();
+    } else if (window.filters) {
+        window.filters.status = '';
+    }
+
+    const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
+    loadApplications(getFilters(), showArchived?.checked || false, sortOrder);
 }
 //# sourceMappingURL=app.js.map
 
