@@ -666,7 +666,7 @@ body #mainContent .applications-table {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5em;
-    align-items: flex-end;
+    align-items: flex-start;
     margin-bottom: 1.4rem;
 }
 
@@ -1043,7 +1043,7 @@ body #mainContent .applications-table {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5em;
-            align-items: flex-end;
+            align-items: flex-start;
             margin-bottom: 1.4rem;
         }
 
