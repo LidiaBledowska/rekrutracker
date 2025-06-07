@@ -380,9 +380,9 @@
                     console.log("No user logged in");
                     return;
                 }
-                
+
                 const q = query(
-                    collection(db, "applications"), 
+                    collection(db, "applications"),
                     where("userId", "==", user.uid),
                     orderBy("data", "asc")
                 );

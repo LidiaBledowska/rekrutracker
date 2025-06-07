@@ -16,7 +16,8 @@
 
 <body>
     <!-- Loading overlay to prevent flashing content before authentication state is known -->
-    <div id="loadingOverlay" style="display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; background: white; z-index: 9999;">
+    <div id="loadingOverlay"
+        style="display: flex; align-items: center; justify-content: center; position: fixed; inset: 0; background: white; z-index: 9999;">
         <span>Ładowanie...</span>
     </div>
     <div class="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden"
@@ -36,7 +37,8 @@
                 </div>
                 <div class="flex flex-1 justify-end gap-8">
                     <div class="flex items-center gap-9">
-                        <a id="mainMenuLink" class="text-[#141414] text-sm font-medium leading-normal" href="#" style="display: none;">Menu
+                        <a id="mainMenuLink" class="text-[#141414] text-sm font-medium leading-normal" href="#"
+                            style="display: none;">Menu
                             główne</a>
                         <a class="text-[#141414] text-sm font-medium leading-normal" href="#"
                             onclick="showContactModal()">Kontakt</a>
@@ -279,30 +281,45 @@
 
                             <!-- Kolorowe karty statusów -->
                             <div id="quickFilters" style="margin: 1.5rem 0;">
-                                <div class="filter-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div class="filter-cards-grid"
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                                     <div class="filter-card status-card" data-filter-type="status" data-filter-value="">
-                                        <i class="fas fa-list" style="font-size: 1.75rem; color: #64748b; margin-bottom: 0.5rem;"></i>
-                                        <span style="font-weight: 700; color: #334155; font-size: 1rem;">Wszystkie (<span id="totalCount">0</span>)</span>
+                                        <i class="fas fa-list"
+                                            style="font-size: 1.75rem; color: #64748b; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #334155; font-size: 1rem;">Wszystkie
+                                            (<span id="totalCount">0</span>)</span>
                                     </div>
-                                    
-                                    <div class="filter-card status-card" data-filter-type="status" data-filter-value="Wysłano CV">
-                                        <i class="fas fa-paper-plane" style="font-size: 1.75rem; color: #2563eb; margin-bottom: 0.5rem;"></i>
-                                        <span style="font-weight: 700; color: #1e40af; font-size: 1rem;">Wysłano CV (<span id="sentCount">0</span>)</span>
+
+                                    <div class="filter-card status-card" data-filter-type="status"
+                                        data-filter-value="Wysłano CV">
+                                        <i class="fas fa-paper-plane"
+                                            style="font-size: 1.75rem; color: #2563eb; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #1e40af; font-size: 1rem;">Wysłano CV
+                                            (<span id="sentCount">0</span>)</span>
                                     </div>
-                                    
-                                    <div class="filter-card status-card" data-filter-type="status" data-filter-value="Rozmowy">
-                                        <i class="fas fa-comments" style="font-size: 1.75rem; color: #d97706; margin-bottom: 0.5rem;"></i>
-                                        <span style="font-weight: 700; color: #b45309; font-size: 1rem;">Rozmowy (<span id="interviewCount">0</span>)</span>
+
+                                    <div class="filter-card status-card" data-filter-type="status"
+                                        data-filter-value="Rozmowy">
+                                        <i class="fas fa-comments"
+                                            style="font-size: 1.75rem; color: #d97706; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #b45309; font-size: 1rem;">Rozmowy (<span
+                                                id="interviewCount">0</span>)</span>
                                     </div>
-                                    
-                                    <div class="filter-card status-card" data-filter-type="status" data-filter-value="Oferty">
-                                        <i class="fas fa-handshake" style="font-size: 1.75rem; color: #059669; margin-bottom: 0.5rem;"></i>
-                                        <span style="font-weight: 700; color: #047857; font-size: 1rem;">Oferty (<span id="offerCount">0</span>)</span>
+
+                                    <div class="filter-card status-card" data-filter-type="status"
+                                        data-filter-value="Oferty">
+                                        <i class="fas fa-handshake"
+                                            style="font-size: 1.75rem; color: #059669; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #047857; font-size: 1rem;">Oferty (<span
+                                                id="offerCount">0</span>)</span>
                                     </div>
-                                    
-                                    <div class="filter-card status-card" data-filter-type="status" data-filter-value="Odrzucono">
-                                        <i class="fas fa-times-circle" style="font-size: 1.75rem; color: #dc2626; margin-bottom: 0.5rem;"></i>
-                                        <span style="font-weight: 700; color: #b91c1c; font-size: 1rem;">Odrzucono (<span id="rejectedCount">0</span>)</span>
+
+                                    <div class="filter-card status-card" data-filter-type="status"
+                                        data-filter-value="Odrzucono">
+                                        <i class="fas fa-times-circle"
+                                            style="font-size: 1.75rem; color: #dc2626; margin-bottom: 0.5rem;"></i>
+                                        <span style="font-weight: 700; color: #b91c1c; font-size: 1rem;">Odrzucono
+                                            (<span id="rejectedCount">0</span>)</span>
                                     </div>
                                 </div>
                             </div>
@@ -527,17 +544,20 @@
         <div id="addAppModal" class="modal">
             <div class="modal-content">
                 <button class="modal-close" onclick="closeAddAppModal()">&times;</button>
-                
+
                 <div class="form-container">
                     <h2><i class="fas fa-plus-circle"></i> Dodaj aplikację</h2>
                     <form id="addApplicationForm">
                         <div class="form-group">
                             <label for="stanowisko"><i class="fas fa-briefcase"></i> Stanowisko</label>
-                            <input type="text" id="stanowisko" name="stanowisko" required placeholder="Np. Frontend Developer" pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+" title="Dozwolone są tylko litery i spacje">
+                            <input type="text" id="stanowisko" name="stanowisko" required
+                                placeholder="Np. Frontend Developer" pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+"
+                                title="Dozwolone są tylko litery i spacje">
                         </div>
                         <div class="form-group">
                             <label for="firma"><i class="fas fa-building"></i> Firma</label>
-                            <input type="text" id="firma" name="firma" required placeholder="Np. Tech Innovations" pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+" title="Dozwolone są tylko litery i spacje">
+                            <input type="text" id="firma" name="firma" required placeholder="Np. Tech Innovations"
+                                pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+" title="Dozwolone są tylko litery i spacje">
                         </div>
                         <div class="form-group">
                             <label for="data"><i class="fas fa-calendar-alt"></i> Data aplikowania</label>
@@ -558,8 +578,10 @@
                         <div class="salary-group">
                             <div class="salary-main">
                                 <div class="form-group">
-                                    <label for="wynagrodzenie"><i class="fas fa-money-bill-wave"></i> Wynagrodzenie</label>
-                                    <input type="number" id="wynagrodzenie" name="wynagrodzenie" min="0" step="any" placeholder="np. 8000">
+                                    <label for="wynagrodzenie"><i class="fas fa-money-bill-wave"></i>
+                                        Wynagrodzenie</label>
+                                    <input type="number" id="wynagrodzenie" name="wynagrodzenie" min="0" step="any"
+                                        placeholder="np. 8000">
                                 </div>
                             </div>
                             <div class="salary-currency">
@@ -618,14 +640,20 @@
                             <input type="url" id="link" name="link" placeholder="https://...">
                         </div>
                         <div class="form-group">
-                            <label for="notatki" style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
-                                <i class="fas fa-sticky-note" style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Notatki
+                            <label for="notatki"
+                                style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
+                                <i class="fas fa-sticky-note"
+                                    style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Notatki
                             </label>
-                            <textarea id="notatki" name="notatki" rows="3" placeholder="Dodaj własne notatki do tej aplikacji..." style="padding-left: 0.7rem;"></textarea>
+                            <textarea id="notatki" name="notatki" rows="3"
+                                placeholder="Dodaj własne notatki do tej aplikacji..."
+                                style="padding-left: 0.7rem;"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="images" style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
-                                <i class="fas fa-image" style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Załącz
+                            <label for="images"
+                                style="font-weight:600;font-size:1.1em;display:block;margin-bottom:0.3em;">
+                                <i class="fas fa-image"
+                                    style="color:#4f8cff;margin-right:0.3em;position:static;"></i>Załącz
                                 zdjęcia/screeny
                             </label>
                             <input type="file" id="images" name="images" accept="image/*" multiple
@@ -635,14 +663,19 @@
                                 onfocus="this.style.borderColor='#4f8cff'; this.style.boxShadow='0 0 0 3px rgba(79, 140, 255, 0.1)';"
                                 onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
                             <div id="imagesPreview" class="images-preview"></div>
-                            <div id="imageCount" style="margin-top: 0.5rem; font-size: 0.9em; color: #666; text-align: center; display: none;">
+                            <div id="imageCount"
+                                style="margin-top: 0.5rem; font-size: 0.9em; color: #666; text-align: center; display: none;">
                                 <i class="fas fa-info-circle"></i> Wybrano <span id="imageCountNumber">0</span> zdjęć
                             </div>
                             <div style="margin-top: 0.5rem; text-align: center;">
-                                <button type="button" onclick="clearAllImages()" style="background: #dc3545; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.9em; cursor: pointer;" title="Usuń wszystkie zdjęcia">
+                                <button type="button" onclick="clearAllImages()"
+                                    style="background: #dc3545; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.9em; cursor: pointer;"
+                                    title="Usuń wszystkie zdjęcia">
                                     <i class="fas fa-trash"></i> Usuń wszystkie
                                 </button>
-                                <button type="button" onclick="skipImages()" style="background: #6c757d; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.9em; cursor: pointer; margin-left: 0.5rem;" title="Zapisz bez zdjęć">
+                                <button type="button" onclick="skipImages()"
+                                    style="background: #6c757d; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.9em; cursor: pointer; margin-left: 0.5rem;"
+                                    title="Zapisz bez zdjęć">
                                     <i class="fas fa-forward"></i> Pomiń zdjęcia
                                 </button>
                             </div>
@@ -652,10 +685,12 @@
                             <span>Dodaj do ulubionych</span>
                             <i class="fas fa-star"></i>
                         </div>
-                        <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Dodaj aplikację</button>
+                        <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Dodaj
+                            aplikację</button>
                     </form>
                     <p id="form-message" style="text-align:center; margin-top:1em; color:green;"></p>
-                    <div id="auth-debug" style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 8px; font-size: 0.9em; color: #666;">
+                    <div id="auth-debug"
+                        style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 8px; font-size: 0.9em; color: #666;">
                         <strong>Status uwierzytelnienia:</strong>
                         <div id="auth-status">Sprawdzanie...</div>
                     </div>
@@ -673,11 +708,13 @@
                     <div class="form-group">
                         <label for="editStanowisko"><i class="fas fa-briefcase"></i> Stanowisko</label>
                         <input type="text" id="editStanowisko" name="stanowisko" required
-                            placeholder="Np. Frontend Developer" pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+" title="Dozwolone są tylko litery i spacje">
+                            placeholder="Np. Frontend Developer" pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+"
+                            title="Dozwolone są tylko litery i spacje">
                     </div>
                     <div class="form-group">
                         <label for="editFirma"><i class="fas fa-building"></i> Firma</label>
-                        <input type="text" id="editFirma" name="firma" required placeholder="Np. Tech Innovations" pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+" title="Dozwolone są tylko litery i spacje">
+                        <input type="text" id="editFirma" name="firma" required placeholder="Np. Tech Innovations"
+                            pattern="[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s]+" title="Dozwolone są tylko litery i spacje">
                     </div>
                     <div class="form-group">
                         <label for="editData"><i class="fas fa-calendar-alt"></i> Data aplikowania</label>
@@ -777,13 +814,12 @@
                         <label for="editImages" style="font-weight:600;display:block;margin-bottom:0.3em;">
                             <i class="fas fa-image" style="color:#4f8cff;margin-right:0.3em;"></i>Załącz zdjęcia/screeny
                         </label>
-                        <input type="file" id="editImages" accept="image/*" multiple 
+                        <input type="file" id="editImages" accept="image/*" multiple
                             style="width:100%;padding:0.7rem;border:2px dashed #e5e7eb;border-radius:12px;background:white;font-size:1em;color:#141414;box-sizing:border-box;cursor:pointer;transition:all 0.2s ease;"
                             onmouseover="this.style.borderColor='#4f8cff'; this.style.backgroundColor='#f8faff';"
                             onmouseout="this.style.borderColor='#e5e7eb'; this.style.backgroundColor='white';"
                             onfocus="this.style.borderColor='#4f8cff'; this.style.boxShadow='0 0 0 3px rgba(79, 140, 255, 0.1)';"
-                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"
-                            >
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
                         <div id="editImagesPreview" style="margin-top:0.5em;display:flex;gap:0.5em;flex-wrap:wrap;">
                         </div>
                     </div>
@@ -866,7 +902,7 @@
         </style>
 
         <style>
-$(cat /tmp/form_styles.txt)
+            $(cat /tmp/form_styles.txt)
         </style>
 
         <!-- Firebase v10 SDK -->
@@ -978,7 +1014,7 @@ $(cat /tmp/form_styles.txt)
                         e.preventDefault();
                         // Hide contact page
                         document.getElementById('contactPage').style.display = 'none';
-                        
+
                         // Check if user is authenticated to decide which content to show
                         const user = window.auth?.currentUser;
                         if (user) {

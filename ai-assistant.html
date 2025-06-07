@@ -425,7 +425,7 @@
                 };
                 await loadUserData();
                 initChat();
-                
+
                 // Welcome message with user info
                 setTimeout(() => {
                     addMessage(`Witaj ${userProfile.name}! 👋 
@@ -448,23 +448,23 @@
                     setTimeout(() => window.location.href = 'index.html', 2000);
                     return;
                 }
-                
+
                 console.log("Loading applications for user:", user.uid);
                 console.log("User email:", user.email);
                 console.log("User token:", await user.getIdToken());
-                
+
                 // Test simple query first
                 console.log("Testing database connection...");
                 const testCollection = collection(db, "applications");
                 console.log("Collection reference created:", testCollection);
-                
+
                 const q = query(
-                    collection(db, "applications"), 
+                    collection(db, "applications"),
                     where("userId", "==", user.uid),
                     orderBy("data", "desc")
                 );
                 console.log("Query created:", q);
-                
+
                 console.log("Executing query...");
                 const querySnapshot = await getDocs(q);
                 console.log("Query executed successfully");
@@ -474,10 +474,10 @@
                     console.log("Document found:", doc.id, doc.data());
                     applicationsData.push({ id: doc.id, ...doc.data() });
                 });
-                
+
                 console.log("Loaded applications:", applicationsData.length, "applications");
                 console.log("Applications data:", applicationsData);
-                
+
                 // Add a debug message to chat
                 if (applicationsData.length === 0) {
                     setTimeout(() => {
@@ -504,13 +504,13 @@
                 console.error("Detailed error loading user data:", error);
                 console.error("Error code:", error.code);
                 console.error("Error message:", error.message);
-                
+
                 // Add detailed error message to chat
                 setTimeout(() => {
                     let errorMsg = `❌ <strong>Błąd podczas ładowania danych:</strong>
                     <br><br>🔍 <strong>Kod błędu:</strong> ${error.code || 'unknown'}
                     <br>📝 <strong>Opis:</strong> ${error.message}`;
-                    
+
                     if (error.code === 'permission-denied') {
                         errorMsg += `
                         <br><br>🔒 <strong>Problem z uprawnieniami!</strong>
@@ -525,7 +525,7 @@
                         <br>2. Przejdź do Firestore Database → Rules
                         <br>3. Sprawdź czy reguły pozwalają na dostęp dla zalogowanych użytkowników`;
                     }
-                    
+
                     addMessage(errorMsg, 'ai');
                 }, 1000);
             }

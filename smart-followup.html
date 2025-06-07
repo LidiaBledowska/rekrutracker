@@ -476,9 +476,9 @@
                     console.log("No user logged in");
                     return;
                 }
-                
+
                 const q = query(
-                    collection(db, "applications"), 
+                    collection(db, "applications"),
                     where("userId", "==", user.uid),
                     orderBy("data", "desc")
                 );
@@ -727,14 +727,14 @@ Z poważaniem,
                     alert("Musisz być zalogowany!");
                     return;
                 }
-                
+
                 // SECURITY CHECK: Verify user owns this application before updating
                 const appData = applicationsData.find(app => app.id === appId);
                 if (!appData || appData.userId !== user.uid) {
                     alert("Nie masz uprawnień do aktualizacji tej aplikacji!");
                     return;
                 }
-                
+
                 const now = new Date().toISOString();
                 await updateDoc(doc(db, "applications", appId), {
                     lastFollowup: now

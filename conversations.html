@@ -200,6 +200,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -269,7 +270,8 @@
             border-top: 1px solid #e5e7eb;
         }
 
-        .btn-primary, .btn-secondary {
+        .btn-primary,
+        .btn-secondary {
             padding: 8px 16px;
             border-radius: 6px;
             font-weight: 500;
@@ -347,9 +349,10 @@
                 <div class="page-header">
                     <h1><i class="fas fa-comments"></i> Conversations</h1>
                     <p>Zarządzaj komunikacją z potencjalnymi pracodawcami</p>
-                    
+
                     <!-- Quick Stats -->
-                    <div id="quickStats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1rem 0; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div id="quickStats"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1rem 0; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
                         <!-- Stats will be dynamically populated -->
                     </div>
                 </div>
@@ -373,24 +376,28 @@
                     <div class="tab-content">
                         <!-- Messages Tab -->
                         <div id="messages-tab" class="tab-pane active">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <button class="add-button" onclick="addNewMessage()">
                                     <i class="fas fa-plus"></i> Nowa wiadomość
                                 </button>
                                 <div style="display: flex; gap: 10px; align-items: center;">
                                     <div style="position: relative;">
-                                        <input type="text" id="messagesSearch" placeholder="Szukaj aplikacji..." 
-                                               style="padding: 8px 32px 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 200px;"
-                                               onkeyup="filterMessages(this.value)" onkeydown="handleSearchKeydown(event, 'messages')">
-                                        <button onclick="clearSearch('messages')" 
-                                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280; cursor: pointer;">
+                                        <input type="text" id="messagesSearch" placeholder="Szukaj aplikacji..."
+                                            style="padding: 8px 32px 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 200px;"
+                                            onkeyup="filterMessages(this.value)"
+                                            onkeydown="handleSearchKeydown(event, 'messages')">
+                                        <button onclick="clearSearch('messages')"
+                                            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280; cursor: pointer;">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
-                                    <button onclick="exportMessages()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                                    <button onclick="exportMessages()"
+                                        style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
                                         <i class="fas fa-download"></i> Eksportuj
                                     </button>
-                                    <button onclick="refreshMessages()" style="background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                                    <button onclick="refreshMessages()"
+                                        style="background: #6b7280; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
                                         <i class="fas fa-sync"></i> Odśwież
                                     </button>
                                 </div>
@@ -402,24 +409,28 @@
 
                         <!-- Follow-ups Tab -->
                         <div id="followups-tab" class="tab-pane">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <button class="add-button" onclick="addNewFollowup()">
                                     <i class="fas fa-plus"></i> Zaplanuj follow-up
                                 </button>
                                 <div style="display: flex; gap: 10px; align-items: center;">
                                     <div style="position: relative;">
-                                        <input type="text" id="followupsSearch" placeholder="Szukaj follow-ups..." 
-                                               style="padding: 8px 32px 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 200px;"
-                                               onkeyup="filterFollowups(this.value)" onkeydown="handleSearchKeydown(event, 'followups')">
-                                        <button onclick="clearSearch('followups')" 
-                                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280; cursor: pointer;">
+                                        <input type="text" id="followupsSearch" placeholder="Szukaj follow-ups..."
+                                            style="padding: 8px 32px 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 200px;"
+                                            onkeyup="filterFollowups(this.value)"
+                                            onkeydown="handleSearchKeydown(event, 'followups')">
+                                        <button onclick="clearSearch('followups')"
+                                            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280; cursor: pointer;">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
-                                    <button onclick="exportFollowups()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                                    <button onclick="exportFollowups()"
+                                        style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
                                         <i class="fas fa-download"></i> Eksportuj
                                     </button>
-                                    <button onclick="markAllFollowupsRead()" style="background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                                    <button onclick="markAllFollowupsRead()"
+                                        style="background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">
                                         <i class="fas fa-check"></i> Oznacz jako wykonane
                                     </button>
                                 </div>
@@ -530,17 +541,17 @@
         function loadApplicationsData() {
             const { db, auth, collection, getDocs, query, where } = window.firebaseModules;
             const user = auth.currentUser;
-            
+
             if (!user) {
                 console.log("No user logged in, cannot load applications");
                 return;
             }
 
             console.log("Loading applications from Firebase...");
-            
+
             // Show loading state
             showLoadingState();
-            
+
             const applicationsQuery = query(collection(db, "applications"), where("userId", "==", user.uid));
             getDocs(applicationsQuery).then((querySnapshot) => {
                 applicationsData = [];
@@ -549,9 +560,9 @@
                     app.id = doc.id;
                     applicationsData.push(app);
                 });
-                
+
                 console.log(`Loaded ${applicationsData.length} applications:`, applicationsData);
-                
+
                 // Update all tabs with current data
                 updateAllTabs();
                 hideLoadingState();
@@ -602,19 +613,19 @@
             const quickStats = document.getElementById('quickStats');
             if (!quickStats) return;
 
-            const sentApps = applicationsData.filter(app => 
+            const sentApps = applicationsData.filter(app =>
                 app.status && app.status.toLowerCase().includes('wysłano cv')
             ).length;
 
-            const interviews = applicationsData.filter(app => 
+            const interviews = applicationsData.filter(app =>
                 app.status && app.status.toLowerCase().includes('rozmowa')
             ).length;
 
             const needFollowUp = applicationsData.filter(app => {
                 const daysSinceApplication = getDaysSinceApplication(app.applicationDate || app.data);
                 return app.status &&
-                       app.status.toLowerCase().includes('wysłano cv') &&
-                       daysSinceApplication >= 7;
+                    app.status.toLowerCase().includes('wysłano cv') &&
+                    daysSinceApplication >= 7;
             }).length;
 
             const totalActive = applicationsData.filter(app => !app.archiwalna).length;
@@ -642,14 +653,14 @@
         // Filter applications by status for Messages tab
         function updateMessagesTab() {
             console.log("Updating Messages tab...");
-            const sentApplications = applicationsData.filter(app => 
+            const sentApplications = applicationsData.filter(app =>
                 app.status && app.status.toLowerCase().includes('wysłano cv')
             );
-            
+
             console.log(`Found ${sentApplications.length} applications with "Wysłano CV" status:`, sentApplications);
-            
+
             const messagesList = document.getElementById('messages-list');
-            
+
             // Add stats header
             let statsHtml = `
                 <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 14px; color: #0369a1;">
@@ -657,9 +668,9 @@
                     <strong>Wysłano CV:</strong> ${sentApplications.length} aplikacji
                 </div>
             `;
-            
+
             messagesList.innerHTML = statsHtml;
-            
+
             if (sentApplications.length === 0) {
                 messagesList.innerHTML += `
                     <div class="empty-state">
@@ -689,13 +700,13 @@
             const needFollowUp = applicationsData.filter(app => {
                 const daysSinceApplication = getDaysSinceApplication(app.applicationDate || app.data);
                 return app.status &&
-                       app.status.toLowerCase().includes('wysłano cv') &&
-                       daysSinceApplication >= 7; // Need follow-up after 7 days
+                    app.status.toLowerCase().includes('wysłano cv') &&
+                    daysSinceApplication >= 7; // Need follow-up after 7 days
             });
-            
+
             const followupsList = document.getElementById('followups-list');
             followupsList.innerHTML = '';
-            
+
             if (needFollowUp.length === 0) {
                 followupsList.innerHTML = `
                     <div class="empty-state">
@@ -724,14 +735,14 @@
         // Filter applications for Interviews tab
         function updateInterviewsTab() {
             console.log("Updating Interviews tab...");
-            const interviewApplications = applicationsData.filter(app => 
+            const interviewApplications = applicationsData.filter(app =>
                 app.status && app.status.toLowerCase().includes('rozmowa')
             );
-            
+
             console.log(`Found ${interviewApplications.length} applications with "rozmowa" status:`, interviewApplications);
-            
+
             const interviewsList = document.getElementById('interviews-list');
-            
+
             // Add stats header
             let statsHtml = `
                 <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 14px; color: #92400e;">
@@ -739,9 +750,9 @@
                     <strong>Rozmowy:</strong> ${interviewApplications.length} zaplanowanych
                 </div>
             `;
-            
+
             interviewsList.innerHTML = statsHtml;
-            
+
             if (interviewApplications.length === 0) {
                 interviewsList.innerHTML += `
                     <div class="empty-state">
@@ -769,10 +780,10 @@
         // Filter applications for Notes tab (all applications with notes potential)
         function updateNotesTab() {
             const allApplications = applicationsData.filter(app => !app.archiwalna);
-            
+
             const notesList = document.getElementById('notes-list');
             notesList.innerHTML = '';
-            
+
             if (allApplications.length === 0) {
                 notesList.innerHTML = `
                     <div class="empty-state">
@@ -802,11 +813,11 @@
             const item = document.createElement('div');
             item.className = 'conversation-item';
             item.style.cursor = 'pointer';
-            
-            const tagsHtml = tags.map(tag => 
+
+            const tagsHtml = tags.map(tag =>
                 `<span class="tag ${getTagClass(tag)}">${tag}</span>`
             ).join('');
-            
+
             item.innerHTML = `
                 <div class="conversation-header">
                     <div class="conversation-title">${title}</div>
@@ -815,13 +826,13 @@
                 <div class="conversation-preview">${preview}</div>
                 <div class="conversation-tags">${tagsHtml}</div>
             `;
-            
+
             // Add click event to show details
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function () {
                 console.log('Clicked on conversation:', title);
                 showConversationDetails(application);
             });
-            
+
             return item;
         }
 
@@ -845,7 +856,7 @@
             const date = new Date(dateString);
             const today = new Date();
             const diffDays = Math.floor((today - date) / (1000 * 60 * 60 * 24));
-            
+
             if (diffDays === 0) return 'Dzisiaj';
             if (diffDays === 1) return 'Wczoraj';
             if (diffDays < 7) return `${diffDays} dni temu`;
@@ -855,7 +866,7 @@
         // Tab switching functionality
         function switchTab(tabName, buttonElement) {
             console.log('Switching to tab:', tabName);
-            
+
             // Remove active class from all buttons
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
@@ -882,7 +893,7 @@
             }
 
             // Refresh data for the active tab
-            switch(tabName) {
+            switch (tabName) {
                 case 'messages':
                     updateMessagesTab();
                     break;
@@ -899,12 +910,12 @@
         }
 
         // Initialize tabs when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('DOM loaded, initializing tabs');
-            
+
             // Add click event listeners to all tab buttons
             document.querySelectorAll('.tab-button').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const tabName = this.getAttribute('data-tab');
                     console.log('Tab button clicked:', tabName);
                     switchTab(tabName, this);
@@ -914,7 +925,7 @@
             // Make sure the first tab is active
             const firstTab = document.getElementById('messages-tab');
             const firstButton = document.querySelector('.tab-button[data-tab="messages"]');
-            
+
             if (firstTab && firstButton) {
                 firstTab.classList.add('active');
                 firstButton.classList.add('active');
@@ -935,7 +946,7 @@
         // Export functionality
         function exportMessages() {
             console.log('Exporting messages...');
-            const messagesData = applicationsData.filter(app => 
+            const messagesData = applicationsData.filter(app =>
                 app.status && app.status.toLowerCase().includes('wysłano cv')
             );
             exportToCSV(messagesData, 'messages_export');
@@ -958,7 +969,7 @@
 
             // CSV headers
             const headers = ['Firma', 'Stanowisko', 'Status', 'Data aplikacji', 'Źródło', 'Lokalizacja'];
-            
+
             // Convert data to CSV format
             const csvContent = [
                 headers.join(','),
@@ -975,7 +986,7 @@
             // Create and download the file
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
-            
+
             if (link.download !== undefined) {
                 const url = URL.createObjectURL(blob);
                 link.setAttribute('href', url);
@@ -984,7 +995,7 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
+
                 alert(`Eksport zakończony! Pobrano plik: ${filename}_${new Date().toISOString().split('T')[0]}.csv`);
             } else {
                 alert('Eksport nie jest obsługiwany w tej przeglądarce');
@@ -1006,7 +1017,7 @@
             document.getElementById('modalDate').textContent = formatDate(application.applicationDate || application.data);
             document.getElementById('modalSource').textContent = application.source || application.zrodlo || 'Brak danych';
             document.getElementById('modalLocation').textContent = application.location || application.lokalizacja || 'Brak danych';
-            
+
             // Show the modal
             modal.style.display = 'block';
         }
@@ -1052,12 +1063,12 @@
                     </div>
                 </div>
             `;
-            
+
             document.body.insertAdjacentHTML('beforeend', modalHTML);
-            
+
             // Add event listeners
             document.querySelector('.close').addEventListener('click', closeConversationModal);
-            document.getElementById('conversationModal').addEventListener('click', function(e) {
+            document.getElementById('conversationModal').addEventListener('click', function (e) {
                 if (e.target === this) {
                     closeConversationModal();
                 }
@@ -1093,8 +1104,8 @@
             const followupApps = applicationsData.filter(app => {
                 const daysSinceApplication = getDaysSinceApplication(app.applicationDate || app.data);
                 return app.status &&
-                       app.status.toLowerCase().includes('wysłano cv') &&
-                       daysSinceApplication >= 7;
+                    app.status.toLowerCase().includes('wysłano cv') &&
+                    daysSinceApplication >= 7;
             });
 
             const now = new Date().toISOString();
@@ -1129,17 +1140,17 @@
         function filterMessages(searchTerm) {
             const messagesList = document.getElementById('messages-list');
             const items = messagesList.querySelectorAll('.conversation-item');
-            
+
             items.forEach(item => {
                 const title = item.querySelector('.conversation-title').textContent.toLowerCase();
                 const preview = item.querySelector('.conversation-preview').textContent.toLowerCase();
                 const tags = item.querySelector('.conversation-tags').textContent.toLowerCase();
-                
+
                 const searchLower = searchTerm.toLowerCase();
-                const matches = title.includes(searchLower) || 
-                               preview.includes(searchLower) || 
-                               tags.includes(searchLower);
-                
+                const matches = title.includes(searchLower) ||
+                    preview.includes(searchLower) ||
+                    tags.includes(searchLower);
+
                 item.style.display = matches ? 'block' : 'none';
             });
         }
@@ -1147,17 +1158,17 @@
         function filterFollowups(searchTerm) {
             const followupsList = document.getElementById('followups-list');
             const items = followupsList.querySelectorAll('.conversation-item');
-            
+
             items.forEach(item => {
                 const title = item.querySelector('.conversation-title').textContent.toLowerCase();
                 const preview = item.querySelector('.conversation-preview').textContent.toLowerCase();
                 const tags = item.querySelector('.conversation-tags').textContent.toLowerCase();
-                
+
                 const searchLower = searchTerm.toLowerCase();
-                const matches = title.includes(searchLower) || 
-                               preview.includes(searchLower) || 
-                               tags.includes(searchLower);
-                
+                const matches = title.includes(searchLower) ||
+                    preview.includes(searchLower) ||
+                    tags.includes(searchLower);
+
                 item.style.display = matches ? 'block' : 'none';
             });
         }
