@@ -496,14 +496,21 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
         });
 
         const thead = document.querySelector('.applications-table thead');
+        const tableContainer = document.querySelector('#applicationsCard .table-responsive');
+        const messageEl = document.getElementById('noApplicationsMessage');
+
         if (count === 0) {
             if (thead) thead.style.display = 'none';
-            const noRow = document.createElement('tr');
-            const message = filters.status ? 'Brak aplikacji o tym statusie' : 'Brak aplikacji';
-            noRow.innerHTML = `<td colspan="9" class="py-6 text-center text-gray-500">${message}</td>`;
-            tbody.appendChild(noRow);
+            if (tableContainer) tableContainer.style.display = 'none';
+            if (messageEl) {
+                const message = filters.status ? 'Brak aplikacji o tym statusie' : 'Brak aplikacji';
+                messageEl.textContent = message;
+                messageEl.style.display = 'block';
+            }
         } else {
             if (thead) thead.style.display = '';
+            if (tableContainer) tableContainer.style.display = '';
+            if (messageEl) messageEl.style.display = 'none';
         }
 
         document.querySelectorAll('.edit-btn').forEach(btn => {
