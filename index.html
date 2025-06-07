@@ -1050,6 +1050,26 @@
                         openAddAppModal();
                     });
                 }
+
+                // Close modals when clicking outside the form
+                const addAppModal = document.getElementById('addAppModal');
+                if (addAppModal) {
+                    addAppModal.addEventListener('click', function (e) {
+                        if (e.target === addAppModal) {
+                            closeAddAppModal();
+                        }
+                    });
+                }
+
+                const editModal = document.getElementById('editModal');
+                if (editModal) {
+                    editModal.addEventListener('click', function (e) {
+                        if (e.target === editModal) {
+                            const closeBtn = document.getElementById('closeEditModal');
+                            if (closeBtn) closeBtn.click();
+                        }
+                    });
+                }
             });
         </script>
 </body>
