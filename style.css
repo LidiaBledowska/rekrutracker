@@ -1035,18 +1035,19 @@ body #mainContent .applications-table {
 
         .salary-group {
             display: flex;
+            flex-wrap: wrap;
             gap: 0.5em;
-            align-items: flex-end;
+            align-items: flex-start;
             margin-bottom: 1.4rem;
         }
 
         .salary-group .salary-main {
-            flex: 2;
+            flex: 2 1 150px;
         }
 
         .salary-group .salary-currency,
         .salary-group .salary-type {
-            flex: 1;
+            flex: 1 1 120px;
         }
 
         .salary-group .form-group {
@@ -1161,7 +1162,7 @@ body #mainContent .applications-table {
             .salary-group .salary-main,
             .salary-group .salary-currency,
             .salary-group .salary-type {
-                flex: 1;
+                flex: 1 1 100%;
             }
 
             .salary-group .form-group:not(:first-child) label {
