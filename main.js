@@ -495,6 +495,17 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             tbody.appendChild(tr);
         });
 
+        const thead = document.querySelector('.applications-table thead');
+        if (count === 0) {
+            if (thead) thead.style.display = 'none';
+            const noRow = document.createElement('tr');
+            const message = filters.status ? 'Brak aplikacji o tym statusie' : 'Brak aplikacji';
+            noRow.innerHTML = `<td colspan="9" class="py-6 text-center text-gray-500">${message}</td>`;
+            tbody.appendChild(noRow);
+        } else {
+            if (thead) thead.style.display = '';
+        }
+
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const appId = this.getAttribute('data-id');
