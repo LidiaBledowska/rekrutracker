@@ -183,22 +183,9 @@
             updateImagePreview();
         }
         
-        function skipImages() {
-            if (selectedFiles.length > 0) {
-                const confirmSkip = confirm('Czy na pewno chcesz usunąć wszystkie zdjęcia i zapisać aplikację bez nich?');
-                if (confirmSkip) {
-                    clearAllImages();
-                    // Submit form without images
-                    document.getElementById('addApplicationForm').dispatchEvent(new Event('submit'));
-                }
-            } else {
-                alert('Nie ma zdjęć do pominięcia.');
-            }
-        }
 
         // Make helpers available globally for inline handlers
         window.clearAllImages = clearAllImages;
-        window.skipImages = skipImages;
 
         // Walidacja pól Stanowisko i Firma - tylko litery
         function validateLettersOnly(input) {
