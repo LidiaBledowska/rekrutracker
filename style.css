@@ -685,6 +685,8 @@ body #mainContent .applications-table {
 
 #editModal .salary-group .form-group:not(:first-child) label {
     visibility: hidden;
+    margin-bottom: 0;
+    height: 0;
 }
 
 #editModal .favorite-checkbox {
@@ -746,6 +748,8 @@ body #mainContent .applications-table {
 
     #editModal .salary-group .form-group:not(:first-child) label {
         visibility: visible;
+        margin-bottom: 0.5rem;
+        height: auto;
     }
 }
 
@@ -1057,6 +1061,8 @@ body #mainContent .applications-table {
 
         .salary-group .form-group:not(:first-child) label {
             visibility: hidden;
+            margin-bottom: 0;
+            height: 0;
         }
 
         .submit-btn {
@@ -1168,5 +1174,7 @@ body #mainContent .applications-table {
 
             .salary-group .form-group:not(:first-child) label {
                 visibility: visible;
+                margin-bottom: 0.5rem;
+                height: auto;
             }
         }
