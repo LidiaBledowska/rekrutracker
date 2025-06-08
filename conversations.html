@@ -497,6 +497,12 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        function sanitizeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         // Make Firebase modules available globally
         window.firebaseModules = {
             app,
@@ -542,12 +548,9 @@
             const { db, auth, collection, getDocs, query, where } = window.firebaseModules;
             const user = auth.currentUser;
 
-            if (!user) {
-                console.log("No user logged in, cannot load applications");
+            if (!user) {;
                 return;
-            }
-
-            console.log("Loading applications from Firebase...");
+            };
 
             // Show loading state
             showLoadingState();
@@ -559,9 +562,7 @@
                     const app = doc.data();
                     app.id = doc.id;
                     applicationsData.push(app);
-                });
-
-                console.log(`Loaded ${applicationsData.length} applications:`, applicationsData);
+                });;
 
                 // Update all tabs with current data
                 updateAllTabs();
@@ -651,13 +652,10 @@
         }
 
         // Filter applications by status for Messages tab
-        function updateMessagesTab() {
-            console.log("Updating Messages tab...");
+        function updateMessagesTab() {;
             const sentApplications = applicationsData.filter(app =>
                 app.status && app.status.toLowerCase().includes('wysłano cv')
-            );
-
-            console.log(`Found ${sentApplications.length} applications with "Wysłano CV" status:`, sentApplications);
+            );;
 
             const messagesList = document.getElementById('messages-list');
 
@@ -733,13 +731,10 @@
         }
 
         // Filter applications for Interviews tab
-        function updateInterviewsTab() {
-            console.log("Updating Interviews tab...");
+        function updateInterviewsTab() {;
             const interviewApplications = applicationsData.filter(app =>
                 app.status && app.status.toLowerCase().includes('rozmowa')
-            );
-
-            console.log(`Found ${interviewApplications.length} applications with "rozmowa" status:`, interviewApplications);
+            );;
 
             const interviewsList = document.getElementById('interviews-list');
 
@@ -815,21 +810,20 @@
             item.style.cursor = 'pointer';
 
             const tagsHtml = tags.map(tag =>
-                `<span class="tag ${getTagClass(tag)}">${tag}</span>`
+                `<span class="tag ${getTagClass(tag)}">${sanitizeHTML(tag)}</span>`
             ).join('');
 
             item.innerHTML = `
                 <div class="conversation-header">
-                    <div class="conversation-title">${title}</div>
+                    <div class="conversation-title">${sanitizeHTML(title)}</div>
                     <div class="conversation-date">${formatDate(date)}</div>
                 </div>
-                <div class="conversation-preview">${preview}</div>
+                <div class="conversation-preview">${sanitizeHTML(preview)}</div>
                 <div class="conversation-tags">${tagsHtml}</div>
             `;
 
             // Add click event to show details
-            item.addEventListener('click', function () {
-                console.log('Clicked on conversation:', title);
+            item.addEventListener('click', function () {;
                 showConversationDetails(application);
             });
 
@@ -864,8 +858,7 @@
         }
 
         // Tab switching functionality
-        function switchTab(tabName, buttonElement) {
-            console.log('Switching to tab:', tabName);
+        function switchTab(tabName, buttonElement) {;
 
             // Remove active class from all buttons
             document.querySelectorAll('.tab-button').forEach(btn => {
@@ -880,16 +873,14 @@
             // Show selected tab
             const targetTab = document.getElementById(tabName + '-tab');
             if (targetTab) {
-                targetTab.classList.add('active');
-                console.log('Tab activated:', tabName + '-tab');
+                targetTab.classList.add('active');;
             } else {
                 console.error('Tab not found:', tabName + '-tab');
             }
 
             // Activate clicked button
             if (buttonElement) {
-                buttonElement.classList.add('active');
-                console.log('Button activated');
+                buttonElement.classList.add('active');;
             }
 
             // Refresh data for the active tab
@@ -910,14 +901,12 @@
         }
 
         // Initialize tabs when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log('DOM loaded, initializing tabs');
+        document.addEventListener('DOMContentLoaded', function () {;
 
             // Add click event listeners to all tab buttons
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.addEventListener('click', function () {
-                    const tabName = this.getAttribute('data-tab');
-                    console.log('Tab button clicked:', tabName);
+                    const tabName = this.getAttribute('data-tab');;
                     switchTab(tabName, this);
                 });
             });
@@ -928,8 +917,7 @@
 
             if (firstTab && firstButton) {
                 firstTab.classList.add('active');
-                firstButton.classList.add('active');
-                console.log('First tab initialized');
+                firstButton.classList.add('active');;
             }
         });
 
@@ -944,16 +932,14 @@
         };
 
         // Export functionality
-        function exportMessages() {
-            console.log('Exporting messages...');
+        function exportMessages() {;
             const messagesData = applicationsData.filter(app =>
                 app.status && app.status.toLowerCase().includes('wysłano cv')
             );
             exportToCSV(messagesData, 'messages_export');
         }
 
-        function exportFollowups() {
-            console.log('Exporting follow-ups...');
+        function exportFollowups() {;
             const followupData = applicationsData.filter(app => {
                 const daysSince = getDaysSinceApplication(app.applicationDate || app.data);
                 return app.status && app.status.toLowerCase().includes('wysłano cv') && daysSince > 7;
@@ -1097,9 +1083,7 @@
             if (!user) {
                 alert('Musisz być zalogowany!');
                 return;
-            }
-
-            console.log('Marking all follow-ups as done...');
+            };
 
             const followupApps = applicationsData.filter(app => {
                 const daysSinceApplication = getDaysSinceApplication(app.applicationDate || app.data);
@@ -1126,13 +1110,11 @@
         }
 
         // Refresh functions for each tab
-        function refreshMessages() {
-            console.log('Refreshing messages...');
+        function refreshMessages() {;
             loadApplicationsData();
         }
 
-        function refreshData() {
-            console.log('Refreshing all data...');
+        function refreshData() {;
             loadApplicationsData();
         }
 

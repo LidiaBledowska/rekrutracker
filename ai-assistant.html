@@ -415,10 +415,16 @@
         let applicationsData = [];
         let userProfile = {};
 
+        // Simple HTML sanitizer
+        function sanitizeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         // Check authentication
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log("User authenticated:", user.email);
                 userProfile = {
                     name: user.displayName || 'Użytkowniku',
                     email: user.email
@@ -434,7 +440,6 @@
                     <br><br>Czym mogę Ci pomóc?`, 'ai');
                 }, 500);
             } else {
-                console.log("User not authenticated, redirecting...");
                 window.location.href = 'index.html';
             }
         });
@@ -443,40 +448,26 @@
             try {
                 const user = auth.currentUser;
                 if (!user) {
-                    console.log("No user logged in");
                     addMessage("❌ Brak zalogowanego użytkownika. Przekierowuję do strony głównej...", 'ai');
                     setTimeout(() => window.location.href = 'index.html', 2000);
                     return;
                 }
 
-                console.log("Loading applications for user:", user.uid);
-                console.log("User email:", user.email);
-                console.log("User token:", await user.getIdToken());
 
                 // Test simple query first
-                console.log("Testing database connection...");
                 const testCollection = collection(db, "applications");
-                console.log("Collection reference created:", testCollection);
 
                 const q = query(
                     collection(db, "applications"),
                     where("userId", "==", user.uid),
                     orderBy("data", "desc")
                 );
-                console.log("Query created:", q);
-
-                console.log("Executing query...");
                 const querySnapshot = await getDocs(q);
-                console.log("Query executed successfully");
 
                 applicationsData = [];
                 querySnapshot.forEach((doc) => {
-                    console.log("Document found:", doc.id, doc.data());
                     applicationsData.push({ id: doc.id, ...doc.data() });
                 });
-
-                console.log("Loaded applications:", applicationsData.length, "applications");
-                console.log("Applications data:", applicationsData);
 
                 // Add a debug message to chat
                 if (applicationsData.length === 0) {
@@ -599,7 +590,11 @@
 
             const messageContent = document.createElement('div');
             messageContent.className = 'message-content';
-            messageContent.innerHTML = content;
+            if (sender === 'user') {
+                messageContent.textContent = content;
+            } else {
+                messageContent.innerHTML = content;
+            }
 
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(messageContent);

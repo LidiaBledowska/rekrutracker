@@ -346,6 +346,12 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        function sanitizeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         // Make Firebase modules available globally
         window.firebaseModules = {
             app,
@@ -377,7 +383,6 @@
             try {
                 const user = auth.currentUser;
                 if (!user) {
-                    console.log("No user logged in");
                     return;
                 }
 
@@ -634,7 +639,7 @@
             const insightsHTML = insights.map(insight => `
                 <div class="insight-item">
                     <i class="${insight.icon}" style="margin-right: 10px;"></i>
-                    ${insight.text}
+                    ${sanitizeHTML(insight.text)}
                 </div>
             `).join('');
 

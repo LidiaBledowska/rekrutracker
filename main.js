@@ -48,8 +48,7 @@ function normalizeText(str) {
 
 
 
-function showImagesPreview(images) {
-    console.log('showImagesPreview called with:', images);
+function showImagesPreview(images) {;
     const preview = document.getElementById('editImagesPreview');
 
     if (!preview) {
@@ -59,16 +58,12 @@ function showImagesPreview(images) {
 
     preview.innerHTML = '';
 
-    if (!images || !Array.isArray(images) || images.length === 0) {
-        console.log('No images to display');
+    if (!images || !Array.isArray(images) || images.length === 0) {;
         preview.innerHTML = '<p style="color: #6b7280; font-size: 0.8em; margin: 0.5em 0;">Brak zdjęć</p>';
         return;
-    }
+    };
 
-    console.log(`Displaying ${images.length} images`);
-
-    images.forEach((imageItem, index) => {
-        console.log(`Processing image ${index + 1}:`, imageItem);
+    images.forEach((imageItem, index) => {;
 
         const img = document.createElement('img');
         let imageUrl = '';
@@ -107,15 +102,14 @@ function showImagesPreview(images) {
             this.alt = 'Błąd ładowania';
         };
 
-        img.onload = function () {
-            console.log(`Successfully loaded image: ${imageUrl}`);
+        img.onload = function () {;
         };
 
         // Add click to preview larger image
         img.onclick = function () {
             // For Base64 data, create a new window with the image
             if (imageUrl.startsWith('data:')) {
-                const newWindow = window.open('', '_blank');
+                const newWindow = window.open('', '_blank', 'noopener,noreferrer');
                 if (newWindow) {
                     newWindow.document.write(`
                         <!DOCTYPE html>
@@ -149,7 +143,7 @@ function showImagesPreview(images) {
                 }
             } else {
                 // For regular URLs, use the traditional method
-                window.open(imageUrl, '_blank');
+                window.open(imageUrl, '_blank', 'noopener,noreferrer');
             }
         };
 
@@ -265,9 +259,7 @@ async function openEditModal(appId) {
     document.getElementById('editNotatki').value = app.notatki || "";
     document.getElementById('editFavorite').checked = app.favorite || false;
 
-    // Debug: Log application data
-    console.log('Application data:', app);
-    console.log('Application images:', app.images);
+    // Debug: Log application data;;
 
     // Pokaz podgląd zdjęć
     showImagesPreview(app.images || []);
@@ -293,11 +285,9 @@ async function openEditModal(appId) {
     document.getElementById('editModal').classList.add('active');
 }
 
-function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {
-    console.log('🔧 loadApplications called with filters:', filters);
+function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {;
     const user = window.auth.currentUser;
-    if (!user) {
-        console.log("❌ No user logged in, cannot load applications");
+    if (!user) {;
         // Update counters to 0 when no user is logged in
         updateStatusCounters([]);
 
@@ -319,17 +309,14 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             `;
         }
         return;
-    }
-
-    console.log('✅ User logged in:', user.email);
+    };
 
     let q = window.firebaseModules.query(
         window.firebaseModules.collection(db, "applications"),
         window.firebaseModules.where("userId", "==", user.uid)
     );
 
-    window.firebaseModules.getDocs(q).then((querySnapshot) => {
-        console.log('🔧 Firebase query completed. Documents found:', querySnapshot.size);
+    window.firebaseModules.getDocs(q).then((querySnapshot) => {;
         const tbody = document.querySelector('.applications-table tbody');
         tbody.innerHTML = '';
         let count = 0;
@@ -339,9 +326,7 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             const app = doc.data();
             app.id = doc.id;
             applications.push(app);
-        });
-
-        console.log('📊 Total applications loaded:', applications.length);
+        });;
 
         // Update status counters before filtering
         updateStatusCounters(applications);
@@ -1108,8 +1093,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Debug function for image upload issues
     window.debugImageUpload = function (message, data = null) {
         const timestamp = new Date().toLocaleTimeString();
-        const logMessage = `[IMG-DEBUG ${timestamp}] ${message}`;
-        console.log(logMessage, data || '');
+        const logMessage = `[IMG-DEBUG ${timestamp}] ${message}`;;
 
         // Also show in edit modal if available
         const editMessage = document.getElementById('editFormMessage');
@@ -1123,10 +1107,8 @@ document.addEventListener('DOMContentLoaded', function () {
     loadApplications(getFilters(), document.getElementById('showArchived')?.checked, 'desc');
 
     // Inicjalizacja kolorowych kart filtrów - z opóźnieniem, żeby być pewnym że DOM jest gotowy
-    setTimeout(() => {
-        console.log('🔧 Initializing quick filters...');
-        initializeQuickFilters();
-        console.log('✅ Quick filters initialized');
+    setTimeout(() => {;
+        initializeQuickFilters();;
     }, 100);
 });
 
@@ -1181,15 +1163,7 @@ function updateStatusCounters(applications = []) {
     if (sentCountEl) sentCountEl.textContent = sentCount.toString();
     if (interviewCountEl) interviewCountEl.textContent = interviewCount.toString();
     if (offerCountEl) offerCountEl.textContent = offerCount.toString();
-    if (rejectedCountEl) rejectedCountEl.textContent = rejectedCount.toString();
-
-    console.log('Status counters updated:', {
-        total: totalCount,
-        sent: sentCount,
-        interviews: interviewCount,
-        offers: offerCount,
-        rejected: rejectedCount
-    });
+    if (rejectedCountEl) rejectedCountEl.textContent = rejectedCount.toString();;
 }
 
 
@@ -1203,8 +1177,7 @@ function applyStatusFilter(filterValue) {
 }
 
 // Funkcja do inicjalizacji kolorowych kart filtrów statusów
-function initializeQuickFilters() {
-    console.log('🔧 initializeQuickFilters started');
+function initializeQuickFilters() {;
 
     // Initialize global filters object
     if (!window.filters) {
@@ -1212,21 +1185,17 @@ function initializeQuickFilters() {
     }
 
     // Dodaj obsługę kliknięć do kart statusów
-    const statusCards = document.querySelectorAll('.filter-card[data-filter-type="status"]');
-    console.log('📋 Found status cards:', statusCards.length);
+    const statusCards = document.querySelectorAll('.filter-card[data-filter-type="status"]');;
 
     statusCards.forEach((card, index) => {
-        const filterValue = card.dataset.filterValue;
-        console.log(`🃏 Setting up card ${index}: "${filterValue}"`);
+        const filterValue = card.dataset.filterValue;;
 
         card.addEventListener('click', function () {
-            const filterValue = this.dataset.filterValue;
-            console.log('🖱️ Status card clicked:', filterValue);
+            const filterValue = this.dataset.filterValue;;
 
             // Check if user is authenticated - if not, show info but still allow filter functionality
             const user = window.auth && window.auth.currentUser;
-            if (!user) {
-                console.log('ℹ️ User not authenticated - filters will work but no data will be loaded');
+            if (!user) {;
 
                 // Show brief info message (non-blocking)
                 const infoMessage = document.createElement('div');
@@ -1259,8 +1228,7 @@ function initializeQuickFilters() {
             });
 
             // Dodaj aktywny stan do klikniętej karty
-            this.classList.add('active');
-            console.log('✅ Active state added to card:', filterValue);
+            this.classList.add('active');;
 
             applyStatusFilter(filterValue);
 
@@ -1270,10 +1238,7 @@ function initializeQuickFilters() {
                 this.style.transform = '';
             }, 150);
         });
-    });
-
-
-    console.log('✅ Quick filters setup complete');
+    });;
 
     // Funkcja do resetowania kart statusów
     window.resetQuickFilters = function () {
