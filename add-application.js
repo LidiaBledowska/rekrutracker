@@ -22,7 +22,7 @@
         window.db = db;
         window.auth = auth;
         window.firebaseModules = window.firebaseModules || {};
-        Object.assign(window.firebaseModules, {
+       Object.assign(window.firebaseModules, {
             collection,
             addDoc,
             serverTimestamp,
@@ -32,6 +32,12 @@
             auth
         });
 
+        function sanitizeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         // Base64 image conversion utility
         function convertFileToBase64(file) {
             return new Promise((resolve, reject) => {
@@ -40,23 +46,14 @@
                 reader.onerror = error => reject(error);
                 reader.readAsDataURL(file);
             });
-        }
-
-        console.log('Firebase v10 initialized successfully');
-        console.log('Storage bucket:', firebaseConfig.storageBucket);
-        console.log('Services available:', {
-            firestore: !!db,
-            auth: !!auth
-        });
+        };;;
 
         // Check authentication status on page load
         onAuthStateChanged(auth, function(user) {
             const authStatus = document.getElementById('auth-status');
             if (user) {
-                console.log('User authenticated:', user);
-                authStatus.innerHTML = `✅ Zalogowany jako: ${user.email || user.displayName || user.uid}<br>UID: ${user.uid}`;
-            } else {
-                console.log('User not authenticated');
+                authStatus.innerHTML = `✅ Zalogowany jako: ${sanitizeHTML(user.email || user.displayName || user.uid)}<br>UID: ${sanitizeHTML(user.uid)}`;
+            } else {;
                 authStatus.innerHTML = '❌ Nie zalogowany - przekierowywanie...';
                 // User is not authenticated, redirect to login
                 alert('Musisz być zalogowany, aby dodać aplikację.');
@@ -122,7 +119,7 @@
                 // Add click to preview larger image
                 img.onclick = function() {
                     // Create a new window with the image for full screen preview
-                    const newWindow = window.open('', '_blank');
+                    const newWindow = window.open('', '_blank', 'noopener,noreferrer');
                     if (newWindow) {
                         newWindow.document.write(`
                             <!DOCTYPE html>
@@ -203,16 +200,12 @@
 
         // Upload images using Base64 encoding
         async function uploadImages() {
-            if (selectedFiles.length === 0) {
-                console.log('No images to upload');
+            if (selectedFiles.length === 0) {;
                 return [];
-            }
-            
-            console.log(`Starting conversion of ${selectedFiles.length} images to Base64...`);
+            };
             
             try {
-                const base64Promises = selectedFiles.map(async (file, index) => {
-                    console.log(`Processing file ${index + 1}/${selectedFiles.length}: ${file.name}`);
+                const base64Promises = selectedFiles.map(async (file, index) => {;
                     
                     // Validate file
                     if (!file.type.startsWith('image/')) {
@@ -227,11 +220,8 @@
                         return null;
                     }
                     
-                    try {
-                        console.log(`Converting ${file.name} to Base64...`);
-                        const base64String = await convertFileToBase64(file);
-                        
-                        console.log(`File ${file.name} converted successfully`);
+                    try {;
+                        const base64String = await convertFileToBase64(file);;
                         return {
                             name: file.name,
                             type: file.type,
@@ -244,13 +234,9 @@
                         alert(`Błąd podczas konwersji pliku ${file.name}: ${fileError.message}`);
                         return null;
                     }
-                });
-
-                console.log('Waiting for all conversions to complete...');
+                });;
                 const base64Files = await Promise.all(base64Promises);
-                const validFiles = base64Files.filter(file => file !== null);
-                
-                console.log(`Conversion completed. ${validFiles.length}/${selectedFiles.length} files converted successfully`);
+                const validFiles = base64Files.filter(file => file !== null);;
                 return validFiles;
                 
             } catch (error) {
@@ -290,33 +276,22 @@
             const notatki = document.getElementById('notatki').value;
             const favorite = document.getElementById('favorite').checked;
 
-            try {
-                console.log('Starting form submission...');
-                console.log('User details:', {
-                    uid: user.uid,
-                    email: user.email,
-                    emailVerified: user.emailVerified,
-                    isAnonymous: user.isAnonymous
-                });
-                console.log('Auth state:', auth.currentUser ? 'authenticated' : 'not authenticated');
+            try {;;;
                 
                 // Test auth token
                 try {
-                    const token = await user.getIdToken();
-                    console.log('Auth token obtained successfully (length:', token.length, ')');
+                    const token = await user.getIdToken();;
                 } catch (tokenError) {
                     console.error('Failed to get auth token:', tokenError);
                 }
                 
                 // Konwertuj zdjęcia do Base64 jeśli są
                 let base64Images = [];
-                if (selectedFiles.length > 0) {
-                    console.log('Converting', selectedFiles.length, 'images to Base64...');
+                if (selectedFiles.length > 0) {;
                     document.getElementById('form-message').textContent = `Konwersja ${selectedFiles.length} zdjęć...`;
                     document.getElementById('form-message').style.color = "blue";
                     
-                    base64Images = await uploadImages();
-                    console.log('Images converted:', base64Images);
+                    base64Images = await uploadImages();;
                     
                     document.getElementById('form-message').textContent = "Zapisywanie aplikacji...";
                 }
@@ -347,17 +322,9 @@
                 if (kontakt) applicationData.kontakt = kontakt;
                 if (link) applicationData.link = link;
                 if (notatki) applicationData.notatki = notatki;
-                if (base64Images.length > 0) applicationData.images = base64Images;
-
-                console.log('Saving application data:', {
-                    ...applicationData,
-                    images: base64Images.length > 0 ? `[${base64Images.length} images]` : 'no images'
-                });
-                console.log('Database reference:', db);
-                console.log('Collection reference:', collection(db, "applications"));
+                if (base64Images.length > 0) applicationData.images = base64Images;;;;
                 
-                await addDoc(collection(db, "applications"), applicationData);
-                console.log('Application saved successfully!');
+                await addDoc(collection(db, "applications"), applicationData);;
                 
                 document.getElementById('form-message').textContent = "Aplikacja została dodana pomyślnie!";
                 document.getElementById('form-message').style.color = "green";
@@ -385,8 +352,7 @@
                     );
                     
                     if (saveWithoutImages) {
-                        try {
-                            console.log('Saving application without images...');
+                        try {;
                             document.getElementById('form-message').textContent = "Zapisywanie bez zdjęć...";
                             document.getElementById('form-message').style.color = "orange";
                             
