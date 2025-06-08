@@ -456,19 +456,19 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
     <td class="px-4 py-2 text-[#141414] text-sm font-normal leading-normal min-w-[150px]" data-label="Stanowisko">
         <div class="flex items-center gap-2">
             ${app.favorite ? '<i class="fas fa-star text-yellow-400" style="font-size: 0.8em;"></i>' : ''}
-            <span>${app.stanowisko}</span>
+            <span>${window.sanitizeHTML(app.stanowisko)}</span>
             ${imageIndicator}
         </div>
     </td>
-    <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[120px]" data-label="Firma">${app.firma}</td>
+    <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[120px]" data-label="Firma">${window.sanitizeHTML(app.firma)}</td>
     <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]" data-label="Data">${app.data}</td>
     <td class="px-4 py-2 text-sm font-normal leading-normal min-w-[120px]" data-label="Status">
         <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 text-sm font-medium leading-normal w-full" style="${getStatusColors(app.status)}">
-            <span class="truncate">${app.status}${lastStatusDate}</span>
+            <span class="truncate">${window.sanitizeHTML(app.status)}${lastStatusDate}</span>
         </button>
     </td>
-    <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[120px]" data-label="Wynagrodzenie">${wynagrodzenieCell}</td>
-    <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]" data-label="Tryb">${app.tryb || ''}</td>
+    <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[120px]" data-label="Wynagrodzenie">${window.sanitizeHTML(wynagrodzenieCell)}</td>
+    <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]" data-label="Tryb">${window.sanitizeHTML(app.tryb || '')}</td>
     <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]" data-label="Rodzaj">${getRodzajText(app.rodzaj)}</td>
     <td class="px-4 py-2 text-gray-600 text-sm font-normal leading-normal min-w-[100px]" data-label="Umowa">${getUmowaText(app.umowa)}</td>
     <td class="px-4 py-2 text-center min-w-[100px]">

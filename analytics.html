@@ -327,34 +327,14 @@
     <script type="module">
         // Import Firebase v10 modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { initFirebase, sanitizeHTML } from './firebase-init.js';
         import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD7ZLyDHFBNsQe9j03YPi0xmdLbqdk_K68",
-            authDomain: "rekrutracker-app.firebaseapp.com",
-            projectId: "rekrutracker-app",
-            storageBucket: "rekrutracker-app.firebasestorage.app",
-            messagingSenderId: "758407291898",
-            appId: "1:758407291898:web:a573e2cd3b416596d37a43",
-            measurementId: "G-HQW1YLG9Q1"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        function sanitizeHTML(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
+        const { db, auth } = initFirebase();
 
         // Make Firebase modules available globally
         window.firebaseModules = {
-            app,
             db,
             auth,
             collection,
