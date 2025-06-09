@@ -48,19 +48,22 @@
             });
         };;;
 
+
         // Check authentication status on page load
-        onAuthStateChanged(auth, function(user) {
+        onAuthStateChanged(auth, function (user) {
             const authStatus = document.getElementById('auth-status');
             if (user) {
-                authStatus.innerHTML = `✅ Zalogowany jako: ${sanitizeHTML(user.email || user.displayName || user.uid)}<br>UID: ${sanitizeHTML(user.uid)}`;
-            } else {;
-                authStatus.innerHTML = '❌ Nie zalogowany - przekierowywanie...';
-                // User is not authenticated, redirect to login
-                alert('Musisz być zalogowany, aby dodać aplikację.');
-                window.location.href = 'login.html';
-                return;
+                if (authStatus) {
+                    authStatus.innerHTML = `✅ Zalogowany jako: ${sanitizeHTML(user.email || user.displayName || user.uid)}<br>UID: ${sanitizeHTML(user.uid)}`;
+                }
+            } else {
+                if (authStatus) {
+                    authStatus.textContent = "❌ Nie zalogowany";
+                }
+                // No redirect here - login will be required when submitting the form.
             }
         });
+
 
         // Arrays to store selected files and their preview URLs
         let selectedFiles = [];
