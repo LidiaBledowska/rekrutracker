@@ -117,40 +117,8 @@
                 img.style.cursor = 'pointer';
                 
                 // Add click to preview larger image
-                img.onclick = function() {
-                    // Create a new window with the image for full screen preview
-                    const newWindow = window.open('', '_blank', 'noopener,noreferrer');
-                    if (newWindow) {
-                        newWindow.document.write(`
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Podgląd zdjęcia ${index + 1}</title>
-                                <style>
-                                    body { 
-                                        margin: 0; 
-                                        padding: 20px; 
-                                        background: #000; 
-                                        display: flex; 
-                                        justify-content: center; 
-                                        align-items: center; 
-                                        min-height: 100vh;
-                                    }
-                                    img { 
-                                        max-width: 100%; 
-                                        max-height: 100vh; 
-                                        object-fit: contain;
-                                        box-shadow: 0 4px 20px rgba(255,255,255,0.1);
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <img src="${url}" alt="Podgląd zdjęcia ${index + 1}" />
-                            </body>
-                            </html>
-                        `);
-                        newWindow.document.close();
-                    }
+                img.onclick = function () {
+                    openImageModal(url, `Podgląd zdjęcia ${index + 1}`);
                 };
                 
                 const removeBtn = document.createElement('button');
@@ -178,6 +146,30 @@
             selectedFiles = [];
             previewUrls = [];
             updateImagePreview();
+        }
+
+        function openImageModal(src, alt = '') {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('imageModalImg');
+            if (modal && img) {
+                img.src = src;
+                img.alt = alt;
+                modal.classList.add('active');
+            }
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        const imageModalEl = document.getElementById('imageModal');
+        if (imageModalEl) {
+            imageModalEl.addEventListener('click', function (e) {
+                if (e.target === imageModalEl) {
+                    closeImageModal();
+                }
+            });
         }
         
 

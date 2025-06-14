@@ -850,6 +850,15 @@
             </div>
         </div>
 
+        <!-- Image Preview Modal -->
+        <div id="imageModal" class="modal">
+            <div class="modal-content image-modal-content">
+                <button class="modal-close" onclick="closeImageModal()">&times;</button>
+                <img id="imageModalImg" src="" alt="Podgląd zdjęcia"
+                    style="max-width:100%;max-height:80vh;object-fit:contain;border-radius:8px;" />
+            </div>
+        </div>
+
         <style>
             .modal {
                 display: none;
@@ -894,6 +903,18 @@
 
             .modal-close:hover {
                 color: #141414;
+            }
+
+            #imageModal .modal-content {
+                background: transparent;
+                border: none;
+                padding: 0;
+                max-width: 90%;
+            }
+
+            #imageModal img {
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             }
         </style>
 
@@ -978,6 +999,21 @@
                 document.getElementById('addAppModal').classList.remove('active');
             }
 
+            function openImageModal(src, alt = '') {
+                const modal = document.getElementById('imageModal');
+                const img = document.getElementById('imageModalImg');
+                if (modal && img) {
+                    img.src = src;
+                    img.alt = alt;
+                    modal.classList.add('active');
+                }
+            }
+
+            function closeImageModal() {
+                const modal = document.getElementById('imageModal');
+                if (modal) modal.classList.remove('active');
+            }
+
             // Event listener for the return button
             document.addEventListener('DOMContentLoaded', function () {
                 const returnToApplicationsBtn = document.getElementById('returnToApplications');
@@ -1052,6 +1088,15 @@
                         if (e.target === editModal) {
                             const closeBtn = document.getElementById('closeEditModal');
                             if (closeBtn) closeBtn.click();
+                        }
+                    });
+                }
+
+                const imageModal = document.getElementById('imageModal');
+                if (imageModal) {
+                    imageModal.addEventListener('click', function (e) {
+                        if (e.target === imageModal) {
+                            closeImageModal();
                         }
                     });
                 }

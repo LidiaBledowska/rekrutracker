@@ -246,6 +246,65 @@
             flex-wrap: wrap;
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid #e5e7eb;
+        }
+
+        #imageModal .modal-content {
+            background: transparent;
+            border: none;
+            padding: 0;
+            max-width: 90%;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #141414;
+        }
+
+        #imageModal img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
         @media (max-width: 500px) {
             .form-container {
                 padding: 1.2rem 0.5rem;
@@ -477,6 +536,30 @@
         let selectedFiles = [];
         let previewUrls = [];
 
+        function openImageModal(src, alt = '') {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('imageModalImg');
+            if (modal && img) {
+                img.src = src;
+                img.alt = alt;
+                modal.classList.add('active');
+            }
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        const imageModalEl = document.getElementById('imageModal');
+        if (imageModalEl) {
+            imageModalEl.addEventListener('click', function (e) {
+                if (e.target === imageModalEl) {
+                    closeImageModal();
+                }
+            });
+        }
+
         // Podgląd zdjęć przed wysłaniem
         document.getElementById('images').addEventListener('change', function (e) {
             const newFiles = Array.from(e.target.files);
@@ -529,39 +612,7 @@
 
                 // Add click to preview larger image
                 img.onclick = function () {
-                    // Create a new window with the image for full screen preview
-                    const newWindow = window.open('', '_blank', 'noopener,noreferrer');
-                    if (newWindow) {
-                        newWindow.document.write(`
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Podgląd zdjęcia ${index + 1}</title>
-                                <style>
-                                    body { 
-                                        margin: 0; 
-                                        padding: 20px; 
-                                        background: #000; 
-                                        display: flex; 
-                                        justify-content: center; 
-                                        align-items: center; 
-                                        min-height: 100vh;
-                                    }
-                                    img { 
-                                        max-width: 100%; 
-                                        max-height: 100vh; 
-                                        object-fit: contain;
-                                        box-shadow: 0 4px 20px rgba(255,255,255,0.1);
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <img src="${url}" alt="Podgląd zdjęcia ${index + 1}" />
-                            </body>
-                            </html>
-                        `);
-                        newWindow.document.close();
-                    }
+                    openImageModal(url, `Podgląd zdjęcia ${index + 1}`);
                 };
 
                 const removeBtn = document.createElement('button');
@@ -841,6 +892,13 @@
             }
         });
     </script>
+    <!-- Image Preview Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeImageModal()">&times;</button>
+            <img id="imageModalImg" src="" alt="Podgląd zdjęcia" />
+        </div>
+    </div>
 </body>
 
 </html>
