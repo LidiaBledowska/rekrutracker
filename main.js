@@ -86,6 +86,7 @@ function showImagesPreview(images) {;
             return;
         }
 
+        img.loading = 'lazy';
         img.style.maxWidth = '80px';
         img.style.maxHeight = '80px';
         img.style.borderRadius = '6px';

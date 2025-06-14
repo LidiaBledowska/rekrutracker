@@ -38,15 +38,33 @@
             return div.innerHTML;
         }
 
-        // Base64 image conversion utility
+        // Base64 image conversion utility with basic compression
         function convertFileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const MAX_DIMENSION = 1280;
+                        let { width, height } = img;
+                        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+                            const scale = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+                            width = Math.round(width * scale);
+                            height = Math.round(height * scale);
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    };
+                    img.onerror = error => reject(error);
+                    img.src = reader.result;
+                };
                 reader.onerror = error => reject(error);
                 reader.readAsDataURL(file);
             });
-        };;;
+        };
 
 
         // Check authentication status on page load
@@ -116,44 +134,13 @@
                 img.src = url;
                 img.className = 'image-preview';
                 img.alt = `Preview ${index + 1}`;
+                img.loading = 'lazy';
                 img.title = `Zdjęcie ${index + 1} - kliknij aby powiększyć`;
                 img.style.cursor = 'pointer';
                 
                 // Add click to preview larger image
-                img.onclick = function() {
-                    // Create a new window with the image for full screen preview
-                    const newWindow = window.open('', '_blank', 'noopener,noreferrer');
-                    if (newWindow) {
-                        newWindow.document.write(`
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Podgląd zdjęcia ${index + 1}</title>
-                                <style>
-                                    body { 
-                                        margin: 0; 
-                                        padding: 20px; 
-                                        background: #000; 
-                                        display: flex; 
-                                        justify-content: center; 
-                                        align-items: center; 
-                                        min-height: 100vh;
-                                    }
-                                    img { 
-                                        max-width: 100%; 
-                                        max-height: 100vh; 
-                                        object-fit: contain;
-                                        box-shadow: 0 4px 20px rgba(255,255,255,0.1);
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <img src="${url}" alt="Podgląd zdjęcia ${index + 1}" />
-                            </body>
-                            </html>
-                        `);
-                        newWindow.document.close();
-                    }
+                img.onclick = function () {
+                    window.openImageModal(url, `Podgląd zdjęcia ${index + 1}`);
                 };
                 
                 const removeBtn = document.createElement('button');
@@ -182,6 +169,8 @@
             previewUrls = [];
             updateImagePreview();
         }
+
+
         
 
         // Make helpers available globally for inline handlers

@@ -850,7 +850,7 @@
             </div>
         </div>
 
-        <!-- Image Modal -->
+        <!-- Image Preview Modal -->
         <div id="imageModal" class="modal">
             <div class="modal-content" style="max-width: 90vw; max-height: 90vh; padding: 1rem; background: transparent; border: none; display: flex; align-items: center; justify-content: center;">
                 <button class="modal-close" onclick="closeImageModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5rem; cursor: pointer; z-index: 1001;">&times;</button>
@@ -903,6 +903,18 @@
             .modal-close:hover {
                 color: #141414;
             }
+
+            #imageModal .modal-content {
+                background: transparent;
+                border: none;
+                padding: 0;
+                max-width: 90%;
+            }
+
+            #imageModal img {
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            }
         </style>
 
         <!-- Firebase v10 SDK -->
@@ -935,6 +947,7 @@
 
         </script>
         <script src="main.js"></script>
+        <script src="image-modal.js"></script>
         <script type="module" src="add-application.js"></script>
 
 
@@ -981,6 +994,8 @@
             function closeAddAppModal() {
                 document.getElementById('addAppModal').classList.remove('active');
             }
+
+
 
             // Event listener for the return button
             document.addEventListener('DOMContentLoaded', function () {
@@ -1059,6 +1074,8 @@
                         }
                     });
                 }
+
+                // Image modal click handler moved to image-modal.js
             });
         </script>
 </body>
