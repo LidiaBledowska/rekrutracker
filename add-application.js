@@ -38,15 +38,33 @@
             return div.innerHTML;
         }
 
-        // Base64 image conversion utility
+        // Base64 image conversion utility with basic compression
         function convertFileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const MAX_DIMENSION = 1280;
+                        let { width, height } = img;
+                        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+                            const scale = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
+                            width = Math.round(width * scale);
+                            height = Math.round(height * scale);
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    };
+                    img.onerror = error => reject(error);
+                    img.src = reader.result;
+                };
                 reader.onerror = error => reject(error);
                 reader.readAsDataURL(file);
             });
-        };;;
+        };
 
         // Check authentication status on page load
         onAuthStateChanged(auth, function(user) {
@@ -113,6 +131,7 @@
                 img.src = url;
                 img.className = 'image-preview';
                 img.alt = `Preview ${index + 1}`;
+                img.loading = 'lazy';
                 img.title = `Zdjęcie ${index + 1} - kliknij aby powiększyć`;
                 img.style.cursor = 'pointer';
                 
@@ -155,12 +174,20 @@
                 img.src = src;
                 img.alt = alt;
                 modal.classList.add('active');
+                document.addEventListener('keydown', escListener);
             }
         }
 
         function closeImageModal() {
             const modal = document.getElementById('imageModal');
             if (modal) modal.classList.remove('active');
+            document.removeEventListener('keydown', escListener);
+        }
+
+        function escListener(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
         }
 
         const imageModalEl = document.getElementById('imageModal');
