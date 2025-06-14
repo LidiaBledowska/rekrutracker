@@ -1134,6 +1134,25 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial load
     loadApplications(getFilters(), document.getElementById('showArchived')?.checked, 'desc');
 
+    // Additional sort element verification
+    setTimeout(() => {
+        console.log('=== SORT DEBUG CHECK ===');
+        const sortOrderElement = document.getElementById('sortOrder');
+        const toggleSortElement = document.getElementById('toggleSort');
+        const sortContainerElement = document.getElementById('sortContainer');
+        
+        console.log('sortOrder element found:', !!sortOrderElement);
+        console.log('sortOrder element value:', sortOrderElement?.value);
+        console.log('toggleSort element found:', !!toggleSortElement);
+        console.log('sortContainer element found:', !!sortContainerElement);
+        console.log('sortContainer display style:', sortContainerElement?.style.display);
+        
+        if (sortOrderElement) {
+            console.log('sortOrder has event listeners:', sortOrderElement.hasAttribute('data-listener-added'));
+        }
+        console.log('========================');
+    }, 1000);
+
     // Inicjalizacja kolorowych kart filtrów - z opóźnieniem, żeby być pewnym że DOM jest gotowy
     setTimeout(() => {;
         initializeQuickFilters();;
