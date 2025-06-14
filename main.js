@@ -291,7 +291,8 @@ async function openEditModal(appId) {
     document.getElementById('editModal').classList.add('active');
 }
 
-function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {;
+function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {
+    console.log('loadApplications called with sortOrder:', sortOrder);
     const user = window.auth.currentUser;
     if (!user) {;
         // Update counters to 0 when no user is logged in
@@ -338,6 +339,8 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
         updateStatusCounters(applications);
 
         // Sort applications based on sortOrder
+        console.log('Sorting applications, sortOrder:', sortOrder);
+        console.log('Applications before sort:', applications.map(a => ({ firma: a.firma, data: a.data, favorite: a.favorite })));
         applications.sort((a, b) => {
             // First sort by favorites
             if (a.favorite && !b.favorite) return -1;
@@ -353,6 +356,7 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
                 return dateB - dateA; // newest first
             }
         });
+        console.log('Applications after sort:', applications.map(a => ({ firma: a.firma, data: a.data, favorite: a.favorite })));
 
         applications.forEach((app) => {
             if (!showArchived && app.archiwalna === true) return;
@@ -945,19 +949,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Sort functionality
     if (document.getElementById('sortOrder')) {
+        console.log('Setting up sortOrder event listener');
         document.getElementById('sortOrder').addEventListener('change', function () {
+            console.log('Sort order changed to:', this.value);
             const showArchived = document.getElementById('showArchived')?.checked || false;
             loadApplications(getFilters(), showArchived, this.value);
         });
+    } else {
+        console.log('sortOrder element not found');
     }
 
     // Toggle sort button functionality
     const toggleSortButton = document.getElementById('toggleSort');
     const sortContainer = document.getElementById('sortContainer');
 
+    console.log('Toggle sort button:', toggleSortButton);
+    console.log('Sort container:', sortContainer);
+
     if (toggleSortButton && sortContainer) {
         toggleSortButton.addEventListener('click', function () {
+            console.log('Toggle sort button clicked');
             const isHidden = sortContainer.style.display === 'none';
+            console.log('Sort container was hidden:', isHidden);
             sortContainer.style.display = isHidden ? 'block' : 'none';
             toggleSortButton.innerHTML = isHidden ? '<i class="fas fa-sort"></i> Ukryj sortowanie' : '<i class="fas fa-sort"></i> Sortuj';
         });

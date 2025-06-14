@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Date Sorting</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .debug { background-color: #f8f9fa; border: 1px solid #dee2e6; color: #495057; }
+        select { margin: 10px; padding: 5px; }
+        button { margin: 10px; padding: 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Test Date Sorting Functionality</h1>
+    
+    <div>
+        <label for="sortOrder">Sort Order:</label>
+        <select id="sortOrder">
+            <option value="desc">Od najnowszych (desc)</option>
+            <option value="asc">Od najstarszych (asc)</option>
+        </select>
+        <button onclick="testSorting()">Test Sorting</button>
+        <button onclick="runAllTests()">Run All Tests</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        // Test applications with various date formats
+        const testApplications = [
+            { stanowisko: "Developer 1", data: "2024-01-15", favorite: false },
+            { stanowisko: "Developer 2", data: "2024-03-20", favorite: true },
+            { stanowisko: "Developer 3", data: "2024-02-10", favorite: false },
+            { stanowisko: "Developer 4", data: "2024-01-05", favorite: true },
+            { stanowisko: "Developer 5", data: "invalid-date", favorite: false },
+            { stanowisko: "Developer 6", applicationDate: "2024-04-01", favorite: false },
+            { stanowisko: "Developer 7", data: "2024-12-25", favorite: true },
+        ];
+
+        function addResult(message, type = 'debug') {
+            const resultsDiv = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function testSorting() {
+            clearResults();
+            const sortOrder = document.getElementById('sortOrder').value;
+            
+            addResult(`<strong>Testing sorting with order: ${sortOrder}</strong>`);
+            
+            // Copy the test applications
+            const applications = [...testApplications];
+            
+            addResult(`Original order: ${applications.map(a => `${a.stanowisko} (${a.data || a.applicationDate})`).join(', ')}`);
+            
+            // Apply the same sorting logic from main.js
+            applications.sort((a, b) => {
+                // First sort by favorites
+                if (a.favorite && !b.favorite) return -1;
+                if (!a.favorite && b.favorite) return 1;
+
+                // Then sort by date - handle both 'data' and 'applicationDate' fields
+                const dateA = new Date(a.data || a.applicationDate);
+                const dateB = new Date(b.data || b.applicationDate);
+
+                // Check if dates are valid
+                if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                    addResult(`⚠️ Invalid date found: ${a.stanowisko}: ${dateA.toString()}, ${b.stanowisko}: ${dateB.toString()}`, 'error');
+                    // If one date is invalid, put it at the end
+                    if (isNaN(dateA.getTime())) return 1;
+                    if (isNaN(dateB.getTime())) return -1;
+                }
+
+                if (sortOrder === 'asc') {
+                    return dateA - dateB; // oldest first
+                } else {
+                    return dateB - dateA; // newest first
+                }
+            });
+            
+            addResult(`<strong>Sorted order (${sortOrder}):</strong>`);
+            applications.forEach((app, index) => {
+                const dateStr = app.data || app.applicationDate;
+                const isFav = app.favorite ? '⭐' : '';
+                const parsedDate = new Date(dateStr);
+                const isValidDate = !isNaN(parsedDate.getTime());
+                const dateDisplay = isValidDate ? parsedDate.toLocaleDateString() : 'Invalid Date';
+                
+                addResult(`${index + 1}. ${isFav} ${app.stanowisko} - ${dateStr} (${dateDisplay})`, 
+                    isValidDate ? 'success' : 'error');
+            });
+        }
+
+        function runAllTests() {
+            clearResults();
+            addResult('<strong>Running comprehensive sorting tests...</strong>');
+            
+            // Test 1: DESC sorting
+            addResult('<br><strong>Test 1: DESC (newest first) sorting</strong>');
+            document.getElementById('sortOrder').value = 'desc';
+            testSorting();
+            
+            // Test 2: ASC sorting
+            setTimeout(() => {
+                addResult('<br><strong>Test 2: ASC (oldest first) sorting</strong>');
+                document.getElementById('sortOrder').value = 'asc';
+                testSorting();
+                
+                // Test 3: Validate that favorites come first
+                setTimeout(() => {
+                    addResult('<br><strong>Test 3: Checking favorites priority</strong>');
+                    const sortOrder = 'desc';
+                    const applications = [...testApplications];
+                    
+                    applications.sort((a, b) => {
+                        if (a.favorite && !b.favorite) return -1;
+                        if (!a.favorite && b.favorite) return 1;
+                        const dateA = new Date(a.data || a.applicationDate);
+                        const dateB = new Date(b.data || b.applicationDate);
+                        if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+                            if (isNaN(dateA.getTime())) return 1;
+                            if (isNaN(dateB.getTime())) return -1;
+                        }
+                        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+                    });
+                    
+                    const favoritesFirst = applications.slice(0, 3).every(app => app.favorite);
+                    const nonFavoritesAfter = applications.slice(3).some(app => !app.favorite);
+                    
+                    if (favoritesFirst && nonFavoritesAfter) {
+                        addResult('✅ Favorites are correctly sorted first', 'success');
+                    } else {
+                        addResult('❌ Favorites sorting is not working correctly', 'error');
+                    }
+                    
+                    addResult('<br><strong>All tests completed!</strong>');
+                }, 1000);
+            }, 1000);
+        }
+
+        // Run initial test
+        window.onload = function() {
+            addResult('Date sorting test page loaded. Click "Test Sorting" to test or "Run All Tests" for comprehensive testing.');
+            testSorting();
+        };
+    </script>
+</body>
+</html>
