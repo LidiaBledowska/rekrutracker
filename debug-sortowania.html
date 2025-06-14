@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Sortowania</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .error { color: red; }
+        .success { color: green; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Debug Funkcji Sortowania</h1>
+    
+    <div class="test">
+        <h2>Test dostępu do głównej aplikacji</h2>
+        <button onclick="debugMainApp()">Debug Główna Aplikacja</button>
+        <div id="debugResults"></div>
+    </div>
+
+    <div class="test">
+        <h2>Główna aplikacja</h2>
+        <iframe id="mainApp" src="http://localhost:8000/" width="100%" height="500"></iframe>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            document.getElementById('debugResults').appendChild(div);
+        }
+
+        function debugMainApp() {
+            document.getElementById('debugResults').innerHTML = '';
+            log('Rozpoczęcie debugowania...', 'info');
+            
+            const iframe = document.getElementById('mainApp');
+            
+            if (!iframe) {
+                log('❌ Iframe nie znaleziony', 'error');
+                return;
+            }
+            
+            try {
+                const win = iframe.contentWindow;
+                const doc = iframe.contentDocument || win.document;
+                
+                log('✅ Dostęp do iframe uzyskany', 'success');
+                
+                // Sprawdź czy Firebase auth jest załadowany
+                if (win.auth) {
+                    log('✅ Firebase auth znaleziony', 'success');
+                    if (win.auth.currentUser) {
+                        log(`✅ Użytkownik zalogowany: ${win.auth.currentUser.email}`, 'success');
+                    } else {
+                        log('⚠️ Brak zalogowanego użytkownika', 'info');
+                    }
+                } else {
+                    log('❌ Firebase auth nie znaleziony', 'error');
+                }
+                
+                // Sprawdź elementy sortowania
+                const toggleSort = doc.getElementById('toggleSort');
+                const sortContainer = doc.getElementById('sortContainer');
+                const sortOrder = doc.getElementById('sortOrder');
+                
+                log(`Toggle sort button: ${toggleSort ? '✅' : '❌'}`, toggleSort ? 'success' : 'error');
+                log(`Sort container: ${sortContainer ? '✅' : '❌'}`, sortContainer ? 'success' : 'error');
+                log(`Sort order select: ${sortOrder ? '✅' : '❌'}`, sortOrder ? 'success' : 'error');
+                
+                if (toggleSort) {
+                    log(`Tekst przycisku: "${toggleSort.textContent.trim()}"`, 'info');
+                }
+                
+                if (sortContainer) {
+                    const style = win.getComputedStyle(sortContainer);
+                    log(`Widoczność kontenera: ${style.display}`, 'info');
+                }
+                
+                if (sortOrder) {
+                    log(`Wartość sortowania: ${sortOrder.value}`, 'info');
+                    log(`Event listener attached: ${sortOrder.hasAttribute('data-listener-added')}`, 'info');
+                }
+                
+                // Sprawdź funkcje globalne
+                if (win.loadApplications) {
+                    log('✅ Funkcja loadApplications dostępna', 'success');
+                } else {
+                    log('❌ Funkcja loadApplications niedostępna', 'error');
+                }
+                
+                // Test kliknięcia przycisku toggle
+                if (toggleSort) {
+                    log('🔄 Testuję kliknięcie przycisku toggle...', 'info');
+                    toggleSort.click();
+                    
+                    setTimeout(() => {
+                        if (sortContainer) {
+                            const newStyle = win.getComputedStyle(sortContainer);
+                            log(`Widoczność po kliknięciu: ${newStyle.display}`, 'info');
+                            
+                            if (sortOrder && newStyle.display !== 'none') {
+                                log('🔄 Testuję zmianę wartości sortowania...', 'info');
+                                sortOrder.value = 'asc';
+                                
+                                // Triggeruj event
+                                const event = new Event('change', { bubbles: true });
+                                sortOrder.dispatchEvent(event);
+                                
+                                setTimeout(() => {
+                                    log('Event change został wysłany', 'info');
+                                }, 100);
+                            }
+                        }
+                    }, 200);
+                }
+                
+            } catch (error) {
+                log(`❌ Błąd: ${error.message}`, 'error');
+                console.error('Debug error:', error);
+            }
+        }
+
+        // Auto debug po załadowaniu
+        window.onload = function() {
+            setTimeout(() => {
+                log('Strona debug załadowana. Kliknij "Debug Główna Aplikacja" aby rozpocząć testy.', 'info');
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

@@ -292,7 +292,12 @@ async function openEditModal(appId) {
 }
 
 function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc') {
+    console.log('=== LOAD APPLICATIONS CALLED ===');
     console.log('loadApplications called with sortOrder:', sortOrder);
+    console.log('loadApplications called with filters:', filters);
+    console.log('loadApplications called with showArchived:', showArchived);
+    console.log('=================================');
+    
     const user = window.auth.currentUser;
     if (!user) {;
         // Update counters to 0 when no user is logged in
@@ -339,27 +344,49 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
         updateStatusCounters(applications);
 
         // Sort applications based on sortOrder
+        console.log('=== SORTING SECTION ===');
         console.log('Sorting applications, sortOrder:', sortOrder);
+        console.log('Number of applications to sort:', applications.length);
         console.log('Applications before sort:', applications.map(a => ({ firma: a.firma, data: a.data, favorite: a.favorite })));
+        
         applications.sort((a, b) => {
+            console.log(`Comparing: ${a.firma} (${a.data}, fav: ${a.favorite}) vs ${b.firma} (${b.data}, fav: ${b.favorite})`);
+            
             // First sort by favorites
-            if (a.favorite && !b.favorite) return -1;
-            if (!a.favorite && b.favorite) return 1;
+            if (a.favorite && !b.favorite) {
+                console.log('  -> a is favorite, b is not: a comes first');
+                return -1;
+            }
+            if (!a.favorite && b.favorite) {
+                console.log('  -> b is favorite, a is not: b comes first');
+                return 1;
+            }
 
             // Then sort by date
             const dateA = new Date(a.data);
             const dateB = new Date(b.data);
             
             // Debug date parsing
-            console.log(`Comparing dates: ${a.data} (${dateA.toISOString()}) vs ${b.data} (${dateB.toISOString()})`);
+            console.log(`  -> Comparing dates: ${a.data} (${dateA.toISOString()}) vs ${b.data} (${dateB.toISOString()})`);
 
             if (sortOrder === 'asc') {
-                return dateA - dateB; // oldest first
+                const result = dateA - dateB; // oldest first
+                console.log(`  -> ASC sort result: ${result} (${result < 0 ? 'a first' : result > 0 ? 'b first' : 'equal'})`);
+                return result;
             } else {
-                return dateB - dateA; // newest first
+                const result = dateB - dateA; // newest first
+                console.log(`  -> DESC sort result: ${result} (${result < 0 ? 'a first' : result > 0 ? 'b first' : 'equal'})`);
+                return result;
             }
         });
+        
+        console.log('=== SORT COMPLETED ===');
         console.log('Applications after sort:', applications.map(a => ({ firma: a.firma, data: a.data, favorite: a.favorite })));
+        console.log('Final sort order verification:');
+        applications.forEach((app, index) => {
+            console.log(`  ${index + 1}. ${app.favorite ? '⭐' : ''} ${app.firma} - ${app.data}`);
+        });
+        console.log('=====================');
 
         applications.forEach((app) => {
             if (!showArchived && app.archiwalna === true) return;
@@ -951,20 +978,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Sort functionality
-    if (document.getElementById('sortOrder')) {
+    const sortOrderElement = document.getElementById('sortOrder');
+    console.log('Checking sortOrder element at startup:', sortOrderElement);
+    console.log('sortOrder element exists:', !!sortOrderElement);
+    
+    if (sortOrderElement) {
         console.log('Setting up sortOrder event listener');
-        document.getElementById('sortOrder').addEventListener('change', function () {
+        sortOrderElement.addEventListener('change', function () {
             console.log('Sort order changed to:', this.value);
             const showArchived = document.getElementById('showArchived')?.checked || false;
             loadApplications(getFilters(), showArchived, this.value);
         });
+        sortOrderElement.setAttribute('data-listener-added', 'true');
+        console.log('sortOrder event listener attached successfully');
     } else {
-        console.log('sortOrder element not found');
+        console.log('sortOrder element not found at startup - will use fallback');
     }
 
     // Fallback event listener registration with retries
     function ensureSortListeners() {
         const sortOrderElement = document.getElementById('sortOrder');
+        console.log('ensureSortListeners called - element found:', !!sortOrderElement);
+        
         if (sortOrderElement && !sortOrderElement.hasAttribute('data-listener-added')) {
             console.log('Fallback: Adding sortOrder change listener');
             sortOrderElement.addEventListener('change', function () {
@@ -973,8 +1008,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 loadApplications(getFilters(), showArchived, this.value);
             });
             sortOrderElement.setAttribute('data-listener-added', 'true');
+            console.log('Fallback event listener attached successfully');
+            return true;
+        } else if (sortOrderElement) {
+            console.log('sortOrder element already has listener attached');
             return true;
         }
+        console.log('sortOrder element still not found');
         return false;
     }
 
@@ -995,8 +1035,10 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // If showing the container, ensure sort listeners are attached
             if (isHidden) {
+                console.log('Container was shown, ensuring sort listeners...');
                 setTimeout(() => {
-                    ensureSortListeners();
+                    const result = ensureSortListeners();
+                    console.log('ensureSortListeners result:', result);
                 }, 50);
             }
         });
