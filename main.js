@@ -1153,6 +1153,33 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('========================');
     }, 1000);
 
+    // Fallback event listener registration with retries
+    function ensureSortListeners() {
+        const sortOrderElement = document.getElementById('sortOrder');
+        if (sortOrderElement && !sortOrderElement.hasAttribute('data-listener-added')) {
+            console.log('Fallback: Adding sortOrder change listener');
+            sortOrderElement.addEventListener('change', function () {
+                console.log('Fallback sort order changed to:', this.value);
+                const showArchived = document.getElementById('showArchived')?.checked || false;
+                loadApplications(getFilters(), showArchived, this.value);
+            });
+            sortOrderElement.setAttribute('data-listener-added', 'true');
+            return true;
+        }
+        return false;
+    }
+
+    // Try adding listeners with retries
+    let retryCount = 0;
+    const maxRetries = 5;
+    const retryInterval = setInterval(() => {
+        if (ensureSortListeners() || retryCount >= maxRetries) {
+            clearInterval(retryInterval);
+            console.log('Sort listeners setup completed (attempt:', retryCount + 1, ')');
+        }
+        retryCount++;
+    }, 200);
+
     // Inicjalizacja kolorowych kart filtrów - z opóźnieniem, żeby być pewnym że DOM jest gotowy
     setTimeout(() => {;
         initializeQuickFilters();;
