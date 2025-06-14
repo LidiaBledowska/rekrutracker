@@ -48,7 +48,7 @@ function normalizeText(str) {
 
 
 
-function showImagesPreview(images) {;
+function showImagesPreview(images) {
     const preview = document.getElementById('editImagesPreview');
 
     if (!preview) {
@@ -58,12 +58,21 @@ function showImagesPreview(images) {;
 
     preview.innerHTML = '';
 
-    if (!images || !Array.isArray(images) || images.length === 0) {;
+    if (!images || !Array.isArray(images) || images.length === 0) {
         preview.innerHTML = '<p style="color: #6b7280; font-size: 0.8em; margin: 0.5em 0;">Brak zdjęć</p>';
+        currentEditImages = [];
         return;
-    };
+    }
 
-    images.forEach((imageItem, index) => {;
+    // Store current images globally
+    currentEditImages = [...images];
+
+    images.forEach((imageItem, index) => {
+        const container = document.createElement('div');
+        container.className = 'image-preview-container';
+        container.style.position = 'relative';
+        container.style.display = 'inline-block';
+        container.style.margin = '0.25rem';
 
         const img = document.createElement('img');
         let imageUrl = '';
@@ -91,9 +100,9 @@ function showImagesPreview(images) {;
         img.style.maxHeight = '80px';
         img.style.borderRadius = '6px';
         img.style.border = '1px solid #e5e7eb';
-        img.style.marginRight = '0.5em';
         img.style.cursor = 'pointer';
         img.title = `${imageName} - kliknij aby powiększyć`;
+        img.className = 'image-preview';
 
         // Add error handling for broken images
         img.onerror = function () {
@@ -101,9 +110,6 @@ function showImagesPreview(images) {;
             this.style.border = '2px solid #dc2626';
             this.title = `Błąd ładowania: ${imageName}`;
             this.alt = 'Błąd ładowania';
-        };
-
-        img.onload = function () {;
         };
 
         // Add click to preview larger image
@@ -153,10 +159,71 @@ function showImagesPreview(images) {;
             }
         };
 
-        preview.appendChild(img);
+        // Create delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'image-remove-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+        deleteBtn.type = 'button';
+        deleteBtn.title = 'Usuń zdjęcie';
+        deleteBtn.style.position = 'absolute';
+        deleteBtn.style.top = '-5px';
+        deleteBtn.style.right = '-5px';
+        deleteBtn.style.background = '#dc3545';
+        deleteBtn.style.color = 'white';
+        deleteBtn.style.border = 'none';
+        deleteBtn.style.borderRadius = '50%';
+        deleteBtn.style.width = '20px';
+        deleteBtn.style.height = '20px';
+        deleteBtn.style.fontSize = '12px';
+        deleteBtn.style.cursor = 'pointer';
+        deleteBtn.style.display = 'flex';
+        deleteBtn.style.alignItems = 'center';
+        deleteBtn.style.justifyContent = 'center';
+        deleteBtn.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+        deleteBtn.style.transition = 'all 0.2s ease';
+
+        deleteBtn.onmouseover = function() {
+            this.style.background = '#c82333';
+            this.style.transform = 'scale(1.1)';
+        };
+
+        deleteBtn.onmouseout = function() {
+            this.style.background = '#dc3545';
+            this.style.transform = 'scale(1)';
+        };
+
+        deleteBtn.onclick = function(e) {
+            e.stopPropagation(); // Prevent triggering image preview
+            removeImageFromEdit(index);
+        };
+
+        container.appendChild(img);
+        container.appendChild(deleteBtn);
+        preview.appendChild(container);
     });
 }
 
+// Function to remove image from edit modal
+function removeImageFromEdit(index) {
+    if (currentEditImages && currentEditImages.length > index) {
+        currentEditImages.splice(index, 1);
+        showImagesPreview(currentEditImages);
+        
+        // Show feedback message
+        const editMessage = document.getElementById('editFormMessage');
+        if (editMessage) {
+            editMessage.textContent = 'Zdjęcie usunięte (nie zapomnij zapisać zmian)';
+            editMessage.style.color = 'orange';
+            
+            // Clear message after 3 seconds
+            setTimeout(() => {
+                if (editMessage.textContent.includes('usunięte')) {
+                    editMessage.textContent = '';
+                }
+            }, 3000);
+        }
+    }
+}
 function loadFavorites() {
     const favoritesContent = document.getElementById('favoritesContent');
     if (!favoritesContent) return;
@@ -268,7 +335,8 @@ async function openEditModal(appId) {
     // Debug: Log application data;;
 
     // Pokaz podgląd zdjęć
-    showImagesPreview(app.images || []);
+    currentEditImages = [...(app.images || [])]; // Store in global array
+    showImagesPreview(currentEditImages);
     document.getElementById('editImages').value = "";
 
     // Historia statusu
@@ -687,6 +755,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Global array to store current images in edit modal
+    let currentEditImages = [];
+
     // Obsługa uploadu zdjęć - Base64 version
     let uploadedImages = [];
     document.getElementById('editImages').addEventListener('change', async function (e) {
@@ -765,12 +836,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
-            // Dodaj do już istniejących - dla Base64 używamy data URL do preview
-            const prev = document.getElementById('editImagesPreview').querySelectorAll('img');
-            const prevUrls = Array.from(prev).map(img => img.src);
-            const newUrls = uploadedImages.map(img => img.data);
-            const allUrls = prevUrls.concat(newUrls);
-            showImagesPreview(allUrls);
+            // Add new images to the global currentEditImages array
+            uploadedImages.forEach(imageData => {
+                currentEditImages.push(imageData);
+            });
+            
+            // Update preview with all images
+            showImagesPreview(currentEditImages);
 
             // Show results
             if (successCount > 0 && errorCount === 0) {
@@ -858,21 +930,9 @@ document.addEventListener('DOMContentLoaded', function () {
             statusHistory.push({ status, date: today });
         }
 
-        // Pobierz wszystkie zdjęcia z podglądu - handle both URLs and Base64
-        const imageElements = Array.from(document.getElementById('editImagesPreview').querySelectorAll('img'));
-        const images = imageElements.map(img => {
-            const src = img.src;
-            // If it's a data URL (Base64), convert back to object format
-            if (src.startsWith('data:')) {
-                return {
-                    name: img.alt || 'image.jpg',
-                    type: src.split(';')[0].split(':')[1] || 'image/jpeg',
-                    data: src
-                };
-            }
-            // If it's a regular URL, keep as string for backward compatibility
-            return src;
-        });
+        // Use the global currentEditImages array instead of reading from DOM
+        // This ensures deleted images are properly removed
+        const images = currentEditImages ? [...currentEditImages] : [];
 
         const updateData = {
             stanowisko,
