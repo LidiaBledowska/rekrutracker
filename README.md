@@ -8,6 +8,8 @@ korzysta z Firebase do przechowywania danych i obsługi logowania.
 1. Otwórz pliki `index.html` w przeglądarce.
 2. Wymagana jest konfiguracja Firebase – klucze znajdują się w kodzie, ale
    dostęp do danych ograniczają reguły bezpieczeństwa Firestore.
+3. Strona główna jest dostępna publicznie. Jeśli usługi Firebase nie wczytają
+   się poprawnie, aplikacja wyświetli widok startowy bez konieczności logowania.
 
 ## Funkcje
 

@@ -566,11 +566,20 @@ function enhanceTableRowVisuals() {
 
 document.addEventListener('DOMContentLoaded', function () {
     // Wait for Firebase to be ready
-    function waitForFirebase(callback) {
+    function waitForFirebase(callback, attempt = 0) {
+        const MAX_ATTEMPTS = 50; // ~5s fallback
         if (window.firebaseModules && window.auth) {
             callback();
+        } else if (attempt < MAX_ATTEMPTS) {
+            setTimeout(() => waitForFirebase(callback, attempt + 1), 100);
         } else {
-            setTimeout(() => waitForFirebase(callback), 100);
+            // Firebase failed to load, show landing page anyway
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) loadingOverlay.style.display = 'none';
+            const landingPage = document.getElementById('landingPage');
+            const mainContent = document.getElementById('mainContent');
+            if (landingPage) landingPage.style.display = 'block';
+            if (mainContent) mainContent.style.display = 'none';
         }
     }
 
