@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Event Listeners</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .log { font-family: monospace; margin: 5px 0; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { margin: 5px; padding: 8px 16px; }
+    </style>
+</head>
+<body>
+    <h1>Test Event Listeners dla Sortowania</h1>
+    
+    <div class="container">
+        <h3>Symulacja głównej aplikacji</h3>
+        <button id="toggleSort">Sortuj według daty aplikowania</button>
+        <div id="sortContainer" style="display: none;">
+            <h4>Sortowanie</h4>
+            <select id="sortOrder">
+                <option value="desc">Od najnowszych</option>
+                <option value="asc">Od najstarszych</option>
+            </select>
+        </div>
+        
+        <button onclick="testEventListeners()">Test Event Listeners</button>
+        <button onclick="simulateMainAppLogic()">Symuluj Logikę Głównej App</button>
+        <button onclick="clearLogs()">Wyczyść Logi</button>
+    </div>
+    
+    <div id="logs"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            document.getElementById('logs').appendChild(div);
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        function testEventListeners() {
+            clearLogs();
+            log('=== TEST EVENT LISTENERS ===', 'info');
+            
+            const toggleSort = document.getElementById('toggleSort');
+            const sortContainer = document.getElementById('sortContainer');
+            const sortOrder = document.getElementById('sortOrder');
+            
+            log(`toggleSort element: ${toggleSort ? '✅' : '❌'}`, toggleSort ? 'success' : 'error');
+            log(`sortContainer element: ${sortContainer ? '✅' : '❌'}`, sortContainer ? 'success' : 'error');
+            log(`sortOrder element: ${sortOrder ? '✅' : '❌'}`, sortOrder ? 'success' : 'error');
+            
+            if (sortContainer) {
+                const display = window.getComputedStyle(sortContainer).display;
+                log(`sortContainer visibility: ${display}`, 'info');
+            }
+            
+            if (sortOrder) {
+                log(`sortOrder value: ${sortOrder.value}`, 'info');
+                
+                // Test czy można zmienić wartość
+                log('Testuję zmianę wartości sortOrder...', 'info');
+                const originalValue = sortOrder.value;
+                sortOrder.value = originalValue === 'desc' ? 'asc' : 'desc';
+                log(`Wartość zmieniona na: ${sortOrder.value}`, 'success');
+                
+                // Test event
+                log('Testuję event change...', 'info');
+                const event = new Event('change', { bubbles: true });
+                sortOrder.dispatchEvent(event);
+                log('Event change został wysłany', 'success');
+                
+                // Przywróć oryginalną wartość
+                sortOrder.value = originalValue;
+            }
+        }
+
+        function simulateMainAppLogic() {
+            clearLogs();
+            log('=== SYMULACJA LOGIKI GŁÓWNEJ APP ===', 'info');
+            
+            // Symuluj to co robi main.js
+            const sortOrderElement = document.getElementById('sortOrder');
+            log(`Checking sortOrder element at startup: ${!!sortOrderElement}`, 'info');
+            
+            if (sortOrderElement) {
+                log('Setting up sortOrder event listener', 'info');
+                
+                // Usuń poprzedni listener jeśli istnieje
+                if (sortOrderElement.hasAttribute('data-listener-added')) {
+                    log('Element już ma event listener - pomijam', 'info');
+                } else {
+                    sortOrderElement.addEventListener('change', function () {
+                        log(`MAIN APP: Sort order changed to: ${this.value}`, 'success');
+                        // Tu byłoby wywołanie loadApplications(getFilters(), showArchived, this.value);
+                        log('MAIN APP: Calling loadApplications...', 'info');
+                    });
+                    sortOrderElement.setAttribute('data-listener-added', 'true');
+                    log('sortOrder event listener attached successfully', 'success');
+                }
+            } else {
+                log('sortOrder element not found at startup - would use fallback', 'error');
+            }
+            
+            // Symuluj funkcję ensureSortListeners
+            function ensureSortListeners() {
+                const element = document.getElementById('sortOrder');
+                log(`ensureSortListeners called - element found: ${!!element}`, 'info');
+                
+                if (element && !element.hasAttribute('data-fallback-added')) {
+                    log('Fallback: Adding sortOrder change listener', 'info');
+                    element.addEventListener('change', function () {
+                        log(`FALLBACK: Sort order changed to: ${this.value}`, 'success');
+                        log('FALLBACK: Calling loadApplications...', 'info');
+                    });
+                    element.setAttribute('data-fallback-added', 'true');
+                    log('Fallback event listener attached successfully', 'success');
+                    return true;
+                } else if (element) {
+                    log('sortOrder element already has fallback listener attached', 'info');
+                    return true;
+                }
+                log('sortOrder element still not found', 'error');
+                return false;
+            }
+            
+            // Symuluj toggle button logic
+            const toggleSortButton = document.getElementById('toggleSort');
+            const sortContainer = document.getElementById('sortContainer');
+            
+            if (toggleSortButton && sortContainer) {
+                toggleSortButton.addEventListener('click', function () {
+                    log('Toggle sort button clicked', 'success');
+                    const isHidden = sortContainer.style.display === 'none';
+                    log(`Sort container was hidden: ${isHidden}`, 'info');
+                    sortContainer.style.display = isHidden ? 'block' : 'none';
+                    toggleSortButton.innerHTML = isHidden ? 'Ukryj sortowanie' : 'Sortuj według daty aplikowania';
+                    
+                    // If showing the container, ensure sort listeners are attached
+                    if (isHidden) {
+                        log('Container was shown, ensuring sort listeners...', 'info');
+                        setTimeout(() => {
+                            const result = ensureSortListeners();
+                            log(`ensureSortListeners result: ${result}`, result ? 'success' : 'error');
+                        }, 50);
+                    }
+                });
+                log('Toggle button event listener configured', 'success');
+            }
+            
+            log('=== SYMULACJA ZAKOŃCZONA ===', 'info');
+        }
+
+        // Automatyczne uruchomienie symulacji
+        window.onload = function() {
+            setTimeout(() => {
+                log('Strona załadowana. Kliknij przyciski aby przetestować.', 'info');
+            }, 500);
+        };
+    </script>
+</body>
+</html>

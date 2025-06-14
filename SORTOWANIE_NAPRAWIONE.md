@@ -30,9 +30,27 @@ Funkcja sortowania według daty w aplikacji RekruTracker nie była dostępna dla
 4. ✅ Sortowanie działa poprawnie: "Od najnowszych" / "Od najstarszych"
 5. ✅ Kolejne kliknięcie ukrywa kontener sortowania
 
-## Status: ✅ UKOŃCZONE
+## Status: 🔄 W TRAKCIE DEBUGOWANIA
 Data naprawy: 14 czerwca 2025
-Funkcja sortowania działa poprawnie zgodnie z zamierzonym designem UX.
+**Problem**: Sortowanie nadal nie działa pomimo poprawek
+
+## 🐛 Zidentyfikowane możliwe przyczyny:
+1. **Element sortOrder nie jest dostępny podczas inicjalizacji** - kontener ukryty = elementy niedostępne
+2. **Event listenery nie są prawidłowo podłączane** - funkcja ensureSortListeners może nie działać
+3. **Brak danych do sortowania** - użytkownik niezalogowany lub brak aplikacji w Firebase  
+4. **Problem z funkcją loadApplications** - może nie być wywoływana z nowymi parametrami
+
+## 🧪 Dodane narzędzia debugowania:
+- `debug-sortowania.html` - debug dostępu do iframe i elementów
+- `test-sortowania-izolowany.html` - test sortowania bez Firebase
+- `test-event-listeners.html` - test przyłączania event listenerów
+- Rozszerzone logowanie w `main.js` - szczegółowe logi sortowania
+
+## 📋 Następne kroki:
+1. ✅ Sprawdzenie logów w konsoli przeglądarki głównej aplikacji
+2. ⏳ Identyfikacja czy problem jest w event listenerach czy w logice sortowania
+3. ⏳ Weryfikacja czy użytkownik jest zalogowany i ma dane
+4. ⏳ Finalna naprawa i weryfikacja
 
 ## Funkcjonalność:
 - ✅ Sortowanie od najnowszych aplikacji
