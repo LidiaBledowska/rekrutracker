@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sortowania - RekruTracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .sort-container {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .application {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .application.favorite {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        select {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Funkcjonalności Sortowania</h1>
+    
+    <div class="sort-container">
+        <h3>Kontrola Sortowania</h3>
+        <label for="sortOrder">Sortuj według daty aplikowania:</label>
+        <select id="sortOrder">
+            <option value="desc">Od najnowszych</option>
+            <option value="asc">Od najstarszych</option>
+        </select>
+        <button onclick="applySorting()">Sortuj</button>
+    </div>
+
+    <div id="applicationsList">
+        <!-- Applications will be rendered here -->
+    </div>
+
+    <script>
+        // Test data - mock applications
+        let applications = [
+            {
+                id: 1,
+                stanowisko: "Frontend Developer",
+                firma: "TechCorp",
+                data: "2025-06-01",
+                favorite: false
+            },
+            {
+                id: 2,
+                stanowisko: "Backend Developer", 
+                firma: "WebSolutions",
+                data: "2025-06-10",
+                favorite: true
+            },
+            {
+                id: 3,
+                stanowisko: "Full Stack Developer",
+                firma: "StartupXYZ",
+                data: "2025-05-25",
+                favorite: false
+            },
+            {
+                id: 4,
+                stanowisko: "React Developer",
+                firma: "ModernTech",
+                data: "2025-06-15",
+                favorite: false
+            },
+            {
+                id: 5,
+                stanowisko: "Vue.js Developer",
+                firma: "InnovativeSoft",
+                data: "2025-05-20",
+                favorite: true
+            }
+        ];
+
+        function renderApplications(apps) {
+            const container = document.getElementById('applicationsList');
+            container.innerHTML = '';
+            
+            apps.forEach(app => {
+                const div = document.createElement('div');
+                div.className = `application ${app.favorite ? 'favorite' : ''}`;
+                div.innerHTML = `
+                    <div>
+                        <strong>${app.stanowisko}</strong> - ${app.firma}
+                        ${app.favorite ? '⭐' : ''}
+                    </div>
+                    <div>${app.data}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function applySorting() {
+            const sortOrder = document.getElementById('sortOrder').value;
+            console.log('Sorting with order:', sortOrder);
+            
+            // Copy the array to avoid mutation
+            const sortedApps = [...applications];
+            
+            // Sort like in the main application
+            sortedApps.sort((a, b) => {
+                // First sort by favorites
+                if (a.favorite && !b.favorite) return -1;
+                if (!a.favorite && b.favorite) return 1;
+
+                // Then sort by date
+                const dateA = new Date(a.data);
+                const dateB = new Date(b.data);
+                
+                console.log(`Comparing: ${a.data} vs ${b.data}`);
+
+                if (sortOrder === 'asc') {
+                    return dateA - dateB; // oldest first
+                } else {
+                    return dateB - dateA; // newest first
+                }
+            });
+            
+            console.log('Sorted applications:', sortedApps.map(a => `${a.firma} - ${a.data}`));
+            renderApplications(sortedApps);
+        }
+
+        // Add event listener to dropdown
+        document.getElementById('sortOrder').addEventListener('change', applySorting);
+
+        // Initial render
+        applySorting();
+    </script>
+</body>
+</html>

@@ -975,7 +975,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const isHidden = sortContainer.style.display === 'none';
             console.log('Sort container was hidden:', isHidden);
             sortContainer.style.display = isHidden ? 'block' : 'none';
-            toggleSortButton.innerHTML = isHidden ? '<i class="fas fa-sort"></i> Ukryj sortowanie' : '<i class="fas fa-sort"></i> Sortuj';
+            toggleSortButton.innerHTML = isHidden ? '<i class="fas fa-sort"></i> Ukryj sortowanie' : '<i class="fas fa-sort"></i> Sortuj według daty aplikowania';
         });
     }
 
