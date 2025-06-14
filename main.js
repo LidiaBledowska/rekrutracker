@@ -107,43 +107,48 @@ function showImagesPreview(images) {;
 
         // Add click to preview larger image
         img.onclick = function () {
-            // For Base64 data, create a new window with the image
-            if (imageUrl.startsWith('data:')) {
-                const newWindow = window.open('', '_blank', 'noopener,noreferrer');
-                if (newWindow) {
-                    newWindow.document.write(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <title>${imageName}</title>
-                            <style>
-                                body { 
-                                    margin: 0; 
-                                    padding: 20px; 
-                                    background: #000; 
-                                    display: flex; 
-                                    justify-content: center; 
-                                    align-items: center; 
-                                    min-height: 100vh;
-                                }
-                                img { 
-                                    max-width: 100%; 
-                                    max-height: 100vh; 
-                                    object-fit: contain;
-                                    box-shadow: 0 4px 20px rgba(255,255,255,0.1);
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <img src="${imageUrl}" alt="${imageName}" />
-                        </body>
-                        </html>
-                    `);
-                    newWindow.document.close();
-                }
+            // Use the new image modal
+            if (window.openImageModal) {
+                window.openImageModal(imageUrl, imageName);
             } else {
-                // For regular URLs, use the traditional method
-                window.open(imageUrl, '_blank', 'noopener,noreferrer');
+                // Fallback to old method if modal is not available
+                if (imageUrl.startsWith('data:')) {
+                    const newWindow = window.open('', '_blank', 'noopener,noreferrer');
+                    if (newWindow) {
+                        newWindow.document.write(`
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <title>${imageName}</title>
+                                <style>
+                                    body { 
+                                        margin: 0; 
+                                        padding: 20px; 
+                                        background: #000; 
+                                        display: flex; 
+                                        justify-content: center; 
+                                        align-items: center; 
+                                        min-height: 100vh;
+                                    }
+                                    img { 
+                                        max-width: 100%; 
+                                        max-height: 100vh; 
+                                        object-fit: contain;
+                                        box-shadow: 0 4px 20px rgba(255,255,255,0.1);
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <img src="${imageUrl}" alt="${imageName}" />
+                            </body>
+                            </html>
+                        `);
+                        newWindow.document.close();
+                    }
+                } else {
+                    // For regular URLs, use the traditional method
+                    window.open(imageUrl, '_blank', 'noopener,noreferrer');
+                }
             }
         };
 
@@ -1317,5 +1322,49 @@ function clearAllFilters() {
     const sortOrder = document.getElementById('sortOrder')?.value || 'desc';
     loadApplications(getFilters(), showArchived?.checked || false, sortOrder);
 }
+
+// Image Modal functionality
+(function(){
+    function escListener(e) {
+        if (e.key === 'Escape') {
+            closeImageModal();
+        }
+    }
+
+    function initModal() {
+        const imageModalEl = document.getElementById('imageModal');
+        if (imageModalEl) {
+            imageModalEl.addEventListener('click', function (e) {
+                if (e.target === imageModalEl) {
+                    window.closeImageModal();
+                }
+            });
+        }
+    }
+
+    window.openImageModal = function(src, alt = '') {
+        const modal = document.getElementById('imageModal');
+        const img = document.getElementById('imageModalImg');
+        if (modal && img) {
+            img.src = src;
+            img.alt = alt;
+            modal.classList.add('active');
+            document.addEventListener('keydown', escListener);
+        }
+    };
+
+    window.closeImageModal = function() {
+        const modal = document.getElementById('imageModal');
+        if (modal) modal.classList.remove('active');
+        document.removeEventListener('keydown', escListener);
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initModal);
+    } else {
+        initModal();
+    }
+})();
+
 //# sourceMappingURL=app.js.map
 
