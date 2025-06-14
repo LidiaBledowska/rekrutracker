@@ -1,0 +1,8 @@
+{
+  "name": "rekrutracker",
+  "version": "1.0.0",
+  "description": "Test setup",
+  "scripts": {
+    "test": "node test.js"
+  }
+}
