@@ -137,7 +137,7 @@
                 
                 // Add click to preview larger image
                 img.onclick = function () {
-                    openImageModal(url, `Podgląd zdjęcia ${index + 1}`);
+                    window.openImageModal(url, `Podgląd zdjęcia ${index + 1}`);
                 };
                 
                 const removeBtn = document.createElement('button');
@@ -167,37 +167,7 @@
             updateImagePreview();
         }
 
-        function openImageModal(src, alt = '') {
-            const modal = document.getElementById('imageModal');
-            const img = document.getElementById('imageModalImg');
-            if (modal && img) {
-                img.src = src;
-                img.alt = alt;
-                modal.classList.add('active');
-                document.addEventListener('keydown', escListener);
-            }
-        }
 
-        function closeImageModal() {
-            const modal = document.getElementById('imageModal');
-            if (modal) modal.classList.remove('active');
-            document.removeEventListener('keydown', escListener);
-        }
-
-        function escListener(e) {
-            if (e.key === 'Escape') {
-                closeImageModal();
-            }
-        }
-
-        const imageModalEl = document.getElementById('imageModal');
-        if (imageModalEl) {
-            imageModalEl.addEventListener('click', function (e) {
-                if (e.target === imageModalEl) {
-                    closeImageModal();
-                }
-            });
-        }
         
 
         // Make helpers available globally for inline handlers
