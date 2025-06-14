@@ -108,7 +108,7 @@ function showImagesPreview(images) {;
 
         // Add click to preview larger image
         img.onclick = function () {
-            openImageModal(imageUrl, imageName);
+            window.openImageModal(imageUrl, imageName);
         };
 
         preview.appendChild(img);
