@@ -18,7 +18,8 @@ korzysta z Firebase do przechowywania danych i obsługi logowania.
 ## Bezpieczeństwo
 
 * Dane wprowadzane przez użytkownika są sanitizowane przed wstawieniem do DOM.
-* Otwarcie podglądu zdjęć wykorzystuje atrybuty `noopener` i `noreferrer`.
+* Zdjęcia są wyświetlane w lekkim oknie modalnym z możliwością zamknięcia klawiszem Esc.
+* Miniatury wykorzystują `loading="lazy"`, a pliki są wstępnie kompresowane przed zapisem.
 * Usunięto logi debugowania zawierające potencjalnie wrażliwe informacje.
 
 Projekt nie posiada jeszcze zautomatyzowanych testów.

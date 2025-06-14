@@ -1006,12 +1006,20 @@
                     img.src = src;
                     img.alt = alt;
                     modal.classList.add('active');
+                    document.addEventListener('keydown', escListener);
                 }
             }
 
             function closeImageModal() {
                 const modal = document.getElementById('imageModal');
                 if (modal) modal.classList.remove('active');
+                document.removeEventListener('keydown', escListener);
+            }
+
+            function escListener(e) {
+                if (e.key === 'Escape') {
+                    closeImageModal();
+                }
             }
 
             // Event listener for the return button
