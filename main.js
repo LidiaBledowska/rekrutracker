@@ -349,6 +349,9 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             // Then sort by date
             const dateA = new Date(a.data);
             const dateB = new Date(b.data);
+            
+            // Debug date parsing
+            console.log(`Comparing dates: ${a.data} (${dateA.toISOString()}) vs ${b.data} (${dateB.toISOString()})`);
 
             if (sortOrder === 'asc') {
                 return dateA - dateB; // oldest first
@@ -1128,6 +1131,34 @@ document.addEventListener('DOMContentLoaded', function () {
         if (editMessage && message.includes('ERROR')) {
             editMessage.textContent = `🐛 ${message}`;
             editMessage.style.color = 'red';
+        }
+    };
+
+    // Test function to verify sorting works
+    window.testSorting = function() {
+        console.log('=== MANUAL SORT TEST ===');
+        const sortOrderElement = document.getElementById('sortOrder');
+        const showArchived = document.getElementById('showArchived')?.checked || false;
+        
+        if (sortOrderElement) {
+            console.log('Current sort order:', sortOrderElement.value);
+            console.log('Calling loadApplications with current filters...');
+            loadApplications(getFilters(), showArchived, sortOrderElement.value);
+        } else {
+            console.log('ERROR: sortOrder element not found');
+        }
+        console.log('========================');
+    };
+
+    // Global function to toggle sort container manually
+    window.toggleSortContainer = function() {
+        const sortContainer = document.getElementById('sortContainer');
+        if (sortContainer) {
+            const isHidden = sortContainer.style.display === 'none';
+            sortContainer.style.display = isHidden ? 'block' : 'none';
+            console.log('Sort container', isHidden ? 'shown' : 'hidden');
+        } else {
+            console.log('ERROR: sortContainer not found');
         }
     };
 
