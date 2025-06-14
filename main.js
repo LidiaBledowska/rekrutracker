@@ -962,6 +962,22 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('sortOrder element not found');
     }
 
+    // Fallback event listener registration with retries
+    function ensureSortListeners() {
+        const sortOrderElement = document.getElementById('sortOrder');
+        if (sortOrderElement && !sortOrderElement.hasAttribute('data-listener-added')) {
+            console.log('Fallback: Adding sortOrder change listener');
+            sortOrderElement.addEventListener('change', function () {
+                console.log('Fallback sort order changed to:', this.value);
+                const showArchived = document.getElementById('showArchived')?.checked || false;
+                loadApplications(getFilters(), showArchived, this.value);
+            });
+            sortOrderElement.setAttribute('data-listener-added', 'true');
+            return true;
+        }
+        return false;
+    }
+
     // Toggle sort button functionality
     const toggleSortButton = document.getElementById('toggleSort');
     const sortContainer = document.getElementById('sortContainer');
@@ -976,6 +992,13 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Sort container was hidden:', isHidden);
             sortContainer.style.display = isHidden ? 'block' : 'none';
             toggleSortButton.innerHTML = isHidden ? '<i class="fas fa-sort"></i> Ukryj sortowanie' : '<i class="fas fa-sort"></i> Sortuj według daty aplikowania';
+            
+            // If showing the container, ensure sort listeners are attached
+            if (isHidden) {
+                setTimeout(() => {
+                    ensureSortListeners();
+                }, 50);
+            }
         });
     }
 
@@ -1183,22 +1206,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         console.log('========================');
     }, 1000);
-
-    // Fallback event listener registration with retries
-    function ensureSortListeners() {
-        const sortOrderElement = document.getElementById('sortOrder');
-        if (sortOrderElement && !sortOrderElement.hasAttribute('data-listener-added')) {
-            console.log('Fallback: Adding sortOrder change listener');
-            sortOrderElement.addEventListener('change', function () {
-                console.log('Fallback sort order changed to:', this.value);
-                const showArchived = document.getElementById('showArchived')?.checked || false;
-                loadApplications(getFilters(), showArchived, this.value);
-            });
-            sortOrderElement.setAttribute('data-listener-added', 'true');
-            return true;
-        }
-        return false;
-    }
 
     // Try adding listeners with retries
     let retryCount = 0;
