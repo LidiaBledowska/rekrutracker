@@ -343,14 +343,14 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             if (a.favorite && !b.favorite) return -1;
             if (!a.favorite && b.favorite) return 1;
 
-            // Then sort by date
-            const dateA = new Date(a.data);
-            const dateB = new Date(b.data);
+            // Then sort by date with fallback for invalid values
+            const timeA = a.data ? new Date(a.data).getTime() : 0;
+            const timeB = b.data ? new Date(b.data).getTime() : 0;
 
             if (sortOrder === 'asc') {
-                return dateA - dateB; // oldest first
+                return timeA - timeB; // oldest first
             } else {
-                return dateB - dateA; // newest first
+                return timeB - timeA; // newest first
             }
         });
 
