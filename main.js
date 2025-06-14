@@ -861,7 +861,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.firebaseModules.updateDoc(window.firebaseModules.doc(db, "applications", appId), updateData).then(() => {
             document.getElementById('editFormMessage').textContent = "Zapisano zmiany!";
-            loadApplications(getFilters(), document.getElementById('showArchived')?.checked);
+            const currentSort = document.getElementById('sortOrder')?.value || 'desc';
+            loadApplications(getFilters(), document.getElementById('showArchived')?.checked, currentSort);
             setTimeout(() => {
                 document.getElementById('editModal').classList.remove('active');
                 document.getElementById('editFormMessage').textContent = '';
@@ -894,7 +895,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 archiwalna: true
             }).then(() => {
                 document.getElementById('editModal').classList.remove('active');
-                loadApplications(getFilters(), document.getElementById('showArchived')?.checked);
+                const currentSort = document.getElementById('sortOrder')?.value || 'desc';
+                loadApplications(getFilters(), document.getElementById('showArchived')?.checked, currentSort);
             });
         };
     }
@@ -919,7 +921,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (confirm("Czy na pewno chcesz usunąć tę aplikację?")) {
             window.firebaseModules.deleteDoc(docRef).then(() => {
                 document.getElementById('editModal').classList.remove('active');
-                loadApplications(getFilters(), document.getElementById('showArchived')?.checked);
+                const currentSort = document.getElementById('sortOrder')?.value || 'desc';
+                loadApplications(getFilters(), document.getElementById('showArchived')?.checked, currentSort);
             });
         }
     };
