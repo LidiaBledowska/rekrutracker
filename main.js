@@ -252,11 +252,13 @@ function loadFavorites() {
         querySnapshot.forEach((doc) => {
             const app = doc.data();
             let wynagrodzenieText = "";
-            if (app.wynagrodzenie) {
+            if (app.wynagrodzenieOd != null && app.wynagrodzenieDo != null) {
+                wynagrodzenieText = `${app.wynagrodzenieOd}-${app.wynagrodzenieDo} ${app.waluta || "PLN"}`;
+            } else if (app.wynagrodzenie) {
                 wynagrodzenieText = `${app.wynagrodzenie} ${app.waluta || "PLN"}`;
-                if (app.wynRodzaj) {
-                    wynagrodzenieText += ` ${app.wynRodzaj}`;
-                }
+            }
+            if (wynagrodzenieText && app.wynRodzaj) {
+                wynagrodzenieText += ` ${app.wynRodzaj}`;
             }
 
             html += `
@@ -522,11 +524,13 @@ function loadApplications(filters = {}, showArchived = false, sortOrder = 'desc'
             }
 
             let wynagrodzenieCell = "";
-            if (app.wynagrodzenie) {
+            if (app.wynagrodzenieOd != null && app.wynagrodzenieDo != null) {
+                wynagrodzenieCell = `${app.wynagrodzenieOd}-${app.wynagrodzenieDo} ${app.waluta || "PLN"}`;
+            } else if (app.wynagrodzenie) {
                 wynagrodzenieCell = app.wynagrodzenie + " " + (app.waluta || "PLN");
-                if (app.wynRodzaj) {
-                    wynagrodzenieCell += " " + app.wynRodzaj;
-                }
+            }
+            if (wynagrodzenieCell && app.wynRodzaj) {
+                wynagrodzenieCell += " " + app.wynRodzaj;
             }
 
             // Funkcje do konwersji wartości na czytelny tekst

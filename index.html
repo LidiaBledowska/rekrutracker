@@ -579,10 +579,26 @@
                         <div class="salary-group">
                             <div class="salary-main">
                                 <div class="form-group">
-                                    <label for="wynagrodzenie"><i class="fas fa-money-bill-wave"></i>
+                                    <label for="salaryMode"><i class="fas fa-money-bill-wave"></i>
                                         Wynagrodzenie</label>
+                                    <select id="salaryMode" name="salaryMode">
+                                        <option value="single">Całkowita kwota</option>
+                                        <option value="range">Widełki</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="salarySingle">
+                                    <label for="wynagrodzenie">Kwota</label>
                                     <input type="number" id="wynagrodzenie" name="wynagrodzenie" min="0" step="any"
                                         placeholder="np. 8000">
+                                </div>
+                                <div class="form-group" id="salaryRange" style="display:none;">
+                                    <label>Widełki</label>
+                                    <div style="display:flex;gap:0.5em;">
+                                        <input type="number" id="wynagrodzenieOd" name="wynagrodzenieOd" min="0" step="any"
+                                            placeholder="od">
+                                        <input type="number" id="wynagrodzenieDo" name="wynagrodzenieDo" min="0" step="any"
+                                            placeholder="do">
+                                    </div>
                                 </div>
                             </div>
                             <div class="salary-currency">
