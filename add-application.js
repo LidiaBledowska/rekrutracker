@@ -310,7 +310,7 @@
                 };
 
                 // Dodaj opcjonalne pola tylko jeśli są wypełnione
-                if (wynagrodzenie) applicationData.wynagrodzenie = parseFloat(wynagrodzenie);
+                applicationData.wynagrodzenie = parseFloat(wynagrodzenie);
                 if (kontakt) applicationData.kontakt = kontakt;
                 if (link) applicationData.link = link;
                 if (notatki) applicationData.notatki = notatki;
@@ -370,7 +370,7 @@
                             };
                             
                             // Add optional fields
-                            if (wynagrodzenie) applicationData.wynagrodzenie = parseFloat(wynagrodzenie);
+                            applicationData.wynagrodzenie = parseFloat(wynagrodzenie);
                             if (kontakt) applicationData.kontakt = kontakt;
                             if (link) applicationData.link = link;
                             if (notatki) applicationData.notatki = notatki;
